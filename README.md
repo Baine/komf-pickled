@@ -79,6 +79,19 @@ curl -X POST http://localhost:8085/api/komga/metadata/match/library/LIBRARY_ID
 
 Monitor progress at `GET /api/jobs/{jobId}`.
 
+### 6. Firefox Extension
+
+The [Komelia-german](https://github.com/Baine/Komelia-german) repo includes a Firefox extension that connects Komga to KOMF.
+
+```bash
+git clone https://github.com/Baine/Komelia-german.git
+cd Komelia-german
+./gradlew :komelia-komf-extension:app:packageExtension --no-daemon
+# output: komelia-komf-extension/app/build/distributions/webextension.zip
+```
+
+Load in Firefox: `about:debugging#/runtime/this-firefox` → "Load Temporary Add-on" → select the zip. For permanent use, submit to [AMO](https://addons.mozilla.org/).
+
 ## Repository
 
 - **[komf-german](https://github.com/Baine/komf-german)** — this repo: KOMF fork with German metadata provider, Docker image
