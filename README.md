@@ -56,15 +56,15 @@ java -jar komf-app/build/libs/komf-app-*-all.jar
 
 ### 4. Build the frontend (optional, for development)
 
-The [Komelia web UI](https://github.com/Baine/Komelia-german) with GERMAN provider support is included as a git submodule (`Komelia/`). Pre-built frontend resources are checked into `komf-app/src/main/resources/komelia/`.
+The [Komelia web UI](https://github.com/Baine/Komelia-german) with GERMAN provider support is maintained in a separate repo. Pre-built frontend resources are checked into `komf-app/src/main/resources/komelia/`.
 
-To rebuild:
+To rebuild (requires cloning [Komelia-german](https://github.com/Baine/Komelia-german) separately):
 
 ```bash
-cd Komelia
+cd Komelia-german
 ./gradlew :komelia-app:wasmJsBrowserDistribution :komelia-image-decoder:wasm-image-worker:wasmJsBrowserProductionWebpack --no-daemon
-cp -r komelia-app/build/kotlin-webpack/wasmJs/productionExecutable/* ../komf-app/src/main/resources/komelia/
-cp -r komelia-image-decoder/wasm-image-worker/build/kotlin-webpack/wasmJs/productionExecutable/* ../komf-app/src/main/resources/komelia/
+cp -r komelia-app/build/kotlin-webpack/wasmJs/productionExecutable/* /path/to/komf-german/komf-app/src/main/resources/komelia/
+cp -r komelia-image-decoder/wasm-image-worker/build/kotlin-webpack/wasmJs/productionExecutable/* /path/to/komf-german/komf-app/src/main/resources/komelia/
 ```
 
 ### 5. API
