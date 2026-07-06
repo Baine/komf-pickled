@@ -22,4 +22,4 @@ ENV LC_ALL=en_US.UTF-8
 ENV KOMF_CONFIG_DIR="/config"
 ENTRYPOINT ["java","-jar", "komf-app-1.0.0-SNAPSHOT-all.jar"]
 EXPOSE 8085
-LABEL org.opencontainers.image.url=https://github.com/Baine/komf-german org.opencontainers.image.source=https://github.com/Baine/komf-german
+LABEL org.opencontainers.image.url=https://github.com/Baine/komf-pickled org.opencontainers.image.source=https://github.com/Baine/komf-pickled
