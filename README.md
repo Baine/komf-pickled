@@ -48,7 +48,7 @@ docker run -d \
 ### 3. Build from source
 
 ```bash
-git clone --recurse-submodules https://github.com/Baine/komf-german.git
+git clone https://github.com/Baine/komf-german.git
 cd komf-german
 ./gradlew :komf-app:shadowJar --no-daemon
 java -jar komf-app/build/libs/komf-app-*-all.jar

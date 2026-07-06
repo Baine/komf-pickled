@@ -55,3 +55,6 @@ kls-classpath*
 
 ### config ###
 application.yml
+
+### standalone repo ###
+/Komelia/
