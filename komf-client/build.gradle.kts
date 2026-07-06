@@ -1,28 +1,23 @@
 @file:OptIn(ExperimentalKotlinGradlePluginApi::class)
 
 import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
+// ponytail: androidTarget disabled — no Android SDK available on this dev machine
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    alias(libs.plugins.androidLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mavenPublish)
-    signing
 }
 
 group = "io.github.snd-r"
 version = libs.versions.app.version.get()
 
 kotlin {
-    jvmToolchain(17)
-    androidTarget {
-        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
-        publishLibraryVariants("release")
-    }
+    jvmToolchain(21)
     jvm {
-        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+        compilerOptions { jvmTarget.set(JvmTarget.JVM_21) }
     }
 
     @OptIn(ExperimentalWasmDsl::class)
@@ -48,23 +43,8 @@ kotlin {
     }
 
 }
-android {
-    namespace = "snd.komf"
-    compileSdk = 36
-
-    defaultConfig {
-        minSdk = 26
-    }
-    compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_17
-        targetCompatibility = JavaVersion.VERSION_17
-    }
-}
-
 mavenPublishing {
-    publishToMavenCentral(automaticRelease = false)
     coordinates("io.github.snd-r.komf", "client", libs.versions.app.version.get())
-    signAllPublications()
 
     pom {
         name.set("Komf API client")
@@ -91,6 +71,4 @@ mavenPublishing {
         }
     }
 }
-signing {
-    useGpgCmd()
-}
+

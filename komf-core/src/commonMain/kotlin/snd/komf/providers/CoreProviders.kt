@@ -5,6 +5,7 @@ enum class CoreProviders {
     BANGUMI,
     BOOK_WALKER,
     COMIC_VINE,
+    GERMAN,
     HENTAG,
     KODANSHA,
     MAL,

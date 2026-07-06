@@ -5,8 +5,10 @@ import java.nio.file.Path
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
+const val VERSION = "1.4.0-german"
 
 fun main(vararg args: String) {
+    logger.info { "Starting KOMF German edition v$VERSION" }
     runCatching {
         val configFile = args.firstOrNull()?.let { Path.of(it) }
         val configDir = System.getenv("KOMF_CONFIG_DIR")?.let { Path.of(it) }

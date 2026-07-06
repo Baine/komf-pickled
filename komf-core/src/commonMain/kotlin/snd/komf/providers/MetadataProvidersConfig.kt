@@ -40,6 +40,7 @@ data class ProvidersConfig(
     val mangaDex: MangaDexConfig = MangaDexConfig(),
     val bangumi: ProviderConfig = ProviderConfig(),
     val comicVine: ProviderConfig = ProviderConfig(),
+    val german: ProviderConfig = ProviderConfig(),
     val hentag: ProviderConfig = ProviderConfig(),
     val mangaBaka: MangaBakaConfig = MangaBakaConfig(),
     val webtoons: ProviderConfig = ProviderConfig(),

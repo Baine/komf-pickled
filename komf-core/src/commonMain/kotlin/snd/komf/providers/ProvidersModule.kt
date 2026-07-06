@@ -34,6 +34,11 @@ import snd.komf.providers.comicvine.ComicVineClient
 import snd.komf.providers.comicvine.ComicVineMetadataMapper
 import snd.komf.providers.comicvine.ComicVineMetadataProvider
 import snd.komf.providers.comicvine.ComicVineRateLimiter
+import snd.komf.providers.german.GermanMetadataMapper
+import snd.komf.providers.german.GermanMetadataProvider
+import snd.komf.providers.german.source.MangaDexDeSource
+import snd.komf.providers.german.source.MangaPassionSource
+import snd.komf.providers.german.source.WikipediaDeSource
 import snd.komf.providers.hentag.HentagClient
 import snd.komf.providers.hentag.HentagMetadataMapper
 import snd.komf.providers.hentag.HentagMetadataProvider
@@ -260,6 +265,40 @@ class ProvidersModule(
         }
     )
 
+    private val mangaPassionClient = MangaPassionSource(
+        baseHttpClient.config {
+            install(HttpRequestRateLimiter) {
+                interval = 5.seconds
+                eventsPerInterval = 10
+                allowBurst = true
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
+    private val wikipediaDeClient = WikipediaDeSource(
+        baseHttpClient.config {
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
+    private val mangaDexDeClient = MangaDexDeSource(
+        baseHttpClientJson.config {
+            install(HttpRequestRateLimiter) {
+                interval = 10.seconds
+                eventsPerInterval = 15
+                allowBurst = true
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+        }
+    )
+
     private val mangaBakaClient = MangaBakaApiClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
@@ -426,7 +465,13 @@ class ProvidersModule(
                 client = webtoonsClient,
                 defaultNameMatcher = defaultNameMatcher
             ),
-            webtoonsPriority = config.webtoons.priority
+            webtoonsPriority = config.webtoons.priority,
+            german = createGermanMetadataProvider(
+                config = config.german,
+                sources = listOf(mangaPassionClient, wikipediaDeClient, mangaDexDeClient),
+                defaultNameMatcher = defaultNameMatcher,
+            ),
+            germanPriority = config.german.priority,
         )
     }
 
@@ -865,6 +910,9 @@ class ProvidersModule(
 
         private val webtoons: WebtoonsMetadataProvider?,
         private val webtoonsPriority: Int,
+
+        private val german: GermanMetadataProvider?,
+        private val germanPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -881,7 +929,8 @@ class ProvidersModule(
             comicVine?.let { it to comicVinePriority },
             hentag?.let { it to hentagPriority },
             mangaBaka?.let { it to mangaBakaPriority },
-            webtoons?.let { it to webtoonsPriority }
+            webtoons?.let { it to webtoonsPriority },
+            german?.let { it to germanPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -903,8 +952,34 @@ class ProvidersModule(
                 CoreProviders.HENTAG -> hentag
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
+                CoreProviders.GERMAN -> german
             }
         }
+    }
+
+    private fun createGermanMetadataProvider(
+        config: ProviderConfig,
+        sources: List<snd.komf.providers.german.source.GermanDataSource>,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): GermanMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val mapper = GermanMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val similarityMatcher = config.nameMatchingMode
+            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+
+        return GermanMetadataProvider(
+            sources = sources,
+            metadataMapper = mapper,
+            nameMatcher = similarityMatcher,
+            fetchSeriesCovers = config.seriesMetadata.thumbnail,
+            fetchBookCovers = config.bookMetadata.thumbnail,
+        )
     }
 
 
