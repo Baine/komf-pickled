@@ -1,4 +1,4 @@
-FROM eclipse-temurin:21-jdk AS build
+FROM gradle:jdk21 AS build
 WORKDIR /build
 COPY gradle gradle
 COPY gradlew gradlew.bat build.gradle.kts settings.gradle.kts ./
@@ -8,7 +8,7 @@ COPY komf-core komf-core
 COPY komf-mediaserver komf-mediaserver
 COPY komf-notifications komf-notifications
 COPY komf-app komf-app
-RUN sed -i 's/\r$//' gradlew && bash ./gradlew :komf-app:shadowJar --no-daemon
+RUN gradle :komf-app:shadowJar --no-daemon
 
 FROM eclipse-temurin:21-jre AS base-amd64
 FROM eclipse-temurin:21.0.6_7-jre AS base-arm64
