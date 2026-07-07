@@ -32,7 +32,7 @@ class MetadataMapper {
                 ?.map { author -> MediaServerAuthor(author.name, author.role.name) }
 
             MediaServerBookMetadataUpdate(
-                title = getIfNotLockedOrEmpty(bookMetadata?.title, titleLock),
+                title = bookMetadata?.title,
 
                 summary = getIfNotLockedOrEmpty(bookMetadata?.summary, summaryLock),
                 releaseDate = getIfNotLockedOrEmpty(bookMetadata?.releaseDate, releaseDateLock),
