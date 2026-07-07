@@ -70,6 +70,9 @@ import snd.komf.providers.nautiljon.NautiljonSeriesMetadataMapper
 import snd.komf.providers.viz.VizClient
 import snd.komf.providers.viz.VizMetadataMapper
 import snd.komf.providers.viz.VizMetadataProvider
+import snd.komf.providers.specyaml.SpecYAMLFileReader
+import snd.komf.providers.specyaml.SpecYAMLMetadataMapper
+import snd.komf.providers.specyaml.SpecYAMLMetadataProvider
 import snd.komf.providers.webtoons.WebtoonsClient
 import snd.komf.providers.webtoons.WebtoonsMetadataMapper
 import snd.komf.providers.webtoons.WebtoonsMetadataProvider
@@ -472,6 +475,11 @@ class ProvidersModule(
                 defaultNameMatcher = defaultNameMatcher,
             ),
             germanPriority = config.german.priority,
+            specYaml = createSpecYAMLMetadataProvider(
+                config = config.specYaml,
+                defaultNameMatcher = defaultNameMatcher,
+            ),
+            specYamlPriority = config.specYaml.priority,
         )
     }
 
@@ -913,6 +921,9 @@ class ProvidersModule(
 
         private val german: GermanMetadataProvider?,
         private val germanPriority: Int,
+
+        private val specYaml: SpecYAMLMetadataProvider?,
+        private val specYamlPriority: Int,
     ) {
 
         val providers = listOfNotNull(
@@ -930,7 +941,8 @@ class ProvidersModule(
             hentag?.let { it to hentagPriority },
             mangaBaka?.let { it to mangaBakaPriority },
             webtoons?.let { it to webtoonsPriority },
-            german?.let { it to germanPriority }
+            german?.let { it to germanPriority },
+            specYaml?.let { it to specYamlPriority }
         )
             .sortedBy { (_, priority) -> priority }
             .toMap()
@@ -953,6 +965,7 @@ class ProvidersModule(
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
                 CoreProviders.GERMAN -> german
+                CoreProviders.SPEC_YAML -> specYaml
             }
         }
     }
@@ -979,6 +992,30 @@ class ProvidersModule(
             nameMatcher = similarityMatcher,
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
+        )
+    }
+
+    private fun createSpecYAMLMetadataProvider(
+        config: SpecYAMLConfig,
+        defaultNameMatcher: NameSimilarityMatcher,
+    ): SpecYAMLMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val fileReader = SpecYAMLFileReader()
+        val metadataMapper = SpecYAMLMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+        val similarityMatcher: NameSimilarityMatcher =
+            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+
+        return SpecYAMLMetadataProvider(
+            config = config,
+            fileReader = fileReader,
+            metadataMapper = metadataMapper,
+            nameMatcher = similarityMatcher,
         )
     }
 

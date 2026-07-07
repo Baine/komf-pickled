@@ -112,6 +112,7 @@ data class ProvidersConfigUpdateRequest(
     val german: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val specYaml: PatchValue<SpecYAMLConfigUpdateRequest> = PatchValue.Unset,
 )
 
 @Serializable
@@ -168,6 +169,20 @@ class MangaBakaConfigUpdateRequest(
     val authorRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
     val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
     val mode: PatchValue<MangaBakaMode> = PatchValue.Unset,
+)
+
+@Serializable
+class SpecYAMLConfigUpdateRequest(
+    val priority: PatchValue<Int> = PatchValue.Unset,
+    val enabled: PatchValue<Boolean> = PatchValue.Unset,
+    val seriesMetadata: PatchValue<SeriesMetadataConfigUpdateRequest> = PatchValue.Unset,
+    val bookMetadata: PatchValue<BookMetadataConfigUpdateRequest> = PatchValue.Unset,
+    val nameMatchingMode: PatchValue<KomfNameMatchingMode> = PatchValue.Unset,
+    val mediaType: PatchValue<KomfMediaType> = PatchValue.Unset,
+
+    val authorRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
+    val artistRoles: PatchValue<Collection<KomfAuthorRole>> = PatchValue.Unset,
+    val mediaRoots: PatchValue<List<String>> = PatchValue.Unset,
 )
 
 @Serializable

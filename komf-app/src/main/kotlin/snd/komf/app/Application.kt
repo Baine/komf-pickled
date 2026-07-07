@@ -5,7 +5,7 @@ import java.nio.file.Path
 import kotlin.system.exitProcess
 
 private val logger = KotlinLogging.logger {}
-const val VERSION = "1.4.0-german"
+const val VERSION = "1.6.1-pickled"
 
 fun main(vararg args: String) {
     logger.info { "Starting KOMF German edition v$VERSION" }

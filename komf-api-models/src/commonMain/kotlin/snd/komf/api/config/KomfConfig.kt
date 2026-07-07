@@ -121,6 +121,7 @@ data class ProvidersConfigDto(
     val german: ProviderConfigDto,
     val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
+    val specYaml: SpecYAMLConfigDto,
 )
 
 sealed interface ProviderConf {
@@ -195,6 +196,21 @@ data class MangaBakaConfigDto(
 ) : ProviderConf {
     override val bookMetadata: BookMetadataConfigDto? = null
 }
+
+@Serializable
+data class SpecYAMLConfigDto(
+    override val priority: Int,
+    override val enabled: Boolean,
+    override val seriesMetadata: SeriesMetadataConfigDto,
+    override val bookMetadata: BookMetadataConfigDto,
+    override val nameMatchingMode: KomfNameMatchingMode?,
+    override val mediaType: KomfMediaType,
+
+    override val authorRoles: Collection<KomfAuthorRole>,
+    override val artistRoles: Collection<KomfAuthorRole>,
+
+    val mediaRoots: List<String>,
+) : ProviderConf
 
 @Serializable
 data class SeriesMetadataConfigDto(

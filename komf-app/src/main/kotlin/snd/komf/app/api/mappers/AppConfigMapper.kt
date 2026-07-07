@@ -22,6 +22,7 @@ import snd.komf.api.config.ProviderConfigDto
 import snd.komf.api.config.ProvidersConfigDto
 import snd.komf.api.config.PublisherTagNameConfigDto
 import snd.komf.api.config.SeriesMetadataConfigDto
+import snd.komf.api.config.SpecYAMLConfigDto
 import snd.komf.app.config.AppConfig
 import snd.komf.mediaserver.config.EventListenerConfig
 import snd.komf.mediaserver.config.KavitaConfig
@@ -40,6 +41,7 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.SpecYAMLConfig
 import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
 
 class AppConfigMapper {
@@ -177,6 +179,21 @@ class AppConfigMapper {
             german = toDto(config.german),
             mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
+            specYaml = toDto(config.specYaml),
+        )
+    }
+
+    private fun toDto(config: SpecYAMLConfig): SpecYAMLConfigDto {
+        return SpecYAMLConfigDto(
+            nameMatchingMode = config.nameMatchingMode?.fromNameMatchingMode(),
+            priority = config.priority,
+            enabled = config.enabled,
+            mediaType = config.mediaType.fromMediaType(),
+            authorRoles = config.authorRoles.map { it.fromAuthorRole() },
+            artistRoles = config.artistRoles.map { it.fromAuthorRole() },
+            seriesMetadata = toDto(config.seriesMetadata),
+            bookMetadata = toDto(config.bookMetadata),
+            mediaRoots = config.mediaRoots,
         )
     }
 

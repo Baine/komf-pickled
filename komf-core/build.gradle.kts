@@ -44,7 +44,7 @@ kotlin {
             implementation(libs.sqlite.jdbc)
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
-
+            implementation(libs.kaml)
 
             implementation(libs.twelvemonkeys.imageio.core)
             implementation(libs.twelvemonkeys.imageio.jpeg)

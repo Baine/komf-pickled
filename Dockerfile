@@ -20,6 +20,9 @@ WORKDIR /app
 COPY --from=build /build/komf-app/build/libs/komf-app-1.0.0-SNAPSHOT-all.jar ./
 ENV LC_ALL=en_US.UTF-8
 ENV KOMF_CONFIG_DIR="/config"
+# SpecYAML provider requires media volume mounted at same path as Komga:
+# Example: if Komga library root is /data/media, mount it at /data/media in KOMF container
+# Then configure SpecYAML mediaRoots: ["/data/media"]
 ENTRYPOINT ["java","-jar", "komf-app-1.0.0-SNAPSHOT-all.jar"]
 EXPOSE 8085
 LABEL org.opencontainers.image.url=https://github.com/Baine/komf-pickled org.opencontainers.image.source=https://github.com/Baine/komf-pickled

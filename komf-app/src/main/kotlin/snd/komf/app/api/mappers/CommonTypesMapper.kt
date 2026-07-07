@@ -103,6 +103,7 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.WEBTOONS -> KomfCoreProviders.WEBTOONS
     CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
     CoreProviders.VIZ -> KomfCoreProviders.VIZ
+    CoreProviders.SPEC_YAML -> KomfCoreProviders.SPEC_YAML
 }
 
 fun KomfProviders.toProvider() = when (this) {
@@ -121,6 +122,7 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.WEBTOONS -> CoreProviders.WEBTOONS
     KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
     KomfCoreProviders.VIZ -> CoreProviders.VIZ
+    KomfCoreProviders.SPEC_YAML -> CoreProviders.SPEC_YAML
     is UnknownKomfProvider -> CoreProviders.valueOf(this.name)
 }
 

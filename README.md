@@ -5,7 +5,7 @@
 **Providers:**
 
 - **German** — cascading sources (Manga Passion DE → Wikipedia DE → MangaDex DE) for German print editions
-- **SpecYAML** *(planned)* — reads metadata from `.yaml` files adjacent to archives; requires media volume mounted at the same path as Komga
+- **SpecYAML** — reads metadata from `.yaml` files adjacent to archives; requires media volume mounted at the same path as Komga
 
 Provides metadata from three sources in cascade:
 
@@ -19,9 +19,16 @@ Provides metadata from three sources in cascade:
 
 Dropped publisher storefronts (not consumed): Carlsen, Egmont, Altraverse, Tokyopop.
 
-### SpecYAML provider *(planned)*
+### SpecYAML provider
 
 Reads `.yaml` metadata files with the same basename as the archive, located in the same folder. Requires the media volume to be mounted at the same path as Komga. See [LANraragi SpecYAML plugin](https://github.com/ccdc06/metadata) for the YAML format reference.
+
+| Feature | Details |
+|---------|---------|
+| Source | `.yaml` files adjacent to archives |
+| Priority | Configurable per-library or global |
+| Fields | Title, summary, authors, tags, categories, cover, series, volume, status |
+| Requirement | Media volume must be mounted at the same path as Komga |
 
 ## Usage
 
@@ -40,6 +47,9 @@ metadataProviders:
     german:
       priority: 0
       enabled: true
+    specYaml:
+      priority: 10
+      enabled: false
 ```
 
 See [KOMF docs](https://github.com/Snd-R/komf) for full config options.
@@ -80,12 +90,17 @@ cp -r komelia-image-decoder/wasm-image-worker/build/kotlin-webpack/wasmJs/produc
 
 ### 5. API
 
-Trigger metadata processing for a library:
+Trigger metadata processing for a library (with or without SpecYAML):
 
 ```bash
 # Reset existing metadata, then re-match
 curl -X POST http://localhost:8085/api/komga/metadata/reset/library/LIBRARY_ID
 curl -X POST http://localhost:8085/api/komga/metadata/match/library/LIBRARY_ID
+
+# Upload SpecYAML config for a library (enables/disables per-library)
+curl -X PATCH http://localhost:8085/api/komga/metadata/library/LIBRARY_ID \
+  -H "Content-Type: application/json" \
+  -d '{"providers":{"specYaml":{"enable":true,"priority":5}}}'
 ```
 
 Monitor progress at `GET /api/jobs/{jobId}`.
