@@ -60,23 +60,25 @@ class MetadataMapper {
             val authors = (patch.authors.map { MediaServerAuthor(it.name, it.role.name) }.ifEmpty { null })
 
             MediaServerSeriesMetadataUpdate(
-                status = getIfNotLockedOrEmpty(patch.status, statusLock),
-                title = getIfNotLockedOrEmpty(patch.title, titleLock),
-                titleSort = getIfNotLockedOrEmpty(patch.title, titleSortLock),
-                alternativeTitles = getIfNotLockedOrEmpty(patch.titles.filter { it != patch.title }, titleSortLock),
-                summary = getIfNotLockedOrEmpty(patch.summary, summaryLock),
-                publisher = getIfNotLockedOrEmpty(patch.publisher?.name, publisherLock),
+                status = patch.status ?: status,
+                title = patch.title,
+                titleSort = patch.title,
+                alternativeTitles = if (patch.titles.isNotEmpty()) {
+                    patch.titles.filter { it != patch.title }.ifEmpty { null }
+                } else null,
+                summary = patch.summary ?: summary,
+                publisher = patch.publisher?.name ?: publisher,
                 alternativePublishers = getIfNotLockedOrEmpty(
                     patch.alternativePublishers.map { it.name }, publisherLock
                 ),
-                readingDirection = getIfNotLockedOrEmpty(patch.readingDirection, readingDirectionLock),
-                ageRating = getIfNotLockedOrEmpty(patch.ageRating, ageRatingLock),
-                language = getIfNotLockedOrEmpty(patch.language, languageLock),
+                readingDirection = patch.readingDirection ?: readingDirection,
+                ageRating = patch.ageRating ?: ageRating,
+                language = patch.language ?: language,
                 genres = getIfNotLockedOrEmpty(patch.genres.toList(), genresLock),
                 tags = getIfNotLockedOrEmpty(patch.tags.toList(), tagsLock),
-                totalBookCount = getIfNotLockedOrEmpty(patch.totalBookCount, totalBookCountLock),
+                totalBookCount = patch.totalBookCount ?: totalBookCount,
                 authors = getIfNotLockedOrEmpty(authors, authorsLock),
-                releaseYear = getIfNotLockedOrEmpty(patch.releaseDate?.year, releaseYearLock),
+                releaseYear = patch.releaseDate?.year ?: releaseYear,
                 links = getIfNotLockedOrEmpty(patch.links, linksLock),
             )
         }
