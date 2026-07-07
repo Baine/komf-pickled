@@ -40,8 +40,17 @@ class SpecYAMLMetadataProvider(
     override suspend fun getSeriesCover(seriesId: ProviderSeriesId): Image? = null
 
     override suspend fun getBookMetadata(seriesId: ProviderSeriesId, bookId: ProviderBookId): ProviderBookMetadata {
-        val yamlPath = findYamlPath(seriesId.value, bookId.id)
-            ?: return metadataMapper.toBookMetadata(SpecYAMLFile(), null)
+        // Try to derive YAML path directly from book file path
+        var yamlPath = deriveYamlPathFromBookPath(bookId.id)
+        
+        // Fall back to search if direct derivation fails
+        if (yamlPath == null) {
+            yamlPath = findYamlPath(seriesId.value, bookId.id)
+        }
+        
+        if (yamlPath == null) {
+            return metadataMapper.toBookMetadata(SpecYAMLFile(), null)
+        }
 
         val yamlContent = fileReader.readText(yamlPath) ?: return metadataMapper.toBookMetadata(SpecYAMLFile(), null)
         val yaml = parseYaml(yamlContent) ?: return metadataMapper.toBookMetadata(SpecYAMLFile(), null)
@@ -103,6 +112,32 @@ class SpecYAMLMetadataProvider(
         if (nameMatcher.matches(searchName, title)) {
             return metadataMapper.toSeriesMetadata(yaml, yamlPath)
         }
+        return null
+    }
+
+    private fun deriveYamlPathFromBookPath(bookPath: String): String? {
+        // If bookPath looks like a full file path (e.g., /path/to/book.cbz),
+        // derive the YAML path by replacing the extension
+        if (!bookPath.contains("/") && !bookPath.contains("\\")) {
+            // Not a full path, return null to fall back to search
+            return null
+        }
+
+        // Try common archive extensions
+        for (ext in listOf(".cbz", ".zip", ".rar", ".7z", ".cbr", ".CBZ", ".ZIP", ".RAR", ".7Z", ".CBR")) {
+            if (bookPath.endsWith(ext)) {
+                val basePath = bookPath.dropLast(ext.length)
+                
+                val yamlPath = "$basePath.yaml"
+                if (fileReader.exists(yamlPath)) return yamlPath
+                
+                val ymlPath = "$basePath.yml"
+                if (fileReader.exists(ymlPath)) return ymlPath
+                
+                return null
+            }
+        }
+
         return null
     }
 
