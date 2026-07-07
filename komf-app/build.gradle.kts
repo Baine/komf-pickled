@@ -63,6 +63,7 @@ val frontendOut = layout.buildDirectory.dir("frontend")
 val buildFrontend by tasks.registering(Exec::class) {
     description = "Build Komelia Wasm frontend for SpecYAML provider UI"
     group = "build"
+    onlyIf { komeliaDir.resolve("komelia-app").isDirectory }
     workingDir = komeliaDir
     commandLine(
         if (Os.isFamily(Os.FAMILY_WINDOWS)) "gradlew.bat" else "./gradlew",
@@ -70,15 +71,13 @@ val buildFrontend by tasks.registering(Exec::class) {
         ":komelia-image-decoder:wasm-image-worker:wasmJsBrowserProductionWebpack",
         "--no-daemon"
     )
-    inputs.dir(komeliaDir.resolve("komelia-app/src"))
-    inputs.dir(komeliaDir.resolve("komelia-core/src"))
-    inputs.dir(komeliaDir.resolve("komelia-image-decoder/wasm-image-worker/src"))
 }
 
 val copyFrontend by tasks.registering(Copy::class) {
     description = "Copy Komelia Wasm output to resources"
     group = "build"
     dependsOn(buildFrontend)
+    onlyIf { buildFrontend.get().didWork }
 
     val wasmApp = komeliaDir.resolve("komelia-app/build/dist/wasmJs/productionExecutable")
     val wasmWorker = komeliaDir.resolve("komelia-image-decoder/wasm-image-worker/build/kotlin-webpack/wasmJs/productionExecutable")
