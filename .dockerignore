@@ -1,0 +1,8 @@
+Komelia/
+.gradle/
+build/
+.idea/
+.kotlin/
+.venv/
+.git/
+**/node_modules/

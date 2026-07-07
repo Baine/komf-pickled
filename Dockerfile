@@ -8,7 +8,9 @@ COPY komf-core komf-core
 COPY komf-mediaserver komf-mediaserver
 COPY komf-notifications komf-notifications
 COPY komf-app komf-app
-RUN gradle :komf-app:shadowJar --no-daemon
+RUN --mount=type=cache,target=/home/gradle/.gradle/caches,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/gradle/.gradle/wrapper,uid=1000,gid=1000 \
+    gradle :komf-app:shadowJar --no-daemon --build-cache
 
 FROM eclipse-temurin:21-jre AS base-amd64
 FROM eclipse-temurin:21.0.6_7-jre AS base-arm64
