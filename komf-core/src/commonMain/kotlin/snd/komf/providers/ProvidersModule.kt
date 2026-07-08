@@ -70,6 +70,15 @@ import snd.komf.providers.nautiljon.NautiljonSeriesMetadataMapper
 import snd.komf.providers.viz.VizClient
 import snd.komf.providers.viz.VizMetadataMapper
 import snd.komf.providers.viz.VizMetadataProvider
+import snd.komf.providers.chaikafile.ChaikaFileMetadataMapper
+import snd.komf.providers.chaikafile.ChaikaFileMetadataProvider
+import snd.komf.providers.chaikafile.ChaikaFileReader
+import snd.komf.providers.gallerydl.GalleryDLFileReader
+import snd.komf.providers.gallerydl.GalleryDLMetadataMapper
+import snd.komf.providers.gallerydl.GalleryDLMetadataProvider
+import snd.komf.providers.hdoujin.HdoujinMetadataMapper
+import snd.komf.providers.hdoujin.HdoujinMetadataProvider
+import snd.komf.providers.hdoujin.HdoujinReader
 import snd.komf.providers.specyaml.SpecYAMLFileReader
 import snd.komf.providers.specyaml.SpecYAMLMetadataMapper
 import snd.komf.providers.specyaml.SpecYAMLMetadataProvider
@@ -475,9 +484,20 @@ class ProvidersModule(
                 defaultNameMatcher = defaultNameMatcher,
             ),
             germanPriority = config.german.priority,
+            chaikaFile = createChaikaFileMetadataProvider(
+                config = config.chaikaFile,
+            ),
+            chaikaFilePriority = config.chaikaFile.priority,
+            hdoujin = createHdoujinMetadataProvider(
+                config = config.hdoujin,
+            ),
+            hdoujinPriority = config.hdoujin.priority,
+            galleryDl = createGalleryDLMetadataProvider(
+                config = config.galleryDl,
+            ),
+            galleryDlPriority = config.galleryDl.priority,
             specYaml = createSpecYAMLMetadataProvider(
                 config = config.specYaml,
-                defaultNameMatcher = defaultNameMatcher,
             ),
             specYamlPriority = config.specYaml.priority,
         )
@@ -922,6 +942,15 @@ class ProvidersModule(
         private val german: GermanMetadataProvider?,
         private val germanPriority: Int,
 
+        private val galleryDl: GalleryDLMetadataProvider?,
+        private val galleryDlPriority: Int,
+
+        private val chaikaFile: ChaikaFileMetadataProvider?,
+        private val chaikaFilePriority: Int,
+
+        private val hdoujin: HdoujinMetadataProvider?,
+        private val hdoujinPriority: Int,
+
         private val specYaml: SpecYAMLMetadataProvider?,
         private val specYamlPriority: Int,
     ) {
@@ -942,6 +971,9 @@ class ProvidersModule(
             mangaBaka?.let { it to mangaBakaPriority },
             webtoons?.let { it to webtoonsPriority },
             german?.let { it to germanPriority },
+            galleryDl?.let { it to galleryDlPriority },
+            chaikaFile?.let { it to chaikaFilePriority },
+            hdoujin?.let { it to hdoujinPriority },
             specYaml?.let { it to specYamlPriority }
         )
             .sortedBy { (_, priority) -> priority }
@@ -965,6 +997,9 @@ class ProvidersModule(
                 CoreProviders.MANGA_BAKA -> mangaBaka
                 CoreProviders.WEBTOONS -> webtoons
                 CoreProviders.GERMAN -> german
+                CoreProviders.GALLERY_DL -> galleryDl
+                CoreProviders.CHAIKA_FILE -> chaikaFile
+                CoreProviders.HDOUJIN -> hdoujin
                 CoreProviders.SPEC_YAML -> specYaml
             }
         }
@@ -995,9 +1030,61 @@ class ProvidersModule(
         )
     }
 
+    private fun createChaikaFileMetadataProvider(
+        config: ProviderConfig,
+    ): ChaikaFileMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val fileReader = ChaikaFileReader()
+        val metadataMapper = ChaikaFileMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+        )
+
+        return ChaikaFileMetadataProvider(
+            fileReader = fileReader,
+            metadataMapper = metadataMapper,
+        )
+    }
+
+    private fun createHdoujinMetadataProvider(
+        config: ProviderConfig,
+    ): HdoujinMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val fileReader = HdoujinReader()
+        val metadataMapper = HdoujinMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+        )
+
+        return HdoujinMetadataProvider(
+            fileReader = fileReader,
+            metadataMapper = metadataMapper,
+        )
+    }
+
+    private fun createGalleryDLMetadataProvider(
+        config: ProviderConfig,
+    ): GalleryDLMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val fileReader = GalleryDLFileReader()
+        val metadataMapper = GalleryDLMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+
+        return GalleryDLMetadataProvider(
+            fileReader = fileReader,
+            metadataMapper = metadataMapper,
+        )
+    }
+
     private fun createSpecYAMLMetadataProvider(
         config: SpecYAMLConfig,
-        defaultNameMatcher: NameSimilarityMatcher,
     ): SpecYAMLMetadataProvider? {
         if (config.enabled.not()) return null
 
@@ -1008,14 +1095,10 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val similarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return SpecYAMLMetadataProvider(
-            config = config,
             fileReader = fileReader,
             metadataMapper = metadataMapper,
-            nameMatcher = similarityMatcher,
         )
     }
 

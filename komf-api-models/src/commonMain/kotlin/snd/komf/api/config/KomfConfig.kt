@@ -121,6 +121,9 @@ data class ProvidersConfigDto(
     val german: ProviderConfigDto,
     val mangaBaka: MangaBakaConfigDto,
     val webtoons: ProviderConfigDto,
+    val chaikaFile: ProviderConfigDto,
+    val hdoujin: ProviderConfigDto,
+    val galleryDl: ProviderConfigDto,
     val specYaml: SpecYAMLConfigDto,
 )
 

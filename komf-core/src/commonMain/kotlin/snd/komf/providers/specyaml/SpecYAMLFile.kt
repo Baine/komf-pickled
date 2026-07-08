@@ -16,7 +16,7 @@ data class SpecYAMLFile(
     @SerialName("Released") val released: String? = null,
     @SerialName("Language") val language: String? = null,
     @SerialName("Type") val type: String? = null,
-    @SerialName("Publisher") val publisher: String? = null,
+    @SerialName("Publisher") val publisher: List<String>? = null,
     @SerialName("AgeRating") val ageRating: String? = null,
     @SerialName("ReadingDirection") val readingDirection: String? = null,
     @SerialName("Status") val status: String? = null,

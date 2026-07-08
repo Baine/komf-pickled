@@ -61,6 +61,7 @@ class AppContext(private val configPath: Path? = null) {
     init {
         val config = loadConfig()
         setLogLevel(config)
+        ensureLogDir()
         appConfig = config
 
         val httpLogger = KotlinLogging.logger("http.logging")
@@ -199,5 +200,14 @@ class AppContext(private val configPath: Path? = null) {
     private fun setLogLevel(config: AppConfig) {
         val rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as Logger
         rootLogger.level = Level.valueOf(config.logLevel.uppercase())
+    }
+
+    private fun ensureLogDir() {
+        val dir = when {
+            configPath == null -> Path.of(".")
+            configPath.isDirectory() -> configPath
+            else -> configPath.parent
+        }
+        dir.resolve("logs").createDirectories()
     }
 }

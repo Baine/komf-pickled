@@ -13,6 +13,7 @@ class MetadataMerger(
         newSeriesMetadata: SeriesMetadata,
     ): SeriesMetadata {
         return SeriesMetadata(
+            title = originalSeriesMetadata.title ?: newSeriesMetadata.title,
             status = originalSeriesMetadata.status ?: newSeriesMetadata.status,
             titles = originalSeriesMetadata.titles + newSeriesMetadata.titles,
             summary = originalSeriesMetadata.summary ?: newSeriesMetadata.summary,

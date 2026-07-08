@@ -1,0 +1,47 @@
+<configuration>
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="GALLERY_DL_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${KOMF_CONFIG_DIR:-.}/logs/gallery-dl.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="SPEC_YAML_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${KOMF_CONFIG_DIR:-.}/logs/spec-yaml.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <appender name="GERMAN_FILE" class="ch.qos.logback.core.FileAppender">
+        <file>${KOMF_CONFIG_DIR:-.}/logs/german.log</file>
+        <append>false</append>
+        <encoder>
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} -- %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="snd.komf.providers.gallerydl" level="TRACE" additivity="false">
+        <appender-ref ref="GALLERY_DL_FILE"/>
+    </logger>
+
+    <logger name="snd.komf.providers.specyaml" level="TRACE" additivity="false">
+        <appender-ref ref="SPEC_YAML_FILE"/>
+    </logger>
+
+    <logger name="snd.komf.providers.german" level="TRACE" additivity="false">
+        <appender-ref ref="GERMAN_FILE"/>
+    </logger>
+
+    <root level="INFO">
+        <appender-ref ref="CONSOLE"/>
+    </root>
+</configuration>

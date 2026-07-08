@@ -116,7 +116,7 @@ class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : M
             val series = kavitaClient.getSeries(seriesId.toKavitaSeriesId())
             kavitaClient.updateSeries(
                 series.toKavitaTitleUpdate(
-                    metadata.titleSort?.name,
+                    metadata.titleSort,
                     localizedName?.name
                 )
             )

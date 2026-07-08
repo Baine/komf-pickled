@@ -45,6 +45,7 @@ class GermanMetadataMapper(
         val publisher = series.publisher?.let { Publisher(it.name, PublisherType.LOCALIZED, "de") }
 
         val metadata = SeriesMetadata(
+            title = titles.firstOrNull(),
             titles = titles,
             summary = series.description,
             publisher = publisher,

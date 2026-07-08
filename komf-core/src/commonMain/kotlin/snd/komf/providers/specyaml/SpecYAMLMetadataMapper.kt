@@ -9,9 +9,11 @@ import snd.komf.model.ProviderBookId
 import snd.komf.model.ProviderBookMetadata
 import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
+import snd.komf.model.ReadingDirection
 import snd.komf.model.ReleaseDate
 import snd.komf.model.SeriesMetadata
 import snd.komf.model.SeriesSearchResult
+import snd.komf.model.SeriesStatus
 import snd.komf.model.SeriesTitle
 import snd.komf.model.TitleType
 import snd.komf.model.WebLink
@@ -32,22 +34,25 @@ class SpecYAMLMetadataMapper(
         thumbnail: Image? = null,
     ): ProviderSeriesMetadata {
         val authors = yaml.artists?.flatMap { a -> authorRoles.map { Author(a, it) } } ?: emptyList()
-        val seriesId = yamlPath.substringAfterLast("/").substringBeforeLast(".")
-            .let { ProviderSeriesId(it) }
+        val seriesId = ProviderSeriesId(yamlPath)
 
         val titles = listOfNotNull(
             yaml.title?.let { SeriesTitle(it, TitleType.LOCALIZED, "en") },
         )
 
-        val publisher = yaml.publisher?.let { snd.komf.model.Publisher(it, snd.komf.model.PublisherType.LOCALIZED, "en") }
+        val publisher = yaml.publisher?.first()?.let { snd.komf.model.Publisher(it, snd.komf.model.PublisherType.LOCALIZED, "en") }
 
         val genres = yaml.parodies?.toList() ?: emptyList()
         val tags = yaml.tags?.toSet() ?: emptySet()
 
         val metadata = SeriesMetadata(
+            status = parseStatus(yaml.status),
+            title = titles.firstOrNull(),
             titles = titles,
             summary = yaml.description,
             publisher = publisher,
+            readingDirection = parseReadingDirection(yaml.readingDirection),
+            language = yaml.language,
             genres = genres,
             tags = tags,
             authors = authors,
@@ -98,6 +103,22 @@ class SpecYAMLMetadataMapper(
             provider = CoreProviders.SPEC_YAML,
             resultId = yamlPath.substringAfterLast("/").substringBeforeLast("."),
         )
+    }
+
+    private fun parseStatus(status: String?): SeriesStatus? = when (status?.lowercase()) {
+        "ongoing" -> SeriesStatus.ONGOING
+        "completed", "ended" -> SeriesStatus.ENDED
+        "hiatus" -> SeriesStatus.HIATUS
+        "abandoned" -> SeriesStatus.ABANDONED
+        else -> null
+    }
+
+    private fun parseReadingDirection(direction: String?): ReadingDirection? = when (direction?.lowercase()) {
+        "left_to_right", "ltr" -> ReadingDirection.LEFT_TO_RIGHT
+        "right_to_left", "rtl" -> ReadingDirection.RIGHT_TO_LEFT
+        "vertical" -> ReadingDirection.VERTICAL
+        "webtoon" -> ReadingDirection.WEBTOON
+        else -> null
     }
 
     private fun parseReleaseDate(released: String?): ReleaseDate? {

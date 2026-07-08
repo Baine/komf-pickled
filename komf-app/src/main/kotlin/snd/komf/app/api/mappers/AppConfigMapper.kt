@@ -179,6 +179,9 @@ class AppConfigMapper {
             german = toDto(config.german),
             mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
+            chaikaFile = toDto(config.chaikaFile),
+            hdoujin = toDto(config.hdoujin),
+            galleryDl = toDto(config.galleryDl),
             specYaml = toDto(config.specYaml),
         )
     }

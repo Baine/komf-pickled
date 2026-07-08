@@ -112,6 +112,9 @@ data class ProvidersConfigUpdateRequest(
     val german: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val mangaBaka: PatchValue<MangaBakaConfigUpdateRequest> = PatchValue.Unset,
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val chaikaFile: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val hdoujin: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val galleryDl: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val specYaml: PatchValue<SpecYAMLConfigUpdateRequest> = PatchValue.Unset,
 )
 

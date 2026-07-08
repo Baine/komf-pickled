@@ -161,6 +161,12 @@ class AppConfigUpdateMapper {
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()
                 ?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
+            chaikaFile = patch.chaikaFile.getOrNull()
+                ?.let { providerConfig(config.chaikaFile, it) } ?: config.chaikaFile,
+            hdoujin = patch.hdoujin.getOrNull()
+                ?.let { providerConfig(config.hdoujin, it) } ?: config.hdoujin,
+            galleryDl = patch.galleryDl.getOrNull()
+                ?.let { providerConfig(config.galleryDl, it) } ?: config.galleryDl,
             specYaml = patch.specYaml.getOrNull()
                 ?.let { specYamlProviderConfig(config.specYaml, it) }
                 ?: config.specYaml,

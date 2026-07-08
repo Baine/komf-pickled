@@ -362,7 +362,7 @@ class KomgaMediaServerClientAdapter(
     )
 
     private fun MediaServerSeriesMetadataUpdate.toMetadataUpdateRequest() = KomgaSeriesMetadataUpdateRequest(
-        status = patchIfNotNull(
+        status = patchValue(
             when (status) {
                 SeriesStatus.COMPLETED, SeriesStatus.ENDED -> KomgaSeriesStatus.ENDED
                 SeriesStatus.ONGOING -> KomgaSeriesStatus.ONGOING
@@ -371,9 +371,9 @@ class KomgaMediaServerClientAdapter(
                 null -> null
             }
         ),
-        title = patchIfNotNull(title?.name),
-        titleSort = patchIfNotNull(titleSort?.name),
-        alternateTitles = patchIfNotNull(
+        title = patchValue(title?.name),
+        titleSort = patchValue(titleSort),
+        alternateTitles = patchValue(
             alternativeTitles?.mapNotNull { (name, type, language) ->
                 when (type) {
                     TitleType.ROMAJI -> KomgaAlternativeTitle(type.label, name)
@@ -383,9 +383,9 @@ class KomgaMediaServerClientAdapter(
                 }
             }?.distinctBy { it.title }
         ),
-        summary = patchIfNotNull(summary),
-        publisher = patchIfNotNull(publisher),
-        readingDirection = patchIfNotNull(
+        summary = patchValue(summary),
+        publisher = patchValue(publisher),
+        readingDirection = patchValue(
             when (readingDirection) {
                 ReadingDirection.LEFT_TO_RIGHT -> KomgaReadingDirection.LEFT_TO_RIGHT
                 ReadingDirection.RIGHT_TO_LEFT -> KomgaReadingDirection.RIGHT_TO_LEFT
@@ -394,26 +394,26 @@ class KomgaMediaServerClientAdapter(
                 null -> null
             }
         ),
-        ageRating = patchIfNotNull(ageRating),
-        language = patchIfNotNull(language),
-        genres = patchIfNotNull(genres),
-        tags = patchIfNotNull(tags),
-        totalBookCount = patchIfNotNull(totalBookCount),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        ageRating = patchValue(ageRating),
+        language = patchValue(language),
+        genres = patchValue(genres),
+        tags = patchValue(tags),
+        totalBookCount = patchValue(totalBookCount),
+        links = patchValue(links?.map { KomgaWebLink(it.label, it.url) }),
 
-        statusLock = patchIfNotNull(statusLock),
-        titleLock = patchIfNotNull(titleLock),
-        titleSortLock = patchIfNotNull(titleSortLock),
-        alternateTitlesLock = patchIfNotNull(alternativeTitlesLock),
-        summaryLock = patchIfNotNull(summaryLock),
-        publisherLock = patchIfNotNull(publisherLock),
-        readingDirectionLock = patchIfNotNull(readingDirectionLock),
-        ageRatingLock = patchIfNotNull(ageRatingLock),
-        languageLock = patchIfNotNull(languageLock),
-        genresLock = patchIfNotNull(genresLock),
-        tagsLock = patchIfNotNull(tagsLock),
-        totalBookCountLock = patchIfNotNull(totalBookCountLock),
-        linksLock = patchIfNotNull(linksLock),
+        statusLock = patchValue(statusLock ?: false),
+        titleLock = patchValue(titleLock ?: false),
+        titleSortLock = patchValue(titleSortLock ?: false),
+        alternateTitlesLock = patchValue(alternativeTitlesLock ?: false),
+        summaryLock = patchValue(summaryLock ?: false),
+        publisherLock = patchValue(publisherLock ?: false),
+        readingDirectionLock = patchValue(readingDirectionLock ?: false),
+        ageRatingLock = patchValue(ageRatingLock ?: false),
+        languageLock = patchValue(languageLock ?: false),
+        genresLock = patchValue(genresLock ?: false),
+        tagsLock = patchValue(tagsLock ?: false),
+        totalBookCountLock = patchValue(totalBookCountLock ?: false),
+        linksLock = patchValue(linksLock ?: false),
     )
 
     private fun bookMetadataResetRequest(name: String, bookNumber: Int?) = KomgaBookMetadataUpdateRequest(
@@ -439,26 +439,28 @@ class KomgaMediaServerClientAdapter(
     )
 
     private fun MediaServerBookMetadataUpdate.toKomgaMetadataUpdate() = KomgaBookMetadataUpdateRequest(
-        title = patchIfNotNull(title),
-        summary = patchIfNotNull(summary),
-        number = patchIfNotNull(number),
-        numberSort = patchIfNotNull(numberSort?.toFloat()),
-        releaseDate = patchIfNotNull(releaseDate),
-        authors = patchIfNotNull(authors?.map { KomgaAuthor(it.name, it.role) }),
-        tags = patchIfNotNull(tags),
-        isbn = patchIfNotNull(isbn),
-        links = patchIfNotNull(links?.map { KomgaWebLink(it.label, it.url) }),
+        title = patchValue(title),
+        summary = patchValue(summary),
+        number = patchValue(number),
+        numberSort = patchValue(numberSort?.toFloat()),
+        releaseDate = patchValue(releaseDate),
+        authors = patchValue(authors?.map { KomgaAuthor(it.name, it.role) }),
+        tags = patchValue(tags),
+        isbn = patchValue(isbn),
+        links = patchValue(links?.map { KomgaWebLink(it.label, it.url) }),
 
-        titleLock = patchIfNotNull(titleLock),
-        summaryLock = patchIfNotNull(summaryLock),
-        numberLock = patchIfNotNull(numberLock),
-        numberSortLock = patchIfNotNull(numberSortLock),
-        releaseDateLock = patchIfNotNull(releaseDateLock),
-        authorsLock = patchIfNotNull(authorsLock),
-        tagsLock = patchIfNotNull(tagsLock),
-        isbnLock = patchIfNotNull(isbnLock),
-        linksLock = patchIfNotNull(linksLock),
+        titleLock = patchValue(titleLock ?: false),
+        summaryLock = patchValue(summaryLock ?: false),
+        numberLock = patchValue(numberLock ?: false),
+        numberSortLock = patchValue(numberSortLock ?: false),
+        releaseDateLock = patchValue(releaseDateLock ?: false),
+        authorsLock = patchValue(authorsLock ?: false),
+        tagsLock = patchValue(tagsLock ?: false),
+        isbnLock = patchValue(isbnLock ?: false),
+        linksLock = patchValue(linksLock ?: false),
     )
+
+    private fun <T> patchValue(value: T?) = if (value != null) PatchValue.Some(value) else PatchValue.None
 
     private fun <T> patchIfNotNull(value: T?) = value?.let { PatchValue.Some(it) } ?: PatchValue.Unset
 }

@@ -62,7 +62,7 @@ class MetadataMapper {
             MediaServerSeriesMetadataUpdate(
                 status = patch.status ?: status,
                 title = patch.title,
-                titleSort = patch.title,
+                titleSort = patch.title?.name,
                 alternativeTitles = if (patch.titles.isNotEmpty()) {
                     patch.titles.filter { it != patch.title }.ifEmpty { null }
                 } else null,
