@@ -60,7 +60,7 @@ services:
     image: ghcr.io/Baine/komf-pickled:latest
     container_name: komf
     ports:
-      - "8080:8080"
+      - "8085:8085"
     user: "1000:1000"
     environment:
       - KOMF_KOMGA_BASE_URI=http://komga:25600
