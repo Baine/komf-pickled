@@ -1,3 +1,20 @@
+# komf-pickled — KOMF + 5 extra metadata providers
+
+This fork of [KOMF](https://github.com/Snd-R/komf) adds five additional metadata providers:
+
+| Provider | Description |
+|----------|-------------|
+| **German** | German-localized metadata (Carlsen, Wikipedia DE, MangaDex DE cascade) |
+| **SpecYAML** | Read metadata from YAML files alongside media |
+| **ChaikaFile** | Read metadata from Chaika-format `.txt` files |
+| **Gallery-DL** | Read metadata from Gallery-DL JSON output |
+| **HDoujin** | Read metadata from HDoujin downloader JSON |
+
+Version: `1.8.0-pickled`  
+Submodule: [Baine/Komelia-pickled](https://github.com/Baine/Komelia-pickled) (provider UI screens)
+
+---
+
 # Komga and Kavita Metadata Fetcher
 Download latest version from https://github.com/Snd-R/komf/releases
 
