@@ -4,7 +4,7 @@ This fork of [KOMF](https://github.com/Snd-R/komf) adds five additional metadata
 
 | Provider | Description |
 |----------|-------------|
-| **German** | German-localized metadata (Carlsen, Wikipedia DE, MangaDex DE cascade) |
+| **German** | German-localized metadata (Manga-Passion, Wikipedia DE, MangaDex DE cascade) |
 | **SpecYAML** | Read metadata from YAML files alongside media |
 | **ChaikaFile** | Read metadata from Chaika-format `.txt` files |
 | **Gallery-DL** | Read metadata from Gallery-DL JSON output |
@@ -57,10 +57,10 @@ To run the application using Docker Compose, use the following YAML configuratio
 version: "3.7"
 services:
   komf:
-    image: sndxr/komf:latest
+    image: ghcr.io/Baine/komf-pickled:latest
     container_name: komf
     ports:
-      - "8085:8085"
+      - "8080:8080"
     user: "1000:1000"
     environment:
       - KOMF_KOMGA_BASE_URI=http://komga:25600
@@ -73,6 +73,7 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact -XX:ShenandoahGuaranteedGCInterval=3600000 -XX:TrimNativeHeapInterval=3600000
     volumes:
       - /path/to/config:/config #path to directory with application.yml and database file
+      - /path/to/books:/books # essentially the same mount as used in Komga. Needed for all providers but "German"
     restart: unless-stopped
 ```
 
@@ -90,8 +91,9 @@ docker create \
   -e KOMF_KAVITA_API_KEY=16707507-d05d-4696-b126-c3976ae14ffb \
   -e KOMF_LOG_LEVEL=INFO \
   -v /path/to/config:/config \
+  -v /path/to/books:/books \
   --restart unless-stopped \
-  sndxr/komf:latest
+  ghcr.io/Baine/komf-pickled:latest
 ```
 
 - if you don't already have a komga or kavita network you'll need to network create a new one
