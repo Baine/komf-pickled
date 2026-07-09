@@ -40,9 +40,14 @@ data class ProvidersConfig(
     val mangaDex: MangaDexConfig = MangaDexConfig(),
     val bangumi: ProviderConfig = ProviderConfig(),
     val comicVine: ProviderConfig = ProviderConfig(),
+    val german: ProviderConfig = ProviderConfig(),
     val hentag: ProviderConfig = ProviderConfig(),
     val mangaBaka: MangaBakaConfig = MangaBakaConfig(),
     val webtoons: ProviderConfig = ProviderConfig(),
+    val chaikaFile: ProviderConfig = ProviderConfig(),
+    val hdoujin: ProviderConfig = ProviderConfig(),
+    val galleryDl: ProviderConfig = ProviderConfig(),
+    val specYaml: SpecYAMLConfig = SpecYAMLConfig(),
 )
 
 @Serializable
@@ -76,6 +81,21 @@ data class MangaBakaConfig(
 enum class MangaBakaMode {
     API, DATABASE
 }
+
+@Serializable
+data class SpecYAMLConfig(
+    val priority: Int = 10,
+    val enabled: Boolean = false,
+    val seriesMetadata: SeriesMetadataConfig = SeriesMetadataConfig(),
+    val bookMetadata: BookMetadataConfig = BookMetadataConfig(),
+    val nameMatchingMode: NameMatchingMode? = null,
+    val mediaType: MediaType = MANGA,
+
+    val authorRoles: Collection<AuthorRole> = listOf(WRITER),
+    val artistRoles: Collection<AuthorRole> = listOf(PENCILLER, INKER, COLORIST, LETTERER, COVER),
+
+    val mediaRoots: List<String> = emptyList(),
+)
 
 @Serializable
 data class AniListConfig(

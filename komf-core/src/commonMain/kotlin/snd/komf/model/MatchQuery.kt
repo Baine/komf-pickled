@@ -5,6 +5,7 @@ data class MatchQuery(
     val startYear: Int?,
     val bookQualifier: BookQualifier?,
     val seriesFolder: String?,
+    val bookPaths: List<String> = emptyList(),
 )
 
 data class BookQualifier(

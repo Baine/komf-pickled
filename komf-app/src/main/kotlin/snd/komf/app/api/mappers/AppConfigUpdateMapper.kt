@@ -19,6 +19,7 @@ import snd.komf.api.config.MetadataUpdateConfigUpdateRequest
 import snd.komf.api.config.ProviderConfigUpdateRequest
 import snd.komf.api.config.ProvidersConfigUpdateRequest
 import snd.komf.api.config.SeriesMetadataConfigUpdateRequest
+import snd.komf.api.config.SpecYAMLConfigUpdateRequest
 import snd.komf.app.config.AppConfig
 import snd.komf.mediaserver.config.EventListenerConfig
 import snd.komf.mediaserver.config.KavitaConfig
@@ -37,6 +38,7 @@ import snd.komf.providers.MetadataProvidersConfig
 import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
+import snd.komf.providers.SpecYAMLConfig
 import snd.komf.providers.mangadex.model.MangaDexLink
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 
@@ -153,10 +155,21 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
             hentag = patch.hentag.getOrNull()
                 ?.let { providerConfig(config.hentag, it) } ?: config.hentag,
+            german = patch.german.getOrNull()
+                ?.let { providerConfig(config.german, it) } ?: config.german,
             mangaBaka = patch.mangaBaka.getOrNull()
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()
                 ?.let { providerConfig(config.webtoons, it) } ?: config.webtoons,
+            chaikaFile = patch.chaikaFile.getOrNull()
+                ?.let { providerConfig(config.chaikaFile, it) } ?: config.chaikaFile,
+            hdoujin = patch.hdoujin.getOrNull()
+                ?.let { providerConfig(config.hdoujin, it) } ?: config.hdoujin,
+            galleryDl = patch.galleryDl.getOrNull()
+                ?.let { providerConfig(config.galleryDl, it) } ?: config.galleryDl,
+            specYaml = patch.specYaml.getOrNull()
+                ?.let { specYamlProviderConfig(config.specYaml, it) }
+                ?: config.specYaml,
         )
     }
 
@@ -245,6 +258,28 @@ class AppConfigUpdateMapper {
                 PatchValue.Unset -> config.nameMatchingMode
             },
             mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode
+        )
+    }
+
+    private fun specYamlProviderConfig(config: SpecYAMLConfig, patch: SpecYAMLConfigUpdateRequest): SpecYAMLConfig {
+        return config.copy(
+            priority = patch.priority.getOrNull() ?: config.priority,
+            enabled = patch.enabled.getOrNull() ?: config.enabled,
+            mediaType = patch.mediaType.getOrNull()?.toMediaType() ?: config.mediaType,
+            authorRoles = patch.authorRoles.getOrNull()?.map { it.toAuthorRole() } ?: config.authorRoles,
+            artistRoles = patch.artistRoles.getOrNull()?.map { it.toAuthorRole() } ?: config.artistRoles,
+            seriesMetadata = patch.seriesMetadata.getOrNull()
+                ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
+                ?: config.seriesMetadata,
+            bookMetadata = patch.bookMetadata.getOrNull()
+                ?.let { bookMetadataConfig(config.bookMetadata, it) }
+                ?: config.bookMetadata,
+            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
+                PatchValue.None -> null
+                is PatchValue.Some -> mode.value.toNameMatchingMode()
+                PatchValue.Unset -> config.nameMatchingMode
+            },
+            mediaRoots = patch.mediaRoots.getOrNull() ?: config.mediaRoots,
         )
     }
 

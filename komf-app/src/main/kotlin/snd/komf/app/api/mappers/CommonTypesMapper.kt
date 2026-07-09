@@ -91,7 +91,11 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.ANILIST -> KomfCoreProviders.ANILIST
     CoreProviders.BANGUMI -> KomfCoreProviders.BANGUMI
     CoreProviders.BOOK_WALKER -> KomfCoreProviders.BOOK_WALKER
+    CoreProviders.CHAIKA_FILE -> KomfCoreProviders.CHAIKA_FILE
     CoreProviders.COMIC_VINE -> KomfCoreProviders.COMIC_VINE
+    CoreProviders.GALLERY_DL -> KomfCoreProviders.GALLERY_DL
+    CoreProviders.GERMAN -> KomfCoreProviders.GERMAN
+    CoreProviders.HDOUJIN -> KomfCoreProviders.HDOUJIN
     CoreProviders.HENTAG -> KomfCoreProviders.HENTAG
     CoreProviders.KODANSHA -> KomfCoreProviders.KODANSHA
     CoreProviders.MAL -> KomfCoreProviders.MAL
@@ -99,6 +103,7 @@ fun CoreProviders.fromProvider() = when (this) {
     CoreProviders.MANGA_UPDATES -> KomfCoreProviders.MANGA_UPDATES
     CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
     CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
+    CoreProviders.SPEC_YAML -> KomfCoreProviders.SPEC_YAML
     CoreProviders.WEBTOONS -> KomfCoreProviders.WEBTOONS
     CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
     CoreProviders.VIZ -> KomfCoreProviders.VIZ
@@ -108,7 +113,11 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.ANILIST -> CoreProviders.ANILIST
     KomfCoreProviders.BANGUMI -> CoreProviders.BANGUMI
     KomfCoreProviders.BOOK_WALKER -> CoreProviders.BOOK_WALKER
+    KomfCoreProviders.CHAIKA_FILE -> CoreProviders.CHAIKA_FILE
     KomfCoreProviders.COMIC_VINE -> CoreProviders.COMIC_VINE
+    KomfCoreProviders.GALLERY_DL -> CoreProviders.GALLERY_DL
+    KomfCoreProviders.GERMAN -> CoreProviders.GERMAN
+    KomfCoreProviders.HDOUJIN -> CoreProviders.HDOUJIN
     KomfCoreProviders.HENTAG -> CoreProviders.HENTAG
     KomfCoreProviders.KODANSHA -> CoreProviders.KODANSHA
     KomfCoreProviders.MAL -> CoreProviders.MAL
@@ -116,6 +125,7 @@ fun KomfProviders.toProvider() = when (this) {
     KomfCoreProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
     KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
     KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON
+    KomfCoreProviders.SPEC_YAML -> CoreProviders.SPEC_YAML
     KomfCoreProviders.WEBTOONS -> CoreProviders.WEBTOONS
     KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
     KomfCoreProviders.VIZ -> CoreProviders.VIZ
