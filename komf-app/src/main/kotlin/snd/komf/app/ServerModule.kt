@@ -21,6 +21,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.json.Json
 import snd.komf.api.KomfErrorResponse
 import snd.komf.app.api.ConfigRoutes
@@ -128,26 +129,31 @@ class ServerModule(
                     appriseRenderer = dynamicDependencies.map { it.appriseRenderer }
                 ).registerRoutes(this)
 
-                route("/komga") {
-                    MetadataRoutes(
-                        metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
-                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
-                    ).registerRoutes(this)
+                val currentDeps = dynamicDependencies.value
+                if (currentDeps.komgaMediaServerClient != null && currentDeps.komgaMetadataServiceProvider != null) {
+                    route("/komga") {
+                        MetadataRoutes(
+                            metadataServiceProvider = dynamicDependencies.mapNotNull { it.komgaMetadataServiceProvider },
+                            mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient },
+                        ).registerRoutes(this)
 
-                    MediaServerRoutes(
-                        mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient }
-                    ).registerRoutes(this)
+                        MediaServerRoutes(
+                            mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient }
+                        ).registerRoutes(this)
+                    }
                 }
 
-                route("/kavita") {
-                    MetadataRoutes(
-                        metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
-                    ).registerRoutes(this)
+                if (currentDeps.kavitaMediaServerClient != null && currentDeps.kavitaMetadataServiceProvider != null) {
+                    route("/kavita") {
+                        MetadataRoutes(
+                            metadataServiceProvider = dynamicDependencies.mapNotNull { it.kavitaMetadataServiceProvider },
+                            mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient },
+                        ).registerRoutes(this)
 
-                    MediaServerRoutes(
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient }
-                    ).registerRoutes(this)
+                        MediaServerRoutes(
+                            mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient }
+                        ).registerRoutes(this)
+                    }
                 }
             }
         }
@@ -160,18 +166,23 @@ class ServerModule(
             configMapper = configMapper
         ).registerRoutes(application)
 
-        DeprecatedMetadataRoutes(
-            metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
-            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
-            jobTracker = dynamicDependencies.map { it.jobTracker },
-            serverType = KOMGA
-        ).registerRoutes(application)
-        DeprecatedMetadataRoutes(
-            metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
-            mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
-            jobTracker = dynamicDependencies.map { it.jobTracker },
-            serverType = KAVITA
-        ).registerRoutes(application)
+        val currentDeps = dynamicDependencies.value
+        if (currentDeps.komgaMediaServerClient != null && currentDeps.komgaMetadataServiceProvider != null) {
+            DeprecatedMetadataRoutes(
+                metadataServiceProvider = dynamicDependencies.mapNotNull { it.komgaMetadataServiceProvider },
+                mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient },
+                jobTracker = dynamicDependencies.map { it.jobTracker },
+                serverType = KOMGA
+            ).registerRoutes(application)
+        }
+        if (currentDeps.kavitaMediaServerClient != null && currentDeps.kavitaMetadataServiceProvider != null) {
+            DeprecatedMetadataRoutes(
+                metadataServiceProvider = dynamicDependencies.mapNotNull { it.kavitaMetadataServiceProvider },
+                mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient },
+                jobTracker = dynamicDependencies.map { it.jobTracker },
+                serverType = KAVITA
+            ).registerRoutes(application)
+        }
     }
 
     fun startServer() {
@@ -183,10 +194,10 @@ class ApiDynamicDependencies(
     val config: AppConfig,
     val jobTracker: KomfJobTracker,
     val jobsRepository: KomfJobsRepository,
-    val komgaMediaServerClient: MediaServerClient,
-    val komgaMetadataServiceProvider: MetadataServiceProvider,
-    val kavitaMediaServerClient: MediaServerClient,
-    val kavitaMetadataServiceProvider: MetadataServiceProvider,
+    val komgaMediaServerClient: MediaServerClient?,
+    val komgaMetadataServiceProvider: MetadataServiceProvider?,
+    val kavitaMediaServerClient: MediaServerClient?,
+    val kavitaMetadataServiceProvider: MetadataServiceProvider?,
     val discordService: DiscordWebhookService,
     val discordRenderer: DiscordVelocityTemplates,
     val appriseService: AppriseCliService,
