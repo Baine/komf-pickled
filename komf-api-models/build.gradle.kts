@@ -18,7 +18,7 @@ group = "io.github.snd-r"
 version = libs.versions.app.version.get()
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
 //    androidTarget {
 //        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
 //        publishLibraryVariants("release")

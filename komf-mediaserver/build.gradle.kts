@@ -12,7 +12,7 @@ group = "io.github.snd-r"
 version = libs.versions.app.version.get()
 
 kotlin {
-    jvmToolchain(17)
+    jvmToolchain(21)
     jvm {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
         compilerOptions {

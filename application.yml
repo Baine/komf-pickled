@@ -1,0 +1,169 @@
+komga:
+  baseUri: "https://komga.baine.xyz"
+  komgaUser: "baine@inbox.ru"
+  komgaPassword: "<nope>"
+  eventListener:
+    enabled: true
+  metadataUpdate:
+    library:
+      "0GVJYHJ5FSTFQ":
+        aggregate: true
+        mergeTags: true
+        mergeGenres: true
+        bookCovers: true
+        seriesCovers: true
+        updateModes:
+        - "API"
+        - "COMIC_INFO"
+        postProcessing:
+          seriesTitle: true
+          seriesTitleLanguage: "de"
+          alternativeSeriesTitles: true
+          alternativeSeriesTitleLanguages:
+          - "en"
+          - "ja-ro"
+          - "ja"
+          fallbackToAltTitle: true
+          readingDirectionValue: "RIGHT_TO_LEFT"
+          languageValue: "de"
+      "0GVJTGSJFSPJ3":
+        libraryType: "COMIC"
+        aggregate: true
+        mergeTags: true
+        mergeGenres: true
+        bookCovers: true
+        seriesCovers: true
+        updateModes:
+        - "API"
+        - "COMIC_INFO"
+        postProcessing:
+          seriesTitle: true
+          seriesTitleLanguage: "de"
+          alternativeSeriesTitles: true
+          alternativeSeriesTitleLanguages:
+          - "en"
+          - "ja-ro"
+          - "ja"
+          fallbackToAltTitle: true
+          orderBooks: true
+          readingDirectionValue: "LEFT_TO_RIGHT"
+          languageValue: "en"
+      "0GVJRS8TBSV43":
+        libraryType: "COMIC"
+        aggregate: true
+        mergeTags: true
+        mergeGenres: true
+        bookCovers: true
+        seriesCovers: true
+        updateModes:
+        - "API"
+        - "COMIC_INFO"
+        postProcessing:
+          seriesTitle: true
+          seriesTitleLanguage: "de"
+          alternativeSeriesTitles: true
+          alternativeSeriesTitleLanguages:
+          - "en"
+          - "ja-ro"
+          - "ja"
+          fallbackToAltTitle: true
+          orderBooks: true
+          readingDirectionValue: "LEFT_TO_RIGHT"
+          languageValue: "en"
+      "0QX0D6D96T2GB":
+        aggregate: true
+        mergeTags: true
+        mergeGenres: true
+        bookCovers: true
+        seriesCovers: true
+        updateModes:
+        - "API"
+        - "COMIC_INFO"
+        postProcessing:
+          seriesTitle: true
+          alternativeSeriesTitles: true
+          alternativeSeriesTitleLanguages:
+          - "en"
+          - "ja"
+          fallbackToAltTitle: true
+          orderBooks: true
+          readingDirectionValue: "RIGHT_TO_LEFT"
+          languageValue: "en"
+database:
+  file: "/config/database.sqlite"
+metadataProviders:
+  malClientId: "13202c74319e343453e7066df33c1398"
+  comicVineApiKey: "25297a2cfcc173ff6d1f4a37d552adb048ce93a0"
+  defaultProviders:
+    german:
+      priority: 0
+      enabled: true
+    mangaUpdates:
+      priority: 1
+      enabled: true
+    mal:
+      priority: 2
+    nautiljon:
+      priority: 30
+    aniList:
+      priority: 40
+    yenPress:
+      priority: 50
+    kodansha:
+      priority: 60
+    viz:
+      priority: 70
+    bookWalker:
+      priority: 80
+    bangumi:
+      priority: 100
+    comicVine:
+      priority: 110
+    mangaBaka:
+      priority: 2
+  libraryProviders:
+    "0GVJYHJ5FSTFQ":
+      german:
+        priority: 0
+        enabled: true
+      mangaUpdates:
+        priority: 1
+        enabled: true
+      mal:
+        priority: 3
+        enabled: true
+      aniList:
+        priority: 2
+        enabled: true
+      mangaBaka:
+        priority: 4
+    "0GVJTGSJFSPJ3":
+      viz:
+        priority: 2
+        enabled: true
+      comicVine:
+        priority: 1
+        enabled: true
+    "0GVJRS8TBSV43":
+      viz:
+        priority: 2
+        enabled: true
+      comicVine:
+        priority: 1
+        enabled: true
+    "0QX0D6D96T2GB":
+      mangaUpdates:
+        priority: 1
+        enabled: true
+      mal:
+        priority: 3
+        enabled: true
+      aniList:
+        priority: 2
+        enabled: true
+      mangaDex:
+        priority: 4
+        enabled: true
+  mangabakaDatabaseDir: "/config/mangabaka"
+notifications:
+  templatesDirectory: "/config"
