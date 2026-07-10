@@ -17,6 +17,47 @@
             height: 100%;
         }
     </style>
+    <script>
+        // ponytail: Skiko 0.144.5 needs WEBGL_debug_renderer_info, which modern browsers
+        // disable for privacy. Stub the extension and the vendor/renderer queries so
+        // Skia's GL DirectContext creation doesn't abort on INVALID_ENUM.
+        (function () {
+            const UNMASKED_VENDOR_WEBGL = 0x9245;
+            const UNMASKED_RENDERER_WEBGL = 0x9246;
+
+            function patchGl(gl) {
+                if (!gl || gl.__komeliaSkikoPatched) return;
+                gl.__komeliaSkikoPatched = true;
+
+                const originalGetExtension = gl.getExtension.bind(gl);
+                gl.getExtension = function (name) {
+                    if (name === 'WEBGL_debug_renderer_info') {
+                        return {
+                            UNMASKED_VENDOR_WEBGL: UNMASKED_VENDOR_WEBGL,
+                            UNMASKED_RENDERER_WEBGL: UNMASKED_RENDERER_WEBGL
+                        };
+                    }
+                    return originalGetExtension(name);
+                };
+
+                const originalGetParameter = gl.getParameter.bind(gl);
+                gl.getParameter = function (pname) {
+                    if (pname === UNMASKED_VENDOR_WEBGL) return 'unknown';
+                    if (pname === UNMASKED_RENDERER_WEBGL) return 'unknown';
+                    return originalGetParameter(pname);
+                };
+            }
+
+            const originalGetContext = HTMLCanvasElement.prototype.getContext;
+            HTMLCanvasElement.prototype.getContext = function (type, attrs) {
+                const ctx = originalGetContext.call(this, type, attrs);
+                if (ctx && (type === 'webgl' || type === 'webgl2')) {
+                    patchGl(ctx);
+                }
+                return ctx;
+            };
+        })();
+    </script>
     <script type="application/javascript" src="komelia-app.js"></script>
 </head>
 <body>
