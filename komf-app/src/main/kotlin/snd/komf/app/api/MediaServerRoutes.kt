@@ -65,14 +65,18 @@ class MediaServerRoutes(
 
     private fun Route.getLibrariesRoute() {
         get("/libraries") {
-            val libraries = mediaServerClient.first().getLibraries().map {
-                KomfMediaServerLibrary(
-                    id = KomfMediaServerLibraryId(it.id.value),
-                    name = it.name,
-                    roots = it.roots
-                )
+            try {
+                val libraries = mediaServerClient.first().getLibraries().map {
+                    KomfMediaServerLibrary(
+                        id = KomfMediaServerLibraryId(it.id.value),
+                        name = it.name,
+                        roots = it.roots
+                    )
+                }
+                call.respond(HttpStatusCode.OK, libraries)
+            } catch (_: Exception) {
+                call.respond(HttpStatusCode.OK, emptyList<KomfMediaServerLibrary>())
             }
-            call.respond(HttpStatusCode.OK, libraries)
         }
     }
 }
