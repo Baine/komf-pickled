@@ -2,6 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Komelia</title>
     <style>
         html, body {
@@ -13,6 +14,8 @@
         }
         #ComposeTarget {
             display: block;
+            position: fixed;
+            inset: 0;
             width: 100%;
             height: 100%;
         }
@@ -58,9 +61,27 @@
             };
         })();
     </script>
-    <script type="application/javascript" src="komelia-app.js"></script>
+    <script>
+        // ponytail: ComposeViewport/Skiko creates the WebGL surface from the canvas
+        // drawing-buffer size. If the canvas attributes stay at the default 300x150
+        // while CSS sizes it to the viewport, Skia renders into the wrong coordinate
+        // space and the result is blank. Sync the attributes to the CSS size before
+        // the app starts and keep them in sync on resize.
+        function resizeCanvas() {
+            const canvas = document.getElementById('ComposeTarget');
+            if (!canvas) return;
+            const rect = canvas.getBoundingClientRect();
+            const width = Math.max(1, Math.floor(rect.width));
+            const height = Math.max(1, Math.floor(rect.height));
+            if (canvas.width !== width) canvas.width = width;
+            if (canvas.height !== height) canvas.height = height;
+        }
+        window.addEventListener('resize', resizeCanvas);
+        window.addEventListener('load', resizeCanvas);
+    </script>
 </head>
 <body>
 <canvas id="ComposeTarget"></canvas>
+<script type="application/javascript" src="komelia-app.js" defer></script>
 </body>
 </html>
