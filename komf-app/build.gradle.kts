@@ -1,3 +1,4 @@
+import org.apache.tools.ant.taskdefs.condition.Os
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
@@ -56,8 +57,39 @@ dependencies {
     implementation(libs.kaml)
 }
 
+val komeliaDir = rootProject.projectDir.resolve("Komelia")
+val frontendOut = layout.buildDirectory.dir("frontend")
+
+val buildFrontend by tasks.registering(Exec::class) {
+    description = "Build Komelia Wasm frontend for SpecYAML provider UI"
+    group = "build"
+    onlyIf { komeliaDir.resolve("komelia-app").isDirectory }
+    workingDir = komeliaDir
+    commandLine(
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) "gradlew.bat" else "./gradlew",
+        ":komelia-app:wasmJsBrowserDistribution",
+        ":komelia-infra:image-decoder:wasm-image-worker:wasmJsBrowserProductionWebpack",
+        "--no-daemon"
+    )
+}
+
+val copyFrontend by tasks.registering(Copy::class) {
+    description = "Copy Komelia Wasm output to resources"
+    group = "build"
+    dependsOn(buildFrontend)
+    onlyIf { buildFrontend.get().didWork }
+
+    val wasmApp = komeliaDir.resolve("komelia-app/build/dist/wasmJs/productionExecutable")
+    val wasmWorker = komeliaDir.resolve("komelia-infra/image-decoder/wasm-image-worker/build/kotlin-webpack/wasmJs/productionExecutable")
+
+    from(wasmApp) { include("**") }
+    from(wasmWorker) { include("**") }
+    into(layout.projectDirectory.dir("src/main/resources/komelia"))
+}
+
 tasks {
     shadowJar {
+        dependsOn(copyFrontend)
         manifest {
             attributes(Pair("Main-Class", "snd.komf.app.ApplicationKt"))
         }
