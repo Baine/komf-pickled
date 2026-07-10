@@ -88,6 +88,7 @@ val copyFrontend by tasks.registering(Copy::class) {
 }
 
 tasks {
+    processResources { dependsOn(copyFrontend) }
     shadowJar {
         dependsOn(copyFrontend)
         manifest {
