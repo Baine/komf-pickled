@@ -1,6 +1,7 @@
 package snd.komf.app
 
 import io.ktor.http.HttpStatusCode
+import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
 import io.ktor.server.application.Application
 import io.ktor.server.application.install
@@ -10,12 +11,14 @@ import io.ktor.server.http.content.CompressedFileType
 import io.ktor.server.http.content.staticResources
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
-import io.ktor.server.plugins.defaultheaders.DefaultHeaders
 import io.ktor.server.plugins.statuspages.StatusPages
+import io.ktor.server.plugins.defaultheaders.DefaultHeaders
+import io.ktor.server.sse.SSE
 import io.ktor.server.response.respond
+import io.ktor.server.response.respondBytes
+import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
-import io.ktor.server.sse.SSE
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -83,7 +86,20 @@ class ServerModule(
             }
         }
 
+        val wasmContentType = ContentType("application", "wasm")
+        val komeliaResourcePath = "/komelia/"
+
         routing {
+            get("/{name}.wasm") {
+                val name = call.parameters["name"] ?: return@get
+                val resource = this::class.java.getResource("$komeliaResourcePath$name.wasm")
+                if (resource != null) {
+                    call.respondBytes(resource.readBytes(), wasmContentType)
+                } else {
+                    call.respond(HttpStatusCode.NotFound)
+                }
+            }
+
             staticResources(remotePath = "/", basePackage = "komelia", index = "index.html") {
                 default("index.html")
                 preCompressed(CompressedFileType.GZIP)
