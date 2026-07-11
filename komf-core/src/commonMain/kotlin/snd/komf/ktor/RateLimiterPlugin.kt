@@ -8,7 +8,7 @@ class RateLimiterPluginConfig {
     var eventsPerInterval: Int = 60
     var interval: Duration = 1.minutes
     var allowBurst = true
-    var preconfigured: ThroughputLimiter? = null
+    var preconfigured: RateLimiter? = null
 }
 
 val HttpRequestRateLimiter = createClientPlugin("RateLimiter", ::RateLimiterPluginConfig) {
