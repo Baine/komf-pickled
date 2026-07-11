@@ -5,7 +5,6 @@ plugins {
     alias(libs.plugins.kotlinAtomicfu)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
-    alias(libs.plugins.sqldelight)
 }
 
 group = "io.github.snd-r"
@@ -39,19 +38,11 @@ kotlin {
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
             implementation(libs.signalr)
-            implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqlite.jdbc)
+            implementation(libs.exposed.jdbc)
             api(libs.komga.client)
 
         }
     }
 
-}
-
-sqldelight {
-    databases {
-        create("Database") {
-            packageName.set("snd.komf.mediaserver.repository")
-        }
-    }
 }
