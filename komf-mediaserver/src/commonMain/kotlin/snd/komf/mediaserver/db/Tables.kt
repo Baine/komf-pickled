@@ -26,7 +26,7 @@ object BookThumbnailTable : Table("BookThumbnail") {
     val seriesId = text("seriesId")
     val thumbnailId = text("thumbnailId").nullable()
     val mediaServer = text("mediaServer")
-    override val primaryKey = PrimaryKey(bookId)
+    override val primaryKey = PrimaryKey(bookId, mediaServer)
 }
 
 object SeriesThumbnailTable : Table("SeriesThumbnail") {
