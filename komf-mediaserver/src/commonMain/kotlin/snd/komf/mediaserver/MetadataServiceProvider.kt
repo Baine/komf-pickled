@@ -11,7 +11,6 @@ class MetadataServiceProvider(
     private val libraryUpdaterServices: Map<String, MetadataUpdater>
 ) {
     fun defaultMetadataService() = defaultMetadataService
-    fun defaultUpdateService() = defaultUpdateService
 
     fun metadataServiceFor(libraryId: String) = libraryMetadataServices[libraryId] ?: defaultMetadataService
     fun updateServiceFor(libraryId: String) = libraryUpdaterServices[libraryId] ?: defaultUpdateService

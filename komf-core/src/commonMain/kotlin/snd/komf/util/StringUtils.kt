@@ -17,3 +17,6 @@ private val parenthesesRegex = "[(\\[{]([^)\\]}]+)[)\\]}]".toRegex()
 
 fun removeParentheses(name: String): String =
     name.replace(parenthesesRegex, "").trim()
+
+fun stripBom(input: String): String =
+    if (input.firstOrNull() == '\uFEFF') input.drop(1) else input

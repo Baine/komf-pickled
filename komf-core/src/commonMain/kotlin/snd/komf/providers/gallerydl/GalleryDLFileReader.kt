@@ -12,6 +12,7 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.compress.archivers.zip.ZipFile
+import snd.komf.util.stripBom
 import java.io.File
 
 private val logger = KotlinLogging.logger {}
@@ -110,7 +111,7 @@ private val jsonParser = Json { ignoreUnknownKeys = true }
 
 fun parseGalleryDLJson(content: String): GalleryDLInfo? {
     return try {
-        val stripped = if (content.firstOrNull() == '\uFEFF') content.drop(1) else content
+        val stripped = stripBom(content)
         val element = jsonParser.parseToJsonElement(stripped)
         val obj = when (element) {
             is JsonArray -> element.firstOrNull()?.jsonObject

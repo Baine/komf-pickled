@@ -14,10 +14,6 @@ package snd.komf.util
  *  * Only understands integer values up to 2^64-1.
  *
  */
-fun <T : CharSequence?> natSortComparator(): Comparator<T> {
-    return SimpleNaturalComparator()
-}
-
 fun <T : CharSequence?> caseInsensitiveNatSortComparator(): Comparator<T> {
     return CaseInsensitiveSimpleNaturalComparator()
 }
@@ -25,12 +21,6 @@ fun <T : CharSequence?> caseInsensitiveNatSortComparator(): Comparator<T> {
 private class CaseInsensitiveSimpleNaturalComparator<T : CharSequence?> : AbstractSimpleNaturalComparator<T>() {
     override fun compareChars(c1: Char, c2: Char): Int {
         return c1.lowercaseChar() - c2.lowercaseChar()
-    }
-}
-
-private class SimpleNaturalComparator<T : CharSequence?> : AbstractSimpleNaturalComparator<T>() {
-    override fun compareChars(c1: Char, c2: Char): Int {
-        return c1.code - c2.code
     }
 }
 

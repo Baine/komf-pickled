@@ -354,7 +354,7 @@ class MediaServerModule(
         )
     }
 
-    fun createDatabase(file: Path): Database {
+    private fun createDatabase(file: Path): Database {
         val database = Database.connect(
             url = "jdbc:sqlite:${file}",
             driver = "org.sqlite.JDBC"

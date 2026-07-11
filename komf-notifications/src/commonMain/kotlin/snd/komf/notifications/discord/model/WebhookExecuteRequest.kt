@@ -25,9 +25,6 @@ data class Embed(
     val color: Int? = null,
     val footer: EmbedFooter? = null,
     val image: EmbedImage? = null,
-    val thumbnail: EmbedThumbnail? = null,
-    val provider: EmbedProvider? = null,
-    val author: EmbedAuthor? = null,
     val fields: Collection<EmbedField>? = null,
 )
 
@@ -47,31 +44,6 @@ data class EmbedImage(
     val proxyUrl: String? = null,
     val height: Int? = null,
     val width: Int? = null
-)
-
-@Serializable
-data class EmbedThumbnail(
-    val url: String,
-    @SerialName("proxy_url")
-    val proxyUrl: String? = null,
-    val height: Int? = null,
-    val width: Int? = null
-)
-
-@Serializable
-data class EmbedProvider(
-    val name: String? = null,
-    val url: String? = null,
-)
-
-@Serializable
-data class EmbedAuthor(
-    val name: String,
-    val url: String? = null,
-    @SerialName("icon_url")
-    val iconUrl: String? = null,
-    @SerialName("proxy_icon_url")
-    val proxyIconUrl: String? = null,
 )
 
 @Serializable

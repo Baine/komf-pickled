@@ -29,16 +29,11 @@ import snd.komf.app.api.JobRoutes
 import snd.komf.app.api.MediaServerRoutes
 import snd.komf.app.api.MetadataRoutes
 import snd.komf.app.api.NotificationRoutes
-import snd.komf.app.api.deprecated.DeprecatedConfigRoutes
-import snd.komf.app.api.deprecated.DeprecatedConfigUpdateMapper
-import snd.komf.app.api.deprecated.DeprecatedMetadataRoutes
 import snd.komf.app.config.AppConfig
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
-import snd.komf.mediaserver.model.MediaServer.KAVITA
-import snd.komf.mediaserver.model.MediaServer.KOMGA
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
@@ -52,7 +47,6 @@ class ServerModule(
     private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
 ) {
 
-    private val configMapper = DeprecatedConfigUpdateMapper()
     private val json = Json {
         ignoreUnknownKeys = true
     }
@@ -106,8 +100,6 @@ class ServerModule(
                 preCompressed(CompressedFileType.GZIP)
             }
 
-            registerDeprecatedRoutes(this@embeddedServer)
-
             route("/api") {
                 ConfigRoutes(
                     config = dynamicDependencies.map { it.config },
@@ -156,32 +148,6 @@ class ServerModule(
                     }
                 }
             }
-        }
-    }
-
-    private fun registerDeprecatedRoutes(application: Application) {
-        DeprecatedConfigRoutes(
-            config = dynamicDependencies.map { it.config },
-            onConfigUpdate = onConfigUpdate,
-            configMapper = configMapper
-        ).registerRoutes(application)
-
-        val currentDeps = dynamicDependencies.value
-        if (currentDeps.komgaMediaServerClient != null && currentDeps.komgaMetadataServiceProvider != null) {
-            DeprecatedMetadataRoutes(
-                metadataServiceProvider = dynamicDependencies.mapNotNull { it.komgaMetadataServiceProvider },
-                mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient },
-                jobTracker = dynamicDependencies.map { it.jobTracker },
-                serverType = KOMGA
-            ).registerRoutes(application)
-        }
-        if (currentDeps.kavitaMediaServerClient != null && currentDeps.kavitaMetadataServiceProvider != null) {
-            DeprecatedMetadataRoutes(
-                metadataServiceProvider = dynamicDependencies.mapNotNull { it.kavitaMetadataServiceProvider },
-                mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient },
-                jobTracker = dynamicDependencies.map { it.jobTracker },
-                serverType = KAVITA
-            ).registerRoutes(application)
         }
     }
 

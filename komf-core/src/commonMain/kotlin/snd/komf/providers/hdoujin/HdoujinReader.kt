@@ -10,6 +10,7 @@ import kotlinx.serialization.json.jsonPrimitive
 import org.apache.commons.compress.archivers.sevenz.SevenZFile
 import org.apache.commons.compress.archivers.zip.ZipFile
 import java.io.File
+import snd.komf.util.stripBom
 
 private val logger = KotlinLogging.logger {}
 private val jsonParser = Json { ignoreUnknownKeys = true }
@@ -107,7 +108,7 @@ class HdoujinReader {
 
 private fun parseInfoJson(content: String): JsonObject? {
     return try {
-        val stripped = if (content.firstOrNull() == '\uFEFF') content.drop(1) else content
+        val stripped = stripBom(content)
         var obj = jsonParser.parseToJsonElement(stripped).jsonObject
         if ("manga_info" in obj) obj = obj["manga_info"]!!.jsonObject
         obj

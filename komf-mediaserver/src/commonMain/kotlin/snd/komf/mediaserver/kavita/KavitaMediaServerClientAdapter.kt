@@ -208,24 +208,8 @@ private fun KavitaChapter.toMediaServerBook(volume: KavitaVolume): MediaServerBo
 }
 
 private fun KavitaChapter.toMediaServerBookMetadata(): MediaServerBookMetadata {
-    val authors = writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
-            coverArtists.map { MediaServerAuthor(it.name, AuthorRole.COVER.name) } +
-            pencillers.map { MediaServerAuthor(it.name, AuthorRole.PENCILLER.name) } +
-            letterers.map { MediaServerAuthor(it.name, AuthorRole.LETTERER.name) } +
-            inkers.map { MediaServerAuthor(it.name, AuthorRole.INKER.name) } +
-            colorists.map { MediaServerAuthor(it.name, AuthorRole.COLORIST.name) } +
-            editors.map { MediaServerAuthor(it.name, AuthorRole.EDITOR.name) } +
-            translators.map { MediaServerAuthor(it.name, AuthorRole.TRANSLATOR.name) }
-    val authorsLock = sequenceOf(
-        writerLocked,
-        coverArtistLocked,
-        pencillerLocked,
-        lettererLocked,
-        inkerLocked,
-        coloristLocked,
-        editorLocked,
-        translatorLocked
-    ).any { it } //TODO per role locks?
+    val authors = kavitaAuthorsToMediaServer(writers, coverArtists, pencillers, letterers, inkers, colorists, editors, translators)
+    val authorsLock = anyLocked(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked)
 
     return MediaServerBookMetadata(
         title = title,
@@ -264,25 +248,9 @@ private fun KavitaSeriesMetadata.toMediaServerSeriesMetadata(series: KavitaSerie
         KavitaPublicationStatus.CANCELLED -> SeriesStatus.ABANDONED
         KavitaPublicationStatus.ENDED -> SeriesStatus.ENDED
     }
-    val authors = writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
-            coverArtists.map { MediaServerAuthor(it.name, AuthorRole.COVER.name) } +
-            pencillers.map { MediaServerAuthor(it.name, AuthorRole.PENCILLER.name) } +
-            letterers.map { MediaServerAuthor(it.name, AuthorRole.LETTERER.name) } +
-            inkers.map { MediaServerAuthor(it.name, AuthorRole.INKER.name) } +
-            colorists.map { MediaServerAuthor(it.name, AuthorRole.COLORIST.name) } +
-            editors.map { MediaServerAuthor(it.name, AuthorRole.EDITOR.name) } +
-            translators.map { MediaServerAuthor(it.name, AuthorRole.TRANSLATOR.name) }
+    val authors = kavitaAuthorsToMediaServer(writers, coverArtists, pencillers, letterers, inkers, colorists, editors, translators)
 
-    val authorsLock = sequenceOf(
-        writerLocked,
-        coverArtistLocked,
-        pencillerLocked,
-        lettererLocked,
-        inkerLocked,
-        coloristLocked,
-        editorLocked,
-        translatorLocked
-    ).any { it } //TODO per role locks?
+    val authorsLock = anyLocked(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked)
 
     return MediaServerSeriesMetadata(
         status = status,
@@ -423,6 +391,27 @@ private fun deduplicate(values: Collection<String>) = values
     .map { normalizeRegex.replace(it, "").trim().lowercase() to it }
     .distinctBy { (normalized, _) -> normalized }
     .map { (_, value) -> value }
+
+private fun anyLocked(vararg locks: Boolean) = locks.any()
+
+private fun kavitaAuthorsToMediaServer(
+    writers: Collection<KavitaAuthor>,
+    coverArtists: Collection<KavitaAuthor>,
+    pencillers: Collection<KavitaAuthor>,
+    letterers: Collection<KavitaAuthor>,
+    inkers: Collection<KavitaAuthor>,
+    colorists: Collection<KavitaAuthor>,
+    editors: Collection<KavitaAuthor>,
+    translators: Collection<KavitaAuthor>,
+): List<MediaServerAuthor> =
+    writers.map { MediaServerAuthor(it.name, AuthorRole.WRITER.name) } +
+            coverArtists.map { MediaServerAuthor(it.name, AuthorRole.COVER.name) } +
+            pencillers.map { MediaServerAuthor(it.name, AuthorRole.PENCILLER.name) } +
+            letterers.map { MediaServerAuthor(it.name, AuthorRole.LETTERER.name) } +
+            inkers.map { MediaServerAuthor(it.name, AuthorRole.INKER.name) } +
+            colorists.map { MediaServerAuthor(it.name, AuthorRole.COLORIST.name) } +
+            editors.map { MediaServerAuthor(it.name, AuthorRole.EDITOR.name) } +
+            translators.map { MediaServerAuthor(it.name, AuthorRole.TRANSLATOR.name) }
 
 private fun kavitaSeriesResetRequest(seriesId: KavitaSeriesId): KavitaSeriesMetadataUpdateRequest {
     val metadata = KavitaSeriesMetadata(

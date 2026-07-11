@@ -885,8 +885,6 @@ class ProvidersModule(
     ) {
         fun defaultProvidersList() = defaultProviders.providers
 
-        fun defaultProviders() = defaultProviders
-
         fun providers(libraryId: String): Collection<MetadataProvider> {
             return libraryProviders[libraryId]?.providers ?: defaultProviders.providers
         }

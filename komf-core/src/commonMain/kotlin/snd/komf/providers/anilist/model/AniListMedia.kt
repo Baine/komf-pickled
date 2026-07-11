@@ -44,13 +44,6 @@ enum class AniListMediaFormat {
 }
 
 @Serializable
-enum class AniListMediaType {
-    MANGA,
-    ANIME,
-}
-
-
-@Serializable
 enum class AniListMediaStatus {
     FINISHED,
     RELEASING,
