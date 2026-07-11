@@ -10,7 +10,6 @@ import kotlin.text.Charsets.UTF_8
 
 class ConfigWriter(private val yaml: Yaml) {
 
-    @Synchronized
     fun writeConfig(config: AppConfig, path: Path) {
         checkWriteAccess(path)
         if (path.isDirectory()) {
@@ -21,7 +20,6 @@ class ConfigWriter(private val yaml: Yaml) {
         }
     }
 
-    @Synchronized
     fun writeConfigToDefaultPath(config: AppConfig) {
         val filePath = Path.of(".").toAbsolutePath().normalize().resolve("application.yml")
         if (filePath.exists())

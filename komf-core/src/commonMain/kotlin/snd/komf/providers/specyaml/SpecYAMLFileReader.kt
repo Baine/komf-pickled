@@ -68,19 +68,6 @@ class SpecYAMLFileReader {
         return file.exists() && file.isFile
     }
 
-    fun listYamlFiles(dirPath: String): List<String> {
-        val dir = File(dirPath)
-        if (!dir.exists() || !dir.isDirectory) return emptyList()
-        return dir.listFiles { _, name -> name.endsWith(".yaml") || name.endsWith(".yml") }
-            ?.map { it.absolutePath }
-            ?: emptyList()
-    }
-
-    fun nameWithoutExtension(filePath: String): String {
-        val name = File(filePath).name
-        return name.substringBeforeLast(".")
-    }
-
     companion object {
         private fun isZip(path: String) = path.endsWith(".cbz", true) || path.endsWith(".zip", true)
         private fun isSevenZ(path: String) = path.endsWith(".7z", true) || path.endsWith(".cb7", true)

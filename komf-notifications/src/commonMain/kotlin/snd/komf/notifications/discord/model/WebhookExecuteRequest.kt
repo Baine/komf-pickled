@@ -1,27 +1,18 @@
 package snd.komf.notifications.discord.model
 
-import kotlinx.datetime.LocalDate
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
 data class WebhookExecuteRequest(
-    val content: String? = null,
-    val username: String? = null,
-    @SerialName("avatar_url")
-    val avatarUrl: String? = null,
-    val tts: Boolean? = null,
     val embeds: Collection<Embed>? = null,
-    val flags: Int? = null,
 )
 
 @Serializable
 data class Embed(
     val title: String? = null,
-    val type: String? = null,
     val description: String? = null,
     val url: String? = null,
-    val timestamp: LocalDate? = null,
     val color: Int? = null,
     val footer: EmbedFooter? = null,
     val image: EmbedImage? = null,

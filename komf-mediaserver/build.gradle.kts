@@ -35,8 +35,6 @@ kotlin {
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
             implementation(libs.ktor.serialization.kotlinx.json)
-            implementation(libs.xmlutil.core)
-            implementation(libs.xmlutil.serialization)
             implementation(libs.signalr)
             implementation(libs.sqlite.jdbc)
             implementation(libs.exposed.jdbc)

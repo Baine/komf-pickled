@@ -245,22 +245,16 @@ class NautiljonParser {
         return numberOfVolumes to status
     }
 
-    private fun parseVolumeOriginalReleaseDate(dataEntries: Elements): LocalDate? {
+    private fun parseVolumeOriginalReleaseDate(dataEntries: Elements): LocalDate? =
+        parseDateByLabel(dataEntries, "Date de parution VO :")
+
+    private fun parseVolumeFrenchReleaseDate(dataEntries: Elements): LocalDate? =
+        parseDateByLabel(dataEntries, "Date de parution VF :")
+
+    private fun parseDateByLabel(dataEntries: Elements, label: String): LocalDate? {
         return runCatching {
             val dateElement = dataEntries
-                .firstOrNull { it.child(0).text().equals("Date de parution VO :") }
-
-            (dateElement?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
-                ?: dateElement?.textNodes()?.firstOrNull()?.text())
-                ?.trim()
-                ?.let { LocalDate.parse(it, dateFormat) }
-        }.getOrNull()
-    }
-
-    private fun parseVolumeFrenchReleaseDate(dataEntries: Elements): LocalDate? {
-        return runCatching {
-            val dateElement = dataEntries
-                .firstOrNull { it.child(0).text().equals("Date de parution VF :") }
+                .firstOrNull { it.child(0).text().equals(label) }
 
             (dateElement?.getElementsByAttributeValue("itemprop", "datePublished")?.first()?.text()
                 ?: dateElement?.textNodes()?.firstOrNull()?.text())

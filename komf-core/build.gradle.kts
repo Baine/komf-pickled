@@ -29,7 +29,6 @@ kotlin {
             api(libs.exposed.core)
             implementation(libs.exposed.jdbc)
             implementation(libs.exposed.json)
-            implementation(libs.exposed.kotlin.datetime)
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)

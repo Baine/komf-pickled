@@ -136,7 +136,6 @@ class MangaDexDeSource(
         } ?: return null
         val volData = volumes[volKey]?.jsonObject ?: return null
         val chapters = volData["chapters"]?.jsonArray ?: return null
-        val chapCount = chapters.size
 
         return GermanVolume(
             id = GermanVolumeId(volumeId),

@@ -2,9 +2,9 @@ package snd.komf.app.config
 
 import com.charleskorn.kaml.Yaml
 import io.github.oshai.kotlinlogging.KotlinLogging
-import java.nio.file.Files
 import java.nio.file.Path
 import kotlin.io.path.isReadable
+import kotlin.io.path.readText
 
 private val logger = KotlinLogging.logger {}
 
@@ -12,19 +12,19 @@ class ConfigLoader(private val yaml: Yaml) {
 
     fun loadDirectory(directory: Path): AppConfig {
         val path = directory.resolve("application.yml")
-        val config = yaml.decodeFromString(AppConfig.serializer(), Files.readString(path))
+        val config = yaml.decodeFromString(AppConfig.serializer(), path.readText())
         return postProcessConfig(config, directory)
     }
 
     fun loadFile(file: Path): AppConfig {
-        val config = yaml.decodeFromString(AppConfig.serializer(), Files.readString(file.toRealPath()))
+        val config = yaml.decodeFromString(AppConfig.serializer(), file.toRealPath().readText())
         return postProcessConfig(config, null)
     }
 
     fun default(): AppConfig {
         val filePath = Path.of(".").toAbsolutePath().normalize().resolve("application.yml")
         return if (filePath.isReadable()) {
-            val config = yaml.decodeFromString(AppConfig.serializer(), Files.readString(filePath.toRealPath()))
+            val config = yaml.decodeFromString(AppConfig.serializer(), filePath.toRealPath().readText())
             postProcessConfig(config, null)
         } else {
             postProcessConfig(AppConfig(), null)

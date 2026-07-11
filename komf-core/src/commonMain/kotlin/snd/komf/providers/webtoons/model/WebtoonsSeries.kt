@@ -25,13 +25,6 @@ data class WebtoonsSeries(
     val adaptedBy: PersonInfo?,
     val artist: PersonInfo?,
 
-    // Inconsistent formatting use of "." and "," as separators. Also uses shorthands
-    val views: String,
-    val subscribers: String,
-
-    // There's a schedule of when it releases
-    // val schedule: String,
-
     var chapters: Collection<Episode>?
 )
 

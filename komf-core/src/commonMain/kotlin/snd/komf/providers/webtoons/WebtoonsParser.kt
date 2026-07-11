@@ -46,9 +46,6 @@ class WebtoonsParser {
             artist = PersonInfo(artistName ?: authorName)
         }
 
-        val views = infoElement.select("li span.ico_view + em").text()
-        val subscribers = infoElement.select("li span.ico_subscribe + em").text()
-
         return WebtoonsSeries(
             id = WebtoonsSeriesId(idFromUrl(getDocumentUrl(document))),
             title = title,
@@ -60,8 +57,6 @@ class WebtoonsParser {
             author = author,
             adaptedBy = adaptedBy,
             artist = artist,
-            views = views,
-            subscribers = subscribers,
             chapters = null
         )
     }
