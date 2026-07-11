@@ -64,18 +64,12 @@ interface ThroughputLimiter {
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-interface IntervalLimiter : ThroughputLimiter
-
-/**
- * Limit throughput of events, per interval, to be at most equal to the argument eventsPerInterval.
- * When the limit is passed, calls are suspended until the calculated point in time when it's
- * okay to pass the rate limiter.
- */
+// ponytail: removed marker IntervalLimiter interface; only one implementation exists
 fun intervalLimiter(
     eventsPerInterval: Int,
     interval: Duration,
     warmupPeriod: Duration? = null
-): IntervalLimiter =
+): ThroughputLimiter =
     IntervalLimiterImpl(eventsPerInterval = eventsPerInterval, interval = interval, warmupPeriod = warmupPeriod)
 
 class IntervalLimiterImpl(
@@ -84,7 +78,7 @@ class IntervalLimiterImpl(
 //    private val timeSource: NanoTimeSource = NanoTimeSourceImpl,
     private val delay: suspend (Long) -> Unit = ::delay,
     warmupPeriod: Duration? = null
-) : IntervalLimiter {
+) : ThroughputLimiter {
 
     init {
         TimeSource.Monotonic.markNow()
@@ -256,14 +250,8 @@ class IntervalLimiterImpl(
  * When the limit is passed, calls are suspended until the calculated point in time when it's
  * okay to pass the rate limiter.
  */
-interface RateLimiter : ThroughputLimiter
-
-/**
- * Limit throughput of events per interval to be at most equal to the argument eventsPerInterval.
- * When the limit is passed, calls are suspended until the calculated point in time when it's
- * okay to pass the rate limiter.
- */
-fun rateLimiter(eventsPerInterval: Int, interval: Duration, warmupPeriod: Duration? = null): RateLimiter =
+// ponytail: removed marker RateLimiter interface; only one implementation exists
+fun rateLimiter(eventsPerInterval: Int, interval: Duration, warmupPeriod: Duration? = null): ThroughputLimiter =
     RateLimiterImpl(eventsPerInterval = eventsPerInterval, interval = interval, warmupPeriod = warmupPeriod)
 
 class RateLimiterImpl(
@@ -272,7 +260,7 @@ class RateLimiterImpl(
 //    private val timeSource: NanoTimeSource = NanoTimeSourceImpl,
     private val delay: suspend (Long) -> Unit = ::delay,
     warmupPeriod: Duration? = null,
-) : RateLimiter {
+) : ThroughputLimiter {
 
     private val mutex = Mutex()
     private val permitDuration = interval.div(eventsPerInterval).round()

@@ -26,7 +26,6 @@ kotlin {
         commonMain.dependencies {
             implementation(libs.cache4k)
             implementation(libs.commons.compress)
-            implementation(libs.commons.text)
             api(libs.exposed.core)
             implementation(libs.exposed.jdbc)
             implementation(libs.exposed.json)
@@ -45,10 +44,6 @@ kotlin {
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
             implementation(libs.kaml)
-
-            implementation(libs.twelvemonkeys.imageio.core)
-            implementation(libs.twelvemonkeys.imageio.jpeg)
-            implementation(libs.twelvemonkeys.imageio.webp)
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

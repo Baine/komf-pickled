@@ -12,16 +12,17 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.notExists
 import kotlin.io.path.writeBytes
 
-internal object VelocityTemplates {
+// ponytail: top-level extension instead of wrapper object member
+fun NotificationContext.toVelocityContext(): VelocityContext {
+    val context = VelocityContext()
+    context.put("library", library)
+    context.put("series", series)
+    context.put("books", books.sortedBy { it.name })
+    context.put("mediaServer", mediaServer)
+    return context
+}
 
-    fun NotificationContext.toVelocityContext(): VelocityContext {
-        val context = VelocityContext()
-        context.put("library", library)
-        context.put("series", series)
-        context.put("books", books.sortedBy { it.name })
-        context.put("mediaServer", mediaServer)
-        return context
-    }
+internal object VelocityTemplates {
 
     fun RuntimeInstance.loadTemplateByName(name: String): Template? {
         if (getLoaderNameForResource(name) == null) return null

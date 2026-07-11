@@ -1,10 +1,9 @@
 package snd.komf.notifications.apprise
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import org.apache.tika.config.TikaConfig
-import org.apache.tika.metadata.Metadata
 import snd.komf.model.Image
 import snd.komf.notifications.NotificationContext
+import java.net.URLConnection
 import java.nio.file.Path
 import kotlin.io.path.absolutePathString
 import kotlin.io.path.createTempFile
@@ -13,12 +12,12 @@ import kotlin.io.path.writeBytes
 
 private val logger = KotlinLogging.logger {}
 
+// ponytail: replaces tika-core; komf-notifications targets only JVM
 class AppriseCliService(
     private val urls: Collection<String>,
     private val templateRenderer: AppriseVelocityTemplates,
     private val seriesCover: Boolean
 ) {
-    private val tikaConfig = TikaConfig.getDefaultConfig()
 
     fun send(
         context: NotificationContext,
@@ -69,15 +68,18 @@ class AppriseCliService(
     }
 
     private fun getFileExtension(image: Image): String {
-        val parsedExtension = runCatching {
-            if (image.mimeType != null) {
-                tikaConfig.mimeRepository.forName(image.mimeType).extension
-            } else {
-                val mediaType = tikaConfig.mimeRepository.detect(image.bytes.inputStream(), Metadata())
-                tikaConfig.mimeRepository.forName(mediaType.toString()).extension
-            }
-        }.onFailure { logger.catching(it) }.getOrNull()
-
-        return parsedExtension ?: ".jpg"
+        return image.mimeType?.extension()
+            ?: runCatching {
+                URLConnection.guessContentTypeFromStream(image.bytes.inputStream())?.extension()
+            }.onFailure { logger.catching(it) }.getOrNull()
+            ?: ".jpg"
     }
+}
+
+private fun String.extension(): String = when (lowercase().substringBefore(';').trim()) {
+    "image/jpeg", "image/jpg" -> ".jpg"
+    "image/png" -> ".png"
+    "image/webp" -> ".webp"
+    "image/gif" -> ".gif"
+    else -> ".jpg"
 }

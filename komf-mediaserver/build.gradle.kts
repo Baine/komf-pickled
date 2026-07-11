@@ -39,7 +39,6 @@ kotlin {
             implementation(libs.ktor.serialization.kotlinx.json)
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
-            implementation(libs.jose4j)
             implementation(libs.signalr)
             implementation(libs.sqldelight.sqlite.driver)
             implementation(libs.sqlite.jdbc)

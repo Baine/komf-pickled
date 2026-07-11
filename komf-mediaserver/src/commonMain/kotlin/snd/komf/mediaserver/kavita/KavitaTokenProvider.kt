@@ -10,7 +10,6 @@ import kotlin.time.Instant
 class KavitaTokenProvider(
     private val kavitaClient: KavitaAuthClient,
     private val apiKey: String,
-    private val jwtConsumer: JwtConsumer,
     private val clock: Clock,
 ) {
     private var kavitaToken: KavitaAccessToken? = null
@@ -34,7 +33,7 @@ class KavitaTokenProvider(
 
     private suspend fun getFreshToken(): KavitaAccessToken {
         val jwt = kavitaClient.authenticate(apiKey).token
-        val expirationDate = jwtConsumer.processToExpirationDateClaim(jwt)
+        val expirationDate = processToExpirationDateClaim(jwt)
         return KavitaAccessToken(jwt, expirationDate)
     }
 

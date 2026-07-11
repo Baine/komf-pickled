@@ -1,11 +1,14 @@
 package snd.komf.util
 
-import org.apache.commons.lang3.StringUtils
+import java.text.Normalizer
 
 private val fullwidthRegex = "[\uff01-\uff5e]".toRegex()
+private val combiningMarksRegex = "\\p{InCombiningDiacriticalMarks}+".toRegex()
 
 fun replaceFullwidthChars(input: String) = input.replace(fullwidthRegex) { match ->
     Character.toString(match.value.codePointAt(0) - 0xfee0)
 }
 
-fun stripAccents(input: String): String = StringUtils.stripAccents(input)
+// ponytail: replaces commons-text StringUtils.stripAccents; komf-core targets only JVM
+fun stripAccents(input: String): String =
+    Normalizer.normalize(input, Normalizer.Form.NFD).replace(combiningMarksRegex, "")

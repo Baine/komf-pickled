@@ -27,7 +27,6 @@ import snd.komf.mediaserver.config.MetadataUpdateConfig
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.KomfJobsRepository
 import snd.komf.mediaserver.jobs.MetadataJobId
-import snd.komf.mediaserver.kavita.JvmJwtConsumer
 import snd.komf.mediaserver.kavita.KavitaAuthClient
 import snd.komf.mediaserver.kavita.KavitaClient
 import snd.komf.mediaserver.kavita.KavitaEventHandler
@@ -192,7 +191,6 @@ class MediaServerModule(
             val kavitaTokenProvider = KavitaTokenProvider(
                 kavitaClient = kavitaAuthClient,
                 apiKey = kavitaConfig.apiKey,
-                jwtConsumer = JvmJwtConsumer(),
                 clock = Clock.System
             )
             val kavitaKtorClient = kavitaKtorBase.config {
