@@ -36,7 +36,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
@@ -46,7 +45,6 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral(automaticRelease = false)
     coordinates("io.github.snd-r.komf", "client", libs.versions.app.version.get())
-//    signAllPublications()
 
     pom {
         name.set("Komf API client")

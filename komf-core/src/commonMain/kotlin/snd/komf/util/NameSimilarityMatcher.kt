@@ -1,18 +1,16 @@
 package snd.komf.util
 
-import snd.komf.util.NameSimilarityMatcher.NameMatchingMode.CLOSEST_MATCH
-import snd.komf.util.NameSimilarityMatcher.NameMatchingMode.EXACT
 import kotlin.math.min
 
-
-class NameSimilarityMatcher private constructor(private val mode: NameMatchingMode) {
+// ponytail: public class with mode state; removed companion factory/cached instances
+class NameSimilarityMatcher(val mode: NameMatchingMode) {
 
     fun matches(name: String, namesToMatch: Collection<String>): Boolean {
         return namesToMatch.any { matches(name, it) }
     }
 
     fun matches(name: String, nameToMatch: String): Boolean {
-        return if (mode == EXACT || name.length in 1..3) name == nameToMatch
+        return if (mode == NameMatchingMode.EXACT || name.length in 1..3) name == nameToMatch
         else {
             val distance = levenshtein(name.uppercase(), nameToMatch.uppercase())
             val distanceThreshold = when (name.length) {
@@ -21,18 +19,6 @@ class NameSimilarityMatcher private constructor(private val mode: NameMatchingMo
                 else -> 3
             }
             return distance <= distanceThreshold
-        }
-    }
-
-    companion object {
-        private val EXACT_MATCHER: NameSimilarityMatcher = NameSimilarityMatcher(EXACT)
-        private val CLOSEST_MATCH_MATCHER: NameSimilarityMatcher = NameSimilarityMatcher(CLOSEST_MATCH)
-
-        fun nameSimilarityMatcher(mode: NameMatchingMode): NameSimilarityMatcher {
-            return when (mode) {
-                EXACT -> EXACT_MATCHER
-                CLOSEST_MATCH -> CLOSEST_MATCH_MATCHER
-            }
         }
     }
 

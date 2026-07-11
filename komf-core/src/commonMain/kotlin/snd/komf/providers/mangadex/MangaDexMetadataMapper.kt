@@ -42,7 +42,6 @@ import snd.komf.providers.mangadex.model.MangaDexLink.NOVEL_UPDATES
 import snd.komf.providers.mangadex.model.MangaDexLink.RAW
 import snd.komf.providers.mangadex.model.MangaDexManga
 import snd.komf.providers.mangadex.model.MangaDexMangaId
-import snd.komf.util.toStingEncoded
 
 class MangaDexMetadataMapper(
     private val seriesMetadataConfig: SeriesMetadataConfig,
@@ -153,7 +152,7 @@ class MangaDexMetadataMapper(
                     WebLink("Anime-Planet", "https://www.anime-planet.com/manga/${value.encodeURLPath()}")
 
                 "bw" -> parseUrl("https://bookwalker.jp/$value")?.let { url ->
-                    links[BOOKWALKER_JP] = WebLink("BookWalkerJp", url.toStingEncoded())
+                    links[BOOKWALKER_JP] = WebLink("BookWalkerJp", url.let { URLBuilder(it).buildString() })
                 }
 
                 "mu" -> {
@@ -169,7 +168,7 @@ class MangaDexMetadataMapper(
                 )
 
                 "kt" -> links[KITSU] = WebLink("Kitsu", "https://kitsu.app/manga/${value.encodeURLPath()}")
-                "amz" -> parseUrl(value)?.let { url -> links[AMAZON] = WebLink("Amazon", url.toStingEncoded()) }
+                "amz" -> parseUrl(value)?.let { url -> links[AMAZON] = WebLink("Amazon", url.let { URLBuilder(it).buildString() }) }
                 "ebj" -> {
                     val url = if (value.toIntOrNull() != null) {
                         "https://ebookjapan.yahoo.co.jp/books/${value}}"
@@ -182,10 +181,10 @@ class MangaDexMetadataMapper(
                 "mal" -> links[MY_ANIME_LIST] =
                     WebLink("MyAnimeList", "https://myanimelist.net/manga/${value.encodeURLPath()}")
 
-                "cdj" -> parseUrl(value)?.let { url -> links[CD_JAPAN] = WebLink("CDJapan", url.toStingEncoded()) }
-                "raw" -> parseUrl(value)?.let { url -> links[RAW] = WebLink("Official Raw", url.toStingEncoded()) }
+                "cdj" -> parseUrl(value)?.let { url -> links[CD_JAPAN] = WebLink("CDJapan", url.let { URLBuilder(it).buildString() }) }
+                "raw" -> parseUrl(value)?.let { url -> links[RAW] = WebLink("Official Raw", url.let { URLBuilder(it).buildString() }) }
                 "engtl" -> parseUrl(value)?.let { url ->
-                    links[ENGLISH_TL] = WebLink("Official English", url.toStingEncoded())
+                    links[ENGLISH_TL] = WebLink("Official English", url.let { URLBuilder(it).buildString() })
                 }
             }
         }

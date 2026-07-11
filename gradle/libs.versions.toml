@@ -1,5 +1,5 @@
 [versions]
-app-version = "1.8.0-pickled"
+app-version = "1.8.6-dev1"
 agp = "8.11.2"
 cache4k = "0.14.0"
 commons-compress = "1.28.0"
@@ -43,7 +43,6 @@ komga-client = { module = "io.github.snd-r:komga-client", version.ref = "komga-c
 ktor-client-auth = { module = "io.ktor:ktor-client-auth", version.ref = "ktor" }
 ktor-client-core = { module = "io.ktor:ktor-client-core", version.ref = "ktor" }
 ktor-client-content-negotiation = { module = "io.ktor:ktor-client-content-negotiation", version.ref = "ktor" }
-ktor-client-encoding = { module = "io.ktor:ktor-client-encoding", version.ref = "ktor" }
 ktor-client-okhttp = { module = "io.ktor:ktor-client-okhttp", version.ref = "ktor" }
 ktor-server-core = { module = "io.ktor:ktor-server-core", version.ref = "ktor" }
 ktor-server-content-negotiation = { module = "io.ktor:ktor-server-content-negotiation", version.ref = "ktor" }

@@ -89,7 +89,6 @@ import snd.komf.providers.yenpress.YenPressClient
 import snd.komf.providers.yenpress.YenPressMetadataMapper
 import snd.komf.providers.yenpress.YenPressMetadataProvider
 import snd.komf.util.NameSimilarityMatcher
-import snd.komf.util.NameSimilarityMatcher.Companion.nameSimilarityMatcher
 import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger { }
@@ -115,7 +114,7 @@ class ProvidersModule(
     }
 
     fun getMetadataProviders(): MetadataProviders {
-        val defaultNameMatcher = nameSimilarityMatcher(config.nameMatchingMode)
+        val defaultNameMatcher = NameSimilarityMatcher(config.nameMatchingMode)
         val defaultProviders = createMetadataProviders(
             config = config.defaultProviders,
             defaultNameMatcher = defaultNameMatcher,
@@ -532,7 +531,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val malSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return MalMetadataProvider(
             malClient,
             malMetadataMapper,
@@ -555,7 +554,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return MangaUpdatesMetadataProvider(
             client,
             mangaUpdatesMetadataMapper,
@@ -578,7 +577,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return NautiljonMetadataProvider(
             client,
             seriesMetadataMapper,
@@ -603,7 +602,7 @@ class ProvidersModule(
             tagsScoreThreshold = config.tagsScoreThreshold
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return AniListMetadataProvider(
             client,
             metadataMapper,
@@ -627,7 +626,7 @@ class ProvidersModule(
             config.artistRoles
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return YenPressMetadataProvider(
             client,
             metadataMapper,
@@ -647,7 +646,7 @@ class ProvidersModule(
 
         val metadataMapper = KodanshaMetadataMapper(config.seriesMetadata, config.bookMetadata)
         val similarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return KodanshaMetadataProvider(
             client,
@@ -672,7 +671,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return VizMetadataProvider(
             client,
@@ -697,7 +696,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return BookWalkerMetadataProvider(
             client,
@@ -726,7 +725,7 @@ class ProvidersModule(
         )
 
         val mangaDexSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return MangaDexMetadataProvider(
             client,
             mangaDexMetadataMapper,
@@ -761,7 +760,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val bangumiSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return BangumiMetadataProvider(
             client,
             bangumiMetadataMapper,
@@ -800,7 +799,7 @@ class ProvidersModule(
             issueNameTemplate = comicVineIssueName,
         )
         val similarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return ComicVineMetadataProvider(
             client = comicVineClient,
@@ -825,7 +824,7 @@ class ProvidersModule(
         )
 
         val hentagSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
         return HentagMetadataProvider(
             client,
             hentagMetadataMapper,
@@ -854,7 +853,7 @@ class ProvidersModule(
                 authorRoles = config.authorRoles,
                 artistRoles = config.artistRoles,
             ),
-            nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            nameMatcher = config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher,
             coverFetchClient = if (config.seriesMetadata.thumbnail) coverFetchClient else null,
             mediaType = config.mediaType
         )
@@ -874,7 +873,7 @@ class ProvidersModule(
                 authorRoles = config.authorRoles,
                 artistRoles = config.artistRoles,
             ),
-            nameMatcher = config.nameMatchingMode?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            nameMatcher = config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher,
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
         )
@@ -1019,7 +1018,7 @@ class ProvidersModule(
             artistRoles = config.artistRoles,
         )
         val similarityMatcher = config.nameMatchingMode
-            ?.let { nameSimilarityMatcher(it) } ?: defaultNameMatcher
+            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
 
         return GermanMetadataProvider(
             sources = sources,

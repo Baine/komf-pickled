@@ -22,7 +22,6 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(project(":komf-core"))
-//            implementation(project(":komf-mediaserver"))
             implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.coroutines.core)
             implementation(libs.kotlinx.datetime)
@@ -30,7 +29,6 @@ kotlin {
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
-            implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.serialization.kotlinx.json)
 
             api(libs.velocity.core)

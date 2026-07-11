@@ -18,7 +18,6 @@ import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import snd.komf.comicinfo.ComicInfoWriter
-import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.config.DatabaseConfig
 import snd.komf.mediaserver.config.KavitaConfig
 import snd.komf.mediaserver.config.KomgaConfig
@@ -97,7 +96,7 @@ class MediaServerModule(
                 .username(komgaConfig.komgaUser)
                 .password(komgaConfig.komgaPassword)
                 .baseUrlBuilder { URLBuilder(komgaConfig.baseUri).appendPathSegments("/") }
-                .useragent(komfUserAgent)
+                .useragent("Snd-R/komf (https://github.com/Snd-R/komf)")
                 .build()
             val komgaAdapter = KomgaMediaServerClientAdapter(
                 komgaClientFactory.bookClient(),

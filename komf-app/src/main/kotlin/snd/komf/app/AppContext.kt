@@ -22,7 +22,6 @@ import snd.komf.CoreModule
 import snd.komf.app.config.AppConfig
 import snd.komf.app.config.ConfigLoader
 import snd.komf.app.config.ConfigWriter
-import snd.komf.ktor.komfUserAgent
 import snd.komf.mediaserver.MediaServerModule
 import snd.komf.notifications.NotificationsModule
 import java.nio.file.Path
@@ -88,7 +87,7 @@ class AppContext(private val configPath: Path? = null) {
         ktorBaseClient = HttpClient(OkHttp) {
             engine { preconfigured = baseOkHttpClient }
             expectSuccess = true
-            install(UserAgent) { agent = komfUserAgent }
+            install(UserAgent) { agent = "Snd-R/komf (https://github.com/Snd-R/komf)" }
         }
 
         providersModule = CoreModule(

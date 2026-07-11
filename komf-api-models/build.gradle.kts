@@ -37,7 +37,6 @@ kotlin {
 mavenPublishing {
     publishToMavenCentral( automaticRelease = false)
     coordinates("io.github.snd-r.komf", "api-models", libs.versions.app.version.get())
-//    signAllPublications()
 
     pom {
         name.set("Komf API models")

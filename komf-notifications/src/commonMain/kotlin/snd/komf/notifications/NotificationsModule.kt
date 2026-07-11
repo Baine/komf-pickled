@@ -8,7 +8,6 @@ import io.ktor.http.HttpStatusCode
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
 import snd.komf.ktor.HttpRequestRateLimiter
-import snd.komf.ktor.komfUserAgent
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
@@ -42,7 +41,7 @@ class NotificationsModule(
             eventsPerInterval = 4
             allowBurst = false
         }
-        install(UserAgent) { agent = komfUserAgent }
+        install(UserAgent) { agent = "Snd-R/komf (https://github.com/Snd-R/komf)" }
         install(ContentNegotiation) { json(json) }
     }
 
