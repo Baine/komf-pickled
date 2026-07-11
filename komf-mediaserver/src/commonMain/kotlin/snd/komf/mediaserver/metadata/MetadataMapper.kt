@@ -16,6 +16,7 @@ import snd.komf.model.AuthorRole.LETTERER
 import snd.komf.model.AuthorRole.PENCILLER
 import snd.komf.model.AuthorRole.TRANSLATOR
 import snd.komf.model.AuthorRole.WRITER
+import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
 import snd.komf.model.SeriesMetadata
 
@@ -95,42 +96,18 @@ class MetadataMapper {
             year = bookMetadata?.releaseDate?.year,
             month = bookMetadata?.releaseDate?.month?.number,
             day = bookMetadata?.releaseDate?.day,
-            writer = authors?.filter { it.role == WRITER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            penciller = authors?.filter { it.role == PENCILLER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            inker = authors?.filter { it.role == INKER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            colorist = authors?.filter { it.role == COLORIST }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            letterer = authors?.filter { it.role == LETTERER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            coverArtist = authors?.filter { it.role == COVER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            editor = authors?.filter { it.role == EDITOR }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            translator = authors?.filter { it.role == TRANSLATOR }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
+            writer = authors.roleString(WRITER),
+            penciller = authors.roleString(PENCILLER),
+            inker = authors.roleString(INKER),
+            colorist = authors.roleString(COLORIST),
+            letterer = authors.roleString(LETTERER),
+            coverArtist = authors.roleString(COVER),
+            editor = authors.roleString(EDITOR),
+            translator = authors.roleString(TRANSLATOR),
             publisher = seriesMetadata?.publisher?.name,
             genre = seriesMetadata?.genres?.ifEmpty { null }?.joinToString(","),
             tags = bookMetadata?.tags?.ifEmpty { null }?.joinToString(","),
-            ageRating = seriesMetadata?.ageRating
-                ?.let { metadataRating ->
-                    (AgeRating.entries
-                        .filter { it.ageRating != null }
-                        .sortedBy { it.ageRating }
-                        .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
-                        ?: AgeRating.ADULTS_ONLY_18)
-                        .value
-                },
+            ageRating = coerceAgeRating(seriesMetadata?.ageRating),
             languageISO = seriesMetadata?.language,
             localizedSeries = seriesMetadata?.titles?.find { it.type != null }?.name,
             storyArc = bookMetadata?.storyArcs
@@ -154,42 +131,18 @@ class MetadataMapper {
             year = seriesMetadata.releaseDate?.year,
             month = seriesMetadata.releaseDate?.month,
             day = seriesMetadata.releaseDate?.day,
-            writer = authors?.filter { it.role == WRITER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            penciller = authors?.filter { it.role == PENCILLER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            inker = authors?.filter { it.role == INKER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            colorist = authors?.filter { it.role == COLORIST }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            letterer = authors?.filter { it.role == LETTERER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            coverArtist = authors?.filter { it.role == COVER }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            editor = authors?.filter { it.role == EDITOR }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
-            translator = authors?.filter { it.role == TRANSLATOR }
-                ?.ifEmpty { null }
-                ?.joinToString(",") { it.name },
+            writer = authors.roleString(WRITER),
+            penciller = authors.roleString(PENCILLER),
+            inker = authors.roleString(INKER),
+            colorist = authors.roleString(COLORIST),
+            letterer = authors.roleString(LETTERER),
+            coverArtist = authors.roleString(COVER),
+            editor = authors.roleString(EDITOR),
+            translator = authors.roleString(TRANSLATOR),
             publisher = seriesMetadata.publisher?.name,
             genre = seriesMetadata.genres.ifEmpty { null }?.joinToString(","),
             tags = seriesMetadata.tags.ifEmpty { null }?.joinToString(","),
-            ageRating = seriesMetadata.ageRating
-                ?.let { metadataRating ->
-                    (AgeRating.entries
-                        .filter { it.ageRating != null }
-                        .sortedBy { it.ageRating }
-                        .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
-                        ?: AgeRating.ADULTS_ONLY_18)
-                        .value
-                },
+            ageRating = coerceAgeRating(seriesMetadata.ageRating),
             languageISO = seriesMetadata.language,
             localizedSeries = seriesMetadata.titles.find { it.type != null }?.name,
             storyArc = bookMetadata?.storyArcs?.joinToString(",") { it.name },
@@ -202,4 +155,16 @@ class MetadataMapper {
         if (patched is Collection<*> && patched.isEmpty()) null
         else if (patched != null && !lock) patched
         else null
+
+    private fun Collection<snd.komf.model.Author>?.roleString(role: AuthorRole): String? =
+        this?.filter { it.role == role }?.ifEmpty { null }?.joinToString(",") { it.name }
+
+    private fun coerceAgeRating(rating: Int?): String? = rating?.let { metadataRating ->
+        (AgeRating.entries
+            .filter { it.ageRating != null }
+            .sortedBy { it.ageRating }
+            .firstOrNull { it.ageRating == it.ageRating!!.coerceAtLeast(metadataRating) }
+            ?: AgeRating.ADULTS_ONLY_18)
+            .value
+    }
 }

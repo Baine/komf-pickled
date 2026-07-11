@@ -11,6 +11,7 @@ import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.util.NameSimilarityMatcher
+import snd.komf.util.removeParentheses
 import kotlin.time.Duration.Companion.minutes
 
 class HentagMetadataProvider(
@@ -69,7 +70,4 @@ class HentagMetadataProvider(
                 )
     }
 
-    private fun removeParentheses(name: String): String {
-        return name.replace("[(\\[{]([^)\\]}]+)[)\\]}]".toRegex(), "").trim()
-    }
 }

@@ -126,13 +126,6 @@ class MetadataUpdater(
 
                     comicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
                 }
-
-//                UpdateMode.OPF -> {
-//                    if (book.deleted) return@forEach
-//
-//                    if (writeSeriesMetadata) epubWriter.writeSeriesMetadata(Path.of(book.url), seriesMeta, metadata)
-//                    else epubWriter.writeMetadata(Path.of(book.url), seriesMeta, metadata)
-//                }
             }
         }
 

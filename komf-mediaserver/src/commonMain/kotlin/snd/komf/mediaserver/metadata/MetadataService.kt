@@ -45,6 +45,7 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.ProvidersModule
 import snd.komf.util.BookNameParser
+import snd.komf.util.removeParentheses
 
 private val logger = KotlinLogging.logger {}
 
@@ -364,10 +365,6 @@ class MetadataService(
         ).map { (bookId, metadata) -> books[bookId]!! to metadata }.toMap()
 
         return SeriesAndBookMetadata(mergedSeries, mergedBooks)
-    }
-
-    private fun removeParentheses(name: String): String {
-        return name.replace("[(\\[{]([^)\\]}]+)[)\\]}]".toRegex(), "").trim()
     }
 
     private suspend fun createMatchQuery(

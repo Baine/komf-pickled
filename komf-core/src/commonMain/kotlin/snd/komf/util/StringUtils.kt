@@ -12,3 +12,8 @@ fun replaceFullwidthChars(input: String) = input.replace(fullwidthRegex) { match
 // ponytail: replaces commons-text StringUtils.stripAccents; komf-core targets only JVM
 fun stripAccents(input: String): String =
     Normalizer.normalize(input, Normalizer.Form.NFD).replace(combiningMarksRegex, "")
+
+private val parenthesesRegex = "[(\\[{]([^)\\]}]+)[)\\]}]".toRegex()
+
+fun removeParentheses(name: String): String =
+    name.replace(parenthesesRegex, "").trim()

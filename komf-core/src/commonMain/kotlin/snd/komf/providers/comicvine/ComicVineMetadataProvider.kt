@@ -13,6 +13,7 @@ import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders.COMIC_VINE
+import snd.komf.util.removeParentheses
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.comicvine.model.ComicVineImage
 import snd.komf.providers.comicvine.model.ComicVineIssueId
@@ -69,7 +70,7 @@ class ComicVineMetadataProvider(
             credits.map { arc ->
                 val id = ComicVineStoryArcId(arc.id)
                 storyArcCache.get(id) {
-                    println("story arc cache miss")
+                    logger.debug { "story arc cache miss" }
                     client.getStoryArc(id).results
                 }
             }
@@ -150,10 +151,6 @@ class ComicVineMetadataProvider(
 
     private fun extractYear(seriesName: String): Int? {
         return startYearRegex.find(seriesName)?.groups?.get("startYear")?.value?.toIntOrNull()
-    }
-
-    private fun removeParentheses(seriesName: String): String {
-        return seriesName.replace("[(\\[{]([^)\\]}]+)[)\\]}]".toRegex(), "").trim()
     }
 
     private fun resultMatchFilter(matchQuery: MatchQuery, result: ComicVineVolumeSearch): Boolean {
