@@ -11,7 +11,7 @@ import io.ktor.http.ContentType
 import io.ktor.http.contentType
 import io.ktor.utils.io.readUTF8Line
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.channelFlow
 import kotlinx.serialization.json.Json
 import snd.komf.api.config.KomfConfig
 import snd.komf.api.config.KomfConfigUpdateRequest
@@ -36,26 +36,26 @@ class KomfConfigClient(
     }
 
     fun updateMangaBakaDb(): Flow<MangaBakaDownloadProgress> {
-        return flow {
+        return channelFlow {
             runCatching {
                 ktor.preparePost("/api/update-manga-baka-db").execute { response ->
                     val channel = response.bodyAsChannel()
                     while (!channel.isClosedForRead) {
                         val message = channel.readUTF8Line()
                         if (message == null) {
-                            emit(ErrorEvent("Connection closed"))
+                            send(ErrorEvent("Connection closed"))
                             break
                         }
 
                         val event = json.decodeFromString<MangaBakaDownloadProgress>(message)
-                        emit(event)
+                        send(event)
                         if (event is FinishedEvent || event is ErrorEvent) {
                             break
                         }
                     }
                 }
             }.onFailure {
-                emit(ErrorEvent(it.message ?: "Unexpected error"))
+                send(ErrorEvent(it.message ?: "Unexpected error"))
             }
         }
     }

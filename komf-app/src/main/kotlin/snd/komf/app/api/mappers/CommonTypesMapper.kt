@@ -16,123 +16,30 @@ import snd.komf.providers.CoreProviders
 import snd.komf.providers.MangaBakaMode
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 
+// ponytail: all API↔core enum pairs share identical entry names, enumValueOf replaces the when blocks
 
-fun KomfAuthorRole.toAuthorRole() = when (this) {
-    KomfAuthorRole.WRITER -> AuthorRole.WRITER
-    KomfAuthorRole.PENCILLER -> AuthorRole.PENCILLER
-    KomfAuthorRole.INKER -> AuthorRole.INKER
-    KomfAuthorRole.COLORIST -> AuthorRole.COLORIST
-    KomfAuthorRole.LETTERER -> AuthorRole.LETTERER
-    KomfAuthorRole.COVER -> AuthorRole.COVER
-    KomfAuthorRole.EDITOR -> AuthorRole.EDITOR
-    KomfAuthorRole.TRANSLATOR -> AuthorRole.TRANSLATOR
-}
+inline fun <reified T : Enum<T>> Enum<*>.to() = enumValueOf<T>(name)
 
-fun AuthorRole.fromAuthorRole() = when (this) {
-    AuthorRole.WRITER -> KomfAuthorRole.WRITER
-    AuthorRole.PENCILLER -> KomfAuthorRole.PENCILLER
-    AuthorRole.INKER -> KomfAuthorRole.INKER
-    AuthorRole.COLORIST -> KomfAuthorRole.COLORIST
-    AuthorRole.LETTERER -> KomfAuthorRole.LETTERER
-    AuthorRole.COVER -> KomfAuthorRole.COVER
-    AuthorRole.EDITOR -> KomfAuthorRole.EDITOR
-    AuthorRole.TRANSLATOR -> KomfAuthorRole.TRANSLATOR
-}
+fun KomfAuthorRole.toAuthorRole() = to<AuthorRole>()
+fun AuthorRole.fromAuthorRole() = to<KomfAuthorRole>()
 
-fun KomfMediaType.toMediaType() = when (this) {
-    KomfMediaType.MANGA -> MediaType.MANGA
-    KomfMediaType.NOVEL -> MediaType.NOVEL
-    KomfMediaType.COMIC -> MediaType.COMIC
-    KomfMediaType.WEBTOON -> MediaType.WEBTOON
-}
+fun KomfMediaType.toMediaType() = to<MediaType>()
+fun MediaType.fromMediaType() = to<KomfMediaType>()
 
-fun MediaType.fromMediaType() = when (this) {
-    MediaType.MANGA -> KomfMediaType.MANGA
-    MediaType.NOVEL -> KomfMediaType.NOVEL
-    MediaType.COMIC -> KomfMediaType.COMIC
-    MediaType.WEBTOON -> KomfMediaType.WEBTOON
-}
+fun KomfNameMatchingMode.toNameMatchingMode() = to<NameMatchingMode>()
+fun NameMatchingMode.fromNameMatchingMode() = to<KomfNameMatchingMode>()
 
-fun KomfNameMatchingMode.toNameMatchingMode() = when (this) {
-    KomfNameMatchingMode.EXACT -> NameMatchingMode.EXACT
-    KomfNameMatchingMode.CLOSEST_MATCH -> NameMatchingMode.CLOSEST_MATCH
-}
+fun KomfUpdateMode.toUpdateMode() = to<UpdateMode>()
+fun UpdateMode.fromUpdateMode() = to<KomfUpdateMode>()
 
-fun NameMatchingMode.fromNameMatchingMode() = when (this) {
-    NameMatchingMode.EXACT -> KomfNameMatchingMode.EXACT
-    NameMatchingMode.CLOSEST_MATCH -> KomfNameMatchingMode.CLOSEST_MATCH
-}
+fun KomfReadingDirection.toReadingDirection() = to<ReadingDirection>()
+fun ReadingDirection.fromReadingDirection() = to<KomfReadingDirection>()
 
-fun KomfUpdateMode.toUpdateMode() = when (this) {
-    KomfUpdateMode.API -> UpdateMode.API
-    KomfUpdateMode.COMIC_INFO -> UpdateMode.COMIC_INFO
-}
+fun CoreProviders.fromProvider() = to<KomfCoreProviders>()
 
-fun UpdateMode.fromUpdateMode() = when (this) {
-    UpdateMode.API -> KomfUpdateMode.API
-    UpdateMode.COMIC_INFO -> KomfUpdateMode.COMIC_INFO
-}
-
-fun KomfReadingDirection.toReadingDirection() = when (this) {
-    KomfReadingDirection.LEFT_TO_RIGHT -> ReadingDirection.LEFT_TO_RIGHT
-    KomfReadingDirection.RIGHT_TO_LEFT -> ReadingDirection.RIGHT_TO_LEFT
-    KomfReadingDirection.VERTICAL -> ReadingDirection.VERTICAL
-    KomfReadingDirection.WEBTOON -> ReadingDirection.WEBTOON
-}
-
-fun ReadingDirection.fromReadingDirection() = when (this) {
-    ReadingDirection.LEFT_TO_RIGHT -> KomfReadingDirection.LEFT_TO_RIGHT
-    ReadingDirection.RIGHT_TO_LEFT -> KomfReadingDirection.RIGHT_TO_LEFT
-    ReadingDirection.VERTICAL -> KomfReadingDirection.VERTICAL
-    ReadingDirection.WEBTOON -> KomfReadingDirection.WEBTOON
-}
-
-fun CoreProviders.fromProvider() = when (this) {
-    CoreProviders.ANILIST -> KomfCoreProviders.ANILIST
-    CoreProviders.BANGUMI -> KomfCoreProviders.BANGUMI
-    CoreProviders.BOOK_WALKER -> KomfCoreProviders.BOOK_WALKER
-    CoreProviders.CHAIKA_FILE -> KomfCoreProviders.CHAIKA_FILE
-    CoreProviders.COMIC_VINE -> KomfCoreProviders.COMIC_VINE
-    CoreProviders.GALLERY_DL -> KomfCoreProviders.GALLERY_DL
-    CoreProviders.GERMAN -> KomfCoreProviders.GERMAN
-    CoreProviders.HDOUJIN -> KomfCoreProviders.HDOUJIN
-    CoreProviders.HENTAG -> KomfCoreProviders.HENTAG
-    CoreProviders.KODANSHA -> KomfCoreProviders.KODANSHA
-    CoreProviders.MAL -> KomfCoreProviders.MAL
-    CoreProviders.MANGA_BAKA -> KomfCoreProviders.MANGA_BAKA
-    CoreProviders.MANGA_UPDATES -> KomfCoreProviders.MANGA_UPDATES
-    CoreProviders.MANGADEX -> KomfCoreProviders.MANGADEX
-    CoreProviders.NAUTILJON -> KomfCoreProviders.NAUTILJON
-    CoreProviders.SPEC_YAML -> KomfCoreProviders.SPEC_YAML
-    CoreProviders.WEBTOONS -> KomfCoreProviders.WEBTOONS
-    CoreProviders.YEN_PRESS -> KomfCoreProviders.YEN_PRESS
-    CoreProviders.VIZ -> KomfCoreProviders.VIZ
-}
-
-fun KomfProviders.toProvider() = when (this) {
-    KomfCoreProviders.ANILIST -> CoreProviders.ANILIST
-    KomfCoreProviders.BANGUMI -> CoreProviders.BANGUMI
-    KomfCoreProviders.BOOK_WALKER -> CoreProviders.BOOK_WALKER
-    KomfCoreProviders.CHAIKA_FILE -> CoreProviders.CHAIKA_FILE
-    KomfCoreProviders.COMIC_VINE -> CoreProviders.COMIC_VINE
-    KomfCoreProviders.GALLERY_DL -> CoreProviders.GALLERY_DL
-    KomfCoreProviders.GERMAN -> CoreProviders.GERMAN
-    KomfCoreProviders.HDOUJIN -> CoreProviders.HDOUJIN
-    KomfCoreProviders.HENTAG -> CoreProviders.HENTAG
-    KomfCoreProviders.KODANSHA -> CoreProviders.KODANSHA
-    KomfCoreProviders.MAL -> CoreProviders.MAL
-    KomfCoreProviders.MANGA_BAKA -> CoreProviders.MANGA_BAKA
-    KomfCoreProviders.MANGA_UPDATES -> CoreProviders.MANGA_UPDATES
-    KomfCoreProviders.MANGADEX -> CoreProviders.MANGADEX
-    KomfCoreProviders.NAUTILJON -> CoreProviders.NAUTILJON
-    KomfCoreProviders.SPEC_YAML -> CoreProviders.SPEC_YAML
-    KomfCoreProviders.WEBTOONS -> CoreProviders.WEBTOONS
-    KomfCoreProviders.YEN_PRESS -> CoreProviders.YEN_PRESS
-    KomfCoreProviders.VIZ -> CoreProviders.VIZ
+fun KomfProviders.toProvider(): CoreProviders = when (this) {
+    is KomfCoreProviders -> to()
     is UnknownKomfProvider -> CoreProviders.valueOf(this.name)
 }
 
-fun snd.komf.api.MangaBakaMode.toMangaBakaMode() = when (this) {
-    snd.komf.api.MangaBakaMode.API -> MangaBakaMode.API
-    snd.komf.api.MangaBakaMode.DATABASE -> MangaBakaMode.DATABASE
-}
+fun snd.komf.api.MangaBakaMode.toMangaBakaMode() = to<MangaBakaMode>()

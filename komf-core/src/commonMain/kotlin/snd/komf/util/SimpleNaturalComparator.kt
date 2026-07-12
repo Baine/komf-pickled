@@ -1,30 +1,13 @@
 // adapted to kotlin from https://github.com/gpanther/java-nat-sort
 package snd.komf.util
 
-/**
- * Compares Strings (or any other CharSequence subclass) using the
- * [natural sort](http://blog.codinghorror.com/sorting-for-humans-natural-sort-order/) /
- * [alphanum algorithm](http://www.davekoelle.com/alphanum.html) which gives a more
- * "natural" ordering when presenting the sorted list of strings to humans.
- *
- *
- *  * Does not play nice with Unicode, especially characters which are outside of the BMP (ie.
- * codepoints with values larger than [Character.MAX_VALUE]).
- *  * Does not handle fractions or grouping characters properly.
- *  * Only understands integer values up to 2^64-1.
- *
- */
 fun <T : CharSequence?> caseInsensitiveNatSortComparator(): Comparator<T> {
     return CaseInsensitiveSimpleNaturalComparator()
 }
 
-private class CaseInsensitiveSimpleNaturalComparator<T : CharSequence?> : AbstractSimpleNaturalComparator<T>() {
-    override fun compareChars(c1: Char, c2: Char): Int {
-        return c1.lowercaseChar() - c2.lowercaseChar()
-    }
-}
+// ponytail: flattened abstract class hierarchy — one subclass only
 
-private abstract class AbstractSimpleNaturalComparator<T : CharSequence?> : Comparator<T> {
+private class CaseInsensitiveSimpleNaturalComparator<T : CharSequence?> : Comparator<T> {
     override fun compare(sequence1: T, sequence2: T): Int {
         val len1 = sequence1!!.length
         val len2 = sequence2!!.length
@@ -42,10 +25,8 @@ private abstract class AbstractSimpleNaturalComparator<T : CharSequence?> : Comp
                 isDigit1 && !isDigit2 -> return -1
                 !isDigit1 && isDigit2 -> return 1
                 !isDigit1 && !isDigit2 -> {
-                    val c = compareChars(c1, c2)
-                    if (c != 0) {
-                        return c
-                    }
+                    val c = c1.lowercaseChar() - c2.lowercaseChar()
+                    if (c != 0) return c
                 }
 
                 else -> {
@@ -74,7 +55,6 @@ private abstract class AbstractSimpleNaturalComparator<T : CharSequence?> : Comp
                     if (num1 != num2) {
                         return compareUnsigned(num1, num2)
                     }
-
                 }
             }
         }
@@ -85,8 +65,6 @@ private abstract class AbstractSimpleNaturalComparator<T : CharSequence?> : Comp
             else -> 0
         }
     }
-
-    abstract fun compareChars(c1: Char, c2: Char): Int
 
     companion object {
         private fun compareUnsigned(num1: Long, num2: Long): Int {

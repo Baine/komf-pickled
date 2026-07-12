@@ -44,6 +44,15 @@ import snd.komf.model.WebLink
 import java.nio.file.Path
 import kotlin.io.path.nameWithoutExtension
 
+// ponytail: one helper replaces 16 identical author-role mapping blocks
+private fun Map<String, List<MediaServerAuthor>>?.authorsForRole(
+    role: AuthorRole,
+    default: Collection<KavitaAuthor>,
+): Set<KavitaAuthor> =
+    this?.get(role.name.lowercase())
+        ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
+        ?.ifEmpty { default.toSet() } ?: default.toSet()
+
 class KavitaMediaServerClientAdapter(private val kavitaClient: KavitaClient) : MediaServerClient {
 
     override suspend fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
@@ -320,36 +329,14 @@ private fun MediaServerSeriesMetadataUpdate.toKavitaSeriesMetadataUpdate(current
         genres = genres?.let { deduplicate(it) }?.map { KavitaGenre(id = 0, title = it) }?.toSet()
             ?: currentMetadata.genres,
         tags = tags?.let { deduplicate(it) }?.map { KavitaTag(id = 0, title = it) }?.toSet() ?: currentMetadata.tags,
-        writers = authors
-            ?.get(AuthorRole.WRITER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.writers } ?: currentMetadata.writers,
-        coverArtists = authors
-            ?.get(AuthorRole.COVER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.coverArtists } ?: currentMetadata.coverArtists,
-        pencillers = authors
-            ?.get(AuthorRole.PENCILLER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.pencillers } ?: currentMetadata.pencillers,
-        inkers = authors
-            ?.get(AuthorRole.INKER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.inkers } ?: currentMetadata.inkers,
-        colorists = authors
-            ?.get(AuthorRole.COLORIST.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.colorists } ?: currentMetadata.colorists,
-        letterers = authors
-            ?.get(AuthorRole.LETTERER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentMetadata.letterers } ?: currentMetadata.letterers,
-        editors = authors
-            ?.get(AuthorRole.EDITOR.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet() ?: currentMetadata.editors,
-        translators = authors
-            ?.get(AuthorRole.TRANSLATOR.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet() ?: currentMetadata.translators,
+        writers = authors.authorsForRole(AuthorRole.WRITER, currentMetadata.writers),
+        coverArtists = authors.authorsForRole(AuthorRole.COVER, currentMetadata.coverArtists),
+        pencillers = authors.authorsForRole(AuthorRole.PENCILLER, currentMetadata.pencillers),
+        inkers = authors.authorsForRole(AuthorRole.INKER, currentMetadata.inkers),
+        colorists = authors.authorsForRole(AuthorRole.COLORIST, currentMetadata.colorists),
+        letterers = authors.authorsForRole(AuthorRole.LETTERER, currentMetadata.letterers),
+        editors = authors.authorsForRole(AuthorRole.EDITOR, currentMetadata.editors),
+        translators = authors.authorsForRole(AuthorRole.TRANSLATOR, currentMetadata.translators),
         ageRating = ageRating ?: currentMetadata.ageRating,
         language = language ?: currentMetadata.language,
         releaseYear = releaseYear ?: currentMetadata.releaseYear,
@@ -500,38 +487,14 @@ private fun MediaServerBookMetadataUpdate.toKavitaChapterMetadataUpdate(currentC
         releaseDate = releaseDate?.atTime(LocalTime(0, 0, 0)) ?: currentChapter.releaseDate,
         titleName = title ?: currentChapter.titleName,
         sortOrder = numberSort ?: currentChapter.sortOrder,
-        writers = authors
-            ?.get(AuthorRole.WRITER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.writers } ?: currentChapter.writers,
-        coverArtists = authors
-            ?.get(AuthorRole.COVER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.coverArtists } ?: currentChapter.coverArtists,
-        pencillers = authors
-            ?.get(AuthorRole.PENCILLER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.pencillers } ?: currentChapter.pencillers,
-        inkers = authors
-            ?.get(AuthorRole.INKER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.inkers } ?: currentChapter.inkers,
-        colorists = authors
-            ?.get(AuthorRole.COLORIST.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.colorists } ?: currentChapter.colorists,
-        letterers = authors
-            ?.get(AuthorRole.LETTERER.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.letterers } ?: currentChapter.letterers,
-        editors = authors
-            ?.get(AuthorRole.EDITOR.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.editors } ?: currentChapter.editors,
-        translators = authors
-            ?.get(AuthorRole.TRANSLATOR.name.lowercase())
-            ?.map { KavitaAuthor(id = 0, name = it.name) }?.toSet()
-            ?.ifEmpty { currentChapter.translators } ?: currentChapter.translators,
+        writers = authors.authorsForRole(AuthorRole.WRITER, currentChapter.writers),
+        coverArtists = authors.authorsForRole(AuthorRole.COVER, currentChapter.coverArtists),
+        pencillers = authors.authorsForRole(AuthorRole.PENCILLER, currentChapter.pencillers),
+        inkers = authors.authorsForRole(AuthorRole.INKER, currentChapter.inkers),
+        colorists = authors.authorsForRole(AuthorRole.COLORIST, currentChapter.colorists),
+        letterers = authors.authorsForRole(AuthorRole.LETTERER, currentChapter.letterers),
+        editors = authors.authorsForRole(AuthorRole.EDITOR, currentChapter.editors),
+        translators = authors.authorsForRole(AuthorRole.TRANSLATOR, currentChapter.translators),
         imprints = currentChapter.imprints,
         publishers = currentChapter.publishers,
         characters = currentChapter.characters,

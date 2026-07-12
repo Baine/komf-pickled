@@ -18,6 +18,7 @@ import snd.komf.api.config.MetadataProvidersConfigUpdateRequest
 import snd.komf.api.config.MetadataUpdateConfigUpdateRequest
 import snd.komf.api.config.ProviderConfigUpdateRequest
 import snd.komf.api.config.ProvidersConfigUpdateRequest
+import snd.komf.util.NameSimilarityMatcher
 import snd.komf.api.config.SeriesMetadataConfigUpdateRequest
 import snd.komf.api.config.SpecYAMLConfigUpdateRequest
 import snd.komf.app.config.AppConfig
@@ -41,6 +42,18 @@ import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.SpecYAMLConfig
 import snd.komf.providers.mangadex.model.MangaDexLink
 import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
+
+private fun <T> patchValue(current: T?, patch: PatchValue<T>): T? = when (patch) {
+    PatchValue.None -> null
+    is PatchValue.Some -> patch.value
+    PatchValue.Unset -> current
+}
+
+private fun <T, R> patchValue(current: R?, patch: PatchValue<T>, transform: (T) -> R): R? = when (patch) {
+    PatchValue.None -> null
+    is PatchValue.Some -> transform(patch.value)
+    PatchValue.Unset -> current
+}
 
 class AppConfigUpdateMapper {
 
@@ -67,36 +80,12 @@ class AppConfigUpdateMapper {
         patch: MetadataProvidersConfigUpdateRequest
     ): MetadataProvidersConfig {
         return config.copy(
-            malClientId = when (val clientId = patch.malClientId) {
-                PatchValue.None -> null
-                is PatchValue.Some -> clientId.value
-                PatchValue.Unset -> config.malClientId
-            },
-            comicVineApiKey = when (val apiKey = patch.comicVineClientId) {
-                PatchValue.None -> null
-                is PatchValue.Some -> apiKey.value
-                PatchValue.Unset -> config.comicVineApiKey
-            },
-            comicVineSearchLimit = when (val limit = patch.comicVineSearchLimit) {
-                PatchValue.None -> null
-                is PatchValue.Some -> limit.value
-                PatchValue.Unset -> config.comicVineSearchLimit
-            },
-            comicVineIssueName = when (val issueName = patch.comicVineIssueName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> issueName.value
-                PatchValue.Unset -> config.comicVineIssueName
-            },
-            comicVineIdFormat = when (val idFormat = patch.comicVineIdFormat) {
-                PatchValue.None -> null
-                is PatchValue.Some -> idFormat.value
-                PatchValue.Unset -> config.comicVineIdFormat
-            },
-            nameMatchingMode = when (patch.nameMatchingMode.getOrNull()) {
-                KomfNameMatchingMode.EXACT -> NameMatchingMode.EXACT
-                KomfNameMatchingMode.CLOSEST_MATCH -> NameMatchingMode.CLOSEST_MATCH
-                null -> config.nameMatchingMode
-            },
+            malClientId = patchValue(config.malClientId, patch.malClientId),
+            comicVineApiKey = patchValue(config.comicVineApiKey, patch.comicVineClientId),
+            comicVineSearchLimit = patchValue(config.comicVineSearchLimit, patch.comicVineSearchLimit),
+            comicVineIssueName = patchValue(config.comicVineIssueName, patch.comicVineIssueName),
+            comicVineIdFormat = patchValue(config.comicVineIdFormat, patch.comicVineIdFormat),
+            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() }
             defaultProviders = patch.defaultProviders.getOrNull()
                 ?.let { providersConfig(config.defaultProviders, it) } ?: config.defaultProviders,
             libraryProviders = patch.libraryProviders.getOrNull()
@@ -191,11 +180,7 @@ class AppConfigUpdateMapper {
             bookMetadata = patch.bookMetadata.getOrNull()
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
-            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> null
-                is PatchValue.Some -> mode.value.toNameMatchingMode()
-                PatchValue.Unset -> config.nameMatchingMode
-            }
+            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() }
         )
     }
 
@@ -211,11 +196,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> null
-                is PatchValue.Some -> mode.value.toNameMatchingMode()
-                PatchValue.Unset -> config.nameMatchingMode
-            }
+            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() },
         )
     }
 
@@ -232,11 +213,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> null
-                is PatchValue.Some -> mode.value.toNameMatchingMode()
-                PatchValue.Unset -> config.nameMatchingMode
-            },
+            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
             coverLanguages = patch.coverLanguages.getOrNull() ?: config.coverLanguages,
             links = patch.links.getOrNull()?.map { MangaDexLink.valueOf(it.name) } ?: config.links
         )
@@ -252,11 +229,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> null
-                is PatchValue.Some -> mode.value.toNameMatchingMode()
-                PatchValue.Unset -> config.nameMatchingMode
-            },
+            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() },
             mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode
         )
     }
@@ -274,11 +247,7 @@ class AppConfigUpdateMapper {
             bookMetadata = patch.bookMetadata.getOrNull()
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
-            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
-                PatchValue.None -> null
-                is PatchValue.Some -> mode.value.toNameMatchingMode()
-                PatchValue.Unset -> config.nameMatchingMode
-            },
+            nameMatchingMode = patchValue(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
             mediaRoots = patch.mediaRoots.getOrNull() ?: config.mediaRoots,
         )
     }
@@ -433,37 +402,17 @@ class AppConfigUpdateMapper {
     ): MetadataPostProcessingConfig {
         return config.copy(
             seriesTitle = patch.seriesTitle.getOrNull() ?: config.seriesTitle,
-            seriesTitleLanguage = when (val language = patch.seriesTitleLanguage) {
-                PatchValue.None -> null
-                is PatchValue.Some -> language.value.ifBlank { null }
-                PatchValue.Unset -> config.seriesTitleLanguage
-            },
+            seriesTitleLanguage = patchValue(config.seriesTitleLanguage, patch.seriesTitleLanguage) { it.ifBlank { null } },
             alternativeSeriesTitles = patch.alternativeSeriesTitles.getOrNull() ?: config.alternativeSeriesTitles,
             alternativeSeriesTitleLanguages = patch.alternativeSeriesTitleLanguages.getOrNull()
                 ?: config.alternativeSeriesTitleLanguages,
             orderBooks = patch.orderBooks.getOrNull() ?: config.orderBooks,
-            readingDirectionValue = when (val readingDirection = patch.readingDirectionValue) {
-                PatchValue.None -> null
-                is PatchValue.Some -> readingDirection.value.toReadingDirection()
-                PatchValue.Unset -> config.readingDirectionValue
-            },
-            languageValue = when (val language = patch.languageValue) {
-                PatchValue.None -> null
-                is PatchValue.Some -> language.value
-                PatchValue.Unset -> config.languageValue
-            },
+            readingDirectionValue = patchValue(config.readingDirectionValue, patch.readingDirectionValue) { it.toReadingDirection() },
+            languageValue = patchValue(config.languageValue, patch.languageValue),
             fallbackToAltTitle = patch.fallbackToAltTitle.getOrNull() ?: config.fallbackToAltTitle,
 
-            scoreTagName = when (val tagName = patch.scoreTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> tagName.value
-                PatchValue.Unset -> config.scoreTagName
-            },
-            originalPublisherTagName = when (val tagName = patch.originalPublisherTagName) {
-                PatchValue.None -> null
-                is PatchValue.Some -> tagName.value
-                PatchValue.Unset -> config.originalPublisherTagName
-            },
+            scoreTagName = patchValue(config.scoreTagName, patch.scoreTagName),
+            originalPublisherTagName = patchValue(config.originalPublisherTagName, patch.originalPublisherTagName),
             publisherTagNames = patch.publisherTagNames.getOrNull()
                 ?.map { PublisherTagNameConfig(it.tagName, it.language) }
                 ?: config.publisherTagNames,
