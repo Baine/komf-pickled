@@ -2,8 +2,10 @@ name: Docker
 
 on:
   push:
+    branches:
+      - master
     tags:
-      - 'v*'
+      - '*'
 
 jobs:
   docker:
@@ -35,8 +37,10 @@ jobs:
         with:
           images: ghcr.io/${{ github.repository }}
           tags: |
+            type=ref,event=branch
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
+            type=sha
 
       - name: Build and push
         uses: docker/build-push-action@v6
