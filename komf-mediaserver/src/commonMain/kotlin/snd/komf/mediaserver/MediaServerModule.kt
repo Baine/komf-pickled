@@ -359,9 +359,8 @@ class MediaServerModule(
             url = "jdbc:sqlite:${file}",
             driver = "org.sqlite.JDBC"
         )
-        @Suppress("DEPRECATION")
         transaction(database) {
-            SchemaUtils.createMissingTablesAndColumns(
+            SchemaUtils.create(
                 KomfJobRecordTable,
                 SeriesMatchTable,
                 BookThumbnailTable,
