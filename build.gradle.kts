@@ -5,16 +5,6 @@ plugins {
     alias(libs.plugins.mavenPublish) apply false
 }
 
-kotlin {
-    sourceSets {
-        commonMain {
-            dependencies {
-                implementation("com.github.h0tk3y:better-levenshtein:2.0.3")
-            }
-        }
-    }
-}
-
 tasks.wrapper {
     gradleVersion = "8.9"
     distributionType = Wrapper.DistributionType.ALL
