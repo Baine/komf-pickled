@@ -42,7 +42,6 @@ kotlin {
             implementation(libs.xmlutil.core)
             implementation(libs.xmlutil.serialization)
             implementation(libs.kaml)
-            implementation("com.github.h0tk3y:better-levenshtein:2.0.3")
         }
         commonTest.dependencies {
             implementation(kotlin("test"))

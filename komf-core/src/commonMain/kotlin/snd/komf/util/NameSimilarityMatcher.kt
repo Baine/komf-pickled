@@ -1,7 +1,6 @@
 package snd.komf.util
 
 import kotlin.math.min
-import com.github.h0tk3y.betterLevenshtein.LevenshteinDistance
 
 // ponytail: public class with mode state; removed companion factory/cached instances
 class NameSimilarityMatcher(val mode: NameMatchingMode) {
@@ -23,14 +22,38 @@ class NameSimilarityMatcher(val mode: NameMatchingMode) {
         }
     }
 
-    private val levenshtein = LevenshteinDistance()
-
     private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
-        return levenshtein.distance(lhs.toString(), rhs.toString())
+        if (lhs == rhs) return 0
+        if (lhs.isEmpty()) return rhs.length
+        if (rhs.isEmpty()) return lhs.length
+
+        val previous = IntArray(rhs.length + 1) { it }
+        val current = IntArray(rhs.length + 1)
+
+        for (i in lhs.indices) {
+            current[0] = i + 1
+            for (j in rhs.indices) {
+                val cost = if (lhs[i] == rhs[j]) 0 else 1
+                current[j + 1] = min(
+                    current[j] + 1,
+                    min(previous[j + 1] + 1, previous[j] + cost)
+                )
+            }
+            previous.copyInto(current)
+        }
+        return previous[rhs.length]
     }
 
     enum class NameMatchingMode {
         EXACT,
         CLOSEST_MATCH
+    }
+
+    companion object {
+        init {
+            val matcher = NameSimilarityMatcher(NameMatchingMode.CLOSEST_MATCH)
+            check(matcher.matches("abcd", "abce")) { "levenshtein self-check failed" }
+            check(!matcher.matches("abcd", "wxyz")) { "levenshtein self-check failed" }
+        }
     }
 }
