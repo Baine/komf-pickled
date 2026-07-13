@@ -52,3 +52,4 @@ kls-classpath*
 
 ### neovim ###
 .nvim.lua
+.aider*
