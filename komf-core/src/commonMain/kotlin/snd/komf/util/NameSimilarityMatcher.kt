@@ -1,6 +1,7 @@
 package snd.komf.util
 
 import kotlin.math.min
+import com.github.h0tk3y.betterLevenshtein.LevenshteinDistance
 
 // ponytail: public class with mode state; removed companion factory/cached instances
 class NameSimilarityMatcher(val mode: NameMatchingMode) {
@@ -22,16 +23,14 @@ class NameSimilarityMatcher(val mode: NameMatchingMode) {
         }
     }
 
-import com.github.h0tk3y.betterLevenshtein.LevenshteinDistance
+    private val levenshtein = LevenshteinDistance()
 
-private val levenshtein = LevenshteinDistance()
+    private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
+        return levenshtein.distance(lhs.toString(), rhs.toString())
+    }
 
-private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
-    return levenshtein.distance(lhs.toString(), rhs.toString())
-}
-
-enum class NameMatchingMode {
-    EXACT,
-    CLOSEST_MATCH
-}
+    enum class NameMatchingMode {
+        EXACT,
+        CLOSEST_MATCH
+    }
 }
