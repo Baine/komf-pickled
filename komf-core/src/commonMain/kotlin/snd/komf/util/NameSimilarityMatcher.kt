@@ -22,10 +22,12 @@ class NameSimilarityMatcher(val mode: NameMatchingMode) {
         }
     }
 
-import io.github.microutils.kotlinstdlib.levenshtein
+import com.github.h0tk3y.betterLevenshtein.LevenshteinDistance
+
+private val levenshtein = LevenshteinDistance()
 
 private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
-    return levenshtein(lhs.toString(), rhs.toString())
+    return levenshtein.distance(lhs.toString(), rhs.toString())
 }
 
 enum class NameMatchingMode {

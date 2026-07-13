@@ -6,7 +6,7 @@ plugins {
 }
 
 dependencies {
-    implementation("io.github.microutils:kotlin-algorithms:1.3")
+    implementation("com.github.h0tk3y:better-levenshtein:2.0.3")
 }
 
 tasks.wrapper {
