@@ -12,7 +12,7 @@ import kotlin.io.path.deleteIfExists
 import kotlin.io.path.notExists
 import kotlin.io.path.writeBytes
 
-// ponytail: top-level extension instead of wrapper object member
+// ponytail: top-level extensions instead of wrapper object
 fun NotificationContext.toVelocityContext(): VelocityContext {
     val context = VelocityContext()
     context.put("library", library)
@@ -22,38 +22,34 @@ fun NotificationContext.toVelocityContext(): VelocityContext {
     return context
 }
 
-internal object VelocityTemplates {
+fun RuntimeInstance.loadTemplateByName(name: String): Template? {
+    if (getLoaderNameForResource(name) == null) return null
+    return runCatching { getTemplate(name) }.getOrNull()
+}
 
-    fun RuntimeInstance.loadTemplateByName(name: String): Template? {
-        if (getLoaderNameForResource(name) == null) return null
-        return runCatching { getTemplate(name) }.getOrNull()
+fun renderTemplate(template: Template, context: VelocityContext): String {
+    return StringWriter().use {
+        template.merge(context, it)
+        it.toString()
     }
+}
 
-    fun renderTemplate(template: Template, context: VelocityContext): String {
-        return StringWriter().use {
-            template.merge(context, it)
-            it.toString()
-        }
+fun RuntimeInstance.templateFromString(template: String): Template {
+    val runtimeService = this
+    return Template().apply {
+        setRuntimeServices(runtimeService)
+        data = runtimeService.parse(StringReader(template), this)
+        initDocument()
     }
+}
 
-    fun RuntimeInstance.templateFromString(template: String): Template {
-        val runtimeService = this
-        return Template().apply {
-            setRuntimeServices(runtimeService)
-            data = runtimeService.parse(StringReader(template), this)
-            initDocument()
-        }
-    }
-
-    fun RuntimeInstance.templateWriteAndGet(stringTemplate: String?, file: Path): Template? {
-        if (stringTemplate == null || stringTemplate.isBlank()) {
-            file.deleteIfExists()
-            return null
-        } else {
-            if (file.notExists()) file.createFile()
-            file.writeBytes(stringTemplate.toByteArray(Charsets.UTF_8), TRUNCATE_EXISTING)
-            return templateFromString(stringTemplate)
-        }
-
+fun RuntimeInstance.templateWriteAndGet(stringTemplate: String?, file: Path): Template? {
+    if (stringTemplate == null || stringTemplate.isBlank()) {
+        file.deleteIfExists()
+        return null
+    } else {
+        if (file.notExists()) file.createFile()
+        file.writeBytes(stringTemplate.toByteArray(Charsets.UTF_8), TRUNCATE_EXISTING)
+        return templateFromString(stringTemplate)
     }
 }

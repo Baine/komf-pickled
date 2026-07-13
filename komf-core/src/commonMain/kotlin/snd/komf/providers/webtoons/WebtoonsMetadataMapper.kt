@@ -102,7 +102,7 @@ class WebtoonsMetadataMapper(
             books = series.chapters?.mapIndexed { index, chapter ->
                 SeriesBook(
                     id = ProviderBookId(chapter.getId().value),
-                    number = BookRange(index + 1),
+                    number = BookRange((index + 1).toDouble()),
                     edition = null,
                     // TODO: Proper type
                     type = null,
@@ -121,7 +121,7 @@ class WebtoonsMetadataMapper(
                 title = chapter.episodeTitle,
                 //summary = TODO(),
                 // Same as above with regards to chapter.episodeNo
-                number = BookRange(index + 1),
+                number = BookRange((index + 1).toDouble()),
                 // numberSort = TODO(),
                 releaseDate = Instant.fromEpochMilliseconds(chapter.exposureDateMillis)
                     .toLocalDateTime(TimeZone.UTC).date,

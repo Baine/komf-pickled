@@ -8,10 +8,10 @@ import org.apache.velocity.Template
 import org.apache.velocity.runtime.RuntimeInstance
 import org.apache.velocity.runtime.resource.loader.ClasspathResourceLoader
 import snd.komf.notifications.NotificationContext
-import snd.komf.notifications.VelocityTemplates.loadTemplateByName
-import snd.komf.notifications.VelocityTemplates.renderTemplate
-import snd.komf.notifications.VelocityTemplates.templateFromString
-import snd.komf.notifications.VelocityTemplates.templateWriteAndGet
+import snd.komf.notifications.loadTemplateByName
+import snd.komf.notifications.renderTemplate
+import snd.komf.notifications.templateFromString
+import snd.komf.notifications.templateWriteAndGet
 import snd.komf.notifications.toVelocityContext
 import snd.komf.notifications.discord.model.EmbedField
 import java.nio.file.Path
