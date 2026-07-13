@@ -22,33 +22,14 @@ class NameSimilarityMatcher(val mode: NameMatchingMode) {
         }
     }
 
-    private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
-        if (lhs == rhs) return 0
-        if (lhs.isEmpty()) return rhs.length
-        if (rhs.isEmpty()) return lhs.length
+import io.github.microutils.kotlinstdlib.levenshtein
 
-        val lhsLength = lhs.length + 1
-        val rhsLength = rhs.length + 1
+private fun levenshtein(lhs: CharSequence, rhs: CharSequence): Int {
+    return levenshtein(lhs.toString(), rhs.toString())
+}
 
-        val cost = Array(lhsLength) { it }
-        val newCost = IntArray(lhsLength)
-
-        for (i in 1 until rhsLength) {
-            newCost[0] = i
-
-            for (j in 1 until lhsLength) {
-                val match = if (lhs[j - 1] == rhs[i - 1]) 0 else 1
-                newCost[j] = minOf(newCost[j - 1] + 1, cost[j] + 1, cost[j - 1] + match)
-            }
-
-            System.arraycopy(newCost, 0, cost, 0, lhsLength)
-        }
-
-        return cost[lhsLength - 1]
-    }
-
-    object NameMatchingMode {
-        const val EXACT = "EXACT"
-        const val CLOSEST_MATCH = "CLOSEST_MATCH"
-    }
+enum class NameMatchingMode {
+    EXACT,
+    CLOSEST_MATCH
+}
 }

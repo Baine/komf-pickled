@@ -44,7 +44,6 @@ data class BookRange(
     val end: Double = start
 ) {
 
-    constructor(start: Int) : this(start.toDouble())
 
     override fun toString(): String {
         val startValue = if (floor(start) == start) start.toInt() else start
