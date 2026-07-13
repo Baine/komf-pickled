@@ -41,18 +41,17 @@ data class Chapter(
 @Serializable
 data class BookRange(
     val start: Double,
-    val end: Double
+    val end: Double = start
 ) {
-    constructor(start: Double) : this(start, start)
 
-    constructor(start: Int) : this(start.toDouble(), start.toDouble())
+    constructor(start: Int) : this(start.toDouble())
 
     override fun toString(): String {
-        val start = if (floor(start) == start) start.toInt() else start
-        val end = if (floor(end) == end) end.toInt() else end
-        return if (start == end) {
-            start.toString()
-        } else "$start-$end"
+        val startValue = if (floor(start) == start) start.toInt() else start
+        val endValue = if (floor(end) == end) end.toInt() else end
+        return if (startValue == endValue) {
+            startValue.toString()
+        } else "$startValue-$endValue"
     }
 }
 
