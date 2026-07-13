@@ -47,6 +47,7 @@ data class ProvidersConfig(
     val chaikaFile: ProviderConfig = ProviderConfig(),
     val hdoujin: ProviderConfig = ProviderConfig(),
     val galleryDl: ProviderConfig = ProviderConfig(),
+    val schaleNetwork: ProviderConfig = ProviderConfig(),
     val specYaml: SpecYAMLConfig = SpecYAMLConfig(),
 )
 

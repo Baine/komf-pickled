@@ -52,6 +52,10 @@ import snd.komf.providers.gallerydl.GalleryDLMetadataProvider
 import snd.komf.providers.hdoujin.HdoujinMetadataMapper
 import snd.komf.providers.hdoujin.HdoujinMetadataProvider
 import snd.komf.providers.hdoujin.HdoujinReader
+import snd.komf.providers.schalenetwork.SchaleNetworkArchiveReader
+import snd.komf.providers.schalenetwork.SchaleNetworkClient
+import snd.komf.providers.schalenetwork.SchaleNetworkMetadataMapper
+import snd.komf.providers.schalenetwork.SchaleNetworkMetadataProvider
 import snd.komf.providers.specyaml.SpecYAMLFileReader
 import snd.komf.providers.specyaml.SpecYAMLMetadataMapper
 import snd.komf.providers.specyaml.SpecYAMLMetadataProvider
@@ -336,6 +340,22 @@ class ProvidersModule(
 
     private val mangaBakaDbDataSource = mangaBakaDatabase?.let { MangaBakaDbDataSource(it) }
 
+    private val schaleNetworkClient = SchaleNetworkClient(
+        baseHttpClientJson.config {
+            install(HttpRequestRateLimiter) {
+                interval = 1.seconds
+                eventsPerInterval = 3
+                allowBurst = true
+            }
+            install(HttpRequestRetry) {
+                defaultRetry()
+            }
+            defaultRequest {
+                header("Referer", "https://schale.network/")
+            }
+        }
+    )
+
     private val webtoonsClient = WebtoonsClient(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
@@ -495,6 +515,10 @@ class ProvidersModule(
                 config = config.galleryDl,
             ),
             galleryDlPriority = config.galleryDl.priority,
+            schaleNetwork = createSchaleNetworkMetadataProvider(
+                config = config.schaleNetwork,
+            ),
+            schaleNetworkPriority = config.schaleNetwork.priority,
             specYaml = createSpecYAMLMetadataProvider(
                 config = config.specYaml,
             ),
@@ -942,6 +966,9 @@ class ProvidersModule(
         private val galleryDl: GalleryDLMetadataProvider?,
         private val galleryDlPriority: Int,
 
+        private val schaleNetwork: SchaleNetworkMetadataProvider?,
+        private val schaleNetworkPriority: Int,
+
         private val chaikaFile: ChaikaFileMetadataProvider?,
         private val chaikaFilePriority: Int,
 
@@ -969,6 +996,7 @@ class ProvidersModule(
             webtoons?.let { it to webtoonsPriority },
             german?.let { it to germanPriority },
             galleryDl?.let { it to galleryDlPriority },
+            schaleNetwork?.let { it to schaleNetworkPriority },
             chaikaFile?.let { it to chaikaFilePriority },
             hdoujin?.let { it to hdoujinPriority },
             specYaml?.let { it to specYamlPriority }
@@ -995,6 +1023,7 @@ class ProvidersModule(
                 CoreProviders.WEBTOONS -> webtoons
                 CoreProviders.GERMAN -> german
                 CoreProviders.GALLERY_DL -> galleryDl
+                CoreProviders.SCHALE_NETWORK -> schaleNetwork
                 CoreProviders.CHAIKA_FILE -> chaikaFile
                 CoreProviders.HDOUJIN -> hdoujin
                 CoreProviders.SPEC_YAML -> specYaml
@@ -1076,6 +1105,26 @@ class ProvidersModule(
 
         return GalleryDLMetadataProvider(
             fileReader = fileReader,
+            metadataMapper = metadataMapper,
+        )
+    }
+
+    private fun createSchaleNetworkMetadataProvider(
+        config: ProviderConfig,
+    ): SchaleNetworkMetadataProvider? {
+        if (config.enabled.not()) return null
+
+        val archiveReader = SchaleNetworkArchiveReader()
+        val metadataMapper = SchaleNetworkMetadataMapper(
+            seriesMetadataConfig = config.seriesMetadata,
+            bookMetadataConfig = config.bookMetadata,
+            authorRoles = config.authorRoles,
+            artistRoles = config.artistRoles,
+        )
+
+        return SchaleNetworkMetadataProvider(
+            archiveReader = archiveReader,
+            client = schaleNetworkClient,
             metadataMapper = metadataMapper,
         )
     }

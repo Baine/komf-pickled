@@ -132,6 +132,7 @@ class ConfigLoader(private val yaml: Yaml) {
             config.metadataProviders.defaultProviders.chaikaFile.enabled.not() &&
             config.metadataProviders.defaultProviders.hdoujin.enabled.not() &&
             config.metadataProviders.defaultProviders.galleryDl.enabled.not() &&
+            config.metadataProviders.defaultProviders.schaleNetwork.enabled.not() &&
             config.metadataProviders.defaultProviders.specYaml.enabled.not() &&
             config.metadataProviders.libraryProviders.isEmpty()
         ) {

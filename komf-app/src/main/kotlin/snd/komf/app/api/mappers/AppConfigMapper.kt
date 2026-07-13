@@ -182,6 +182,7 @@ class AppConfigMapper {
             chaikaFile = toDto(config.chaikaFile),
             hdoujin = toDto(config.hdoujin),
             galleryDl = toDto(config.galleryDl),
+            schaleNetwork = toDto(config.schaleNetwork),
             specYaml = toDto(config.specYaml),
         )
     }

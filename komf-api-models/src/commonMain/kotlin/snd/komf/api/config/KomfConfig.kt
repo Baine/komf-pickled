@@ -124,6 +124,7 @@ data class ProvidersConfigDto(
     val chaikaFile: ProviderConfigDto,
     val hdoujin: ProviderConfigDto,
     val galleryDl: ProviderConfigDto,
+    val schaleNetwork: ProviderConfigDto,
     val specYaml: SpecYAMLConfigDto,
 )
 

@@ -160,6 +160,8 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.hdoujin, it) } ?: config.hdoujin,
             galleryDl = patch.galleryDl.getOrNull()
                 ?.let { providerConfig(config.galleryDl, it) } ?: config.galleryDl,
+            schaleNetwork = patch.schaleNetwork.getOrNull()
+                ?.let { providerConfig(config.schaleNetwork, it) } ?: config.schaleNetwork,
             specYaml = patch.specYaml.getOrNull()
                 ?.let { specYamlProviderConfig(config.specYaml, it) }
                 ?: config.specYaml,

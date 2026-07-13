@@ -115,6 +115,7 @@ data class ProvidersConfigUpdateRequest(
     val chaikaFile: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val hdoujin: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val galleryDl: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val schaleNetwork: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val specYaml: PatchValue<SpecYAMLConfigUpdateRequest> = PatchValue.Unset,
 )
 
