@@ -39,7 +39,7 @@ class NameSimilarityMatcher(val mode: NameMatchingMode) {
                     min(previous[j + 1] + 1, previous[j] + cost)
                 )
             }
-            previous.copyInto(current)
+            current.copyInto(previous)
         }
         return previous[rhs.length]
     }
