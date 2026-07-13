@@ -373,7 +373,7 @@ class MetadataService(
         books: Collection<MediaServerBook>
     ): MatchQuery {
         val (firstBook, range) = books.sortedBy { it.number }.map { book ->
-            book to (BookNameParser.getVolumes(book.name) ?: BookRange(book.number))
+            book to (BookNameParser.getVolumes(book.name) ?: BookRange(book.number.toDouble()))
         }.minBy { (_, number) -> number.start }
         val cover = mediaServerClient.getBookThumbnail(firstBook.id)
         val releaseYear = series.metadata.releaseYear?.let { if (it == 0) null else it }
