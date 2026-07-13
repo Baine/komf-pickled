@@ -10,7 +10,7 @@ This fork of [KOMF](https://github.com/Snd-R/komf) adds five additional metadata
 | **Gallery-DL** | Read metadata from Gallery-DL JSON output |
 | **HDoujin** | Read metadata from HDoujin downloader JSON |
 
-Version: `1.8.0-pickled`  
+Version: `1.8.7-dev3`  
 Submodule: [Baine/Komelia-pickled](https://github.com/Baine/Komelia-pickled) (provider UI screens)
 
 ---
