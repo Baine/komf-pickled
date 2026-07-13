@@ -85,7 +85,11 @@ class AppConfigUpdateMapper {
             comicVineSearchLimit = patchValue(config.comicVineSearchLimit, patch.comicVineSearchLimit),
             comicVineIssueName = patchValue(config.comicVineIssueName, patch.comicVineIssueName),
             comicVineIdFormat = patchValue(config.comicVineIdFormat, patch.comicVineIdFormat),
-            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() }
+            nameMatchingMode = when (val mode = patch.nameMatchingMode) {
+                PatchValue.None -> config.nameMatchingMode
+                is PatchValue.Some -> mode.value.toNameMatchingMode()
+                PatchValue.Unset -> config.nameMatchingMode
+            },
             defaultProviders = patch.defaultProviders.getOrNull()
                 ?.let { providersConfig(config.defaultProviders, it) } ?: config.defaultProviders,
             libraryProviders = patch.libraryProviders.getOrNull()
@@ -180,7 +184,7 @@ class AppConfigUpdateMapper {
             bookMetadata = patch.bookMetadata.getOrNull()
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
-            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() }
+            nameMatchingMode = patchValue<KomfNameMatchingMode, NameMatchingMode?>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
         )
     }
 
@@ -196,7 +200,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() },
+            nameMatchingMode = patchValue<KomfNameMatchingMode, NameMatchingMode?>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
         )
     }
 
@@ -213,7 +217,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
+            nameMatchingMode = patchValue<KomfNameMatchingMode, NameMatchingMode?>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
             coverLanguages = patch.coverLanguages.getOrNull() ?: config.coverLanguages,
             links = patch.links.getOrNull()?.map { MangaDexLink.valueOf(it.name) } ?: config.links
         )
@@ -229,7 +233,7 @@ class AppConfigUpdateMapper {
             seriesMetadata = patch.seriesMetadata.getOrNull()
                 ?.let { seriesMetadataConfig(config.seriesMetadata, it) }
                 ?: config.seriesMetadata,
-            nameMatchingMode = patchValue<NameMatchingMode, KomfNameMatchingMode>(config.nameMatchingMode, patch.nameMatchingMode.getOrNull()) { it.toNameMatchingMode() },
+            nameMatchingMode = patchValue<KomfNameMatchingMode, NameMatchingMode?>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
             mode = patch.mode.getOrNull()?.toMangaBakaMode() ?: config.mode
         )
     }
@@ -247,7 +251,7 @@ class AppConfigUpdateMapper {
             bookMetadata = patch.bookMetadata.getOrNull()
                 ?.let { bookMetadataConfig(config.bookMetadata, it) }
                 ?: config.bookMetadata,
-            nameMatchingMode = patchValue(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
+            nameMatchingMode = patchValue<KomfNameMatchingMode, NameMatchingMode?>(config.nameMatchingMode, patch.nameMatchingMode) { it.toNameMatchingMode() },
             mediaRoots = patch.mediaRoots.getOrNull() ?: config.mediaRoots,
         )
     }
