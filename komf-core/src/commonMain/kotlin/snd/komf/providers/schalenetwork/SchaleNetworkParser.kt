@@ -39,25 +39,21 @@ class SchaleNetworkParser {
         )
     }
 
-    private fun parseTags(document: com.fleeksoft.ksoup.nodes.Document): Map<String, List<String>> {
-        val tags = mutableMapOf<String, MutableList<String>>()
-        val tagBlocks = document.select("div.tags > div.flex")
-        for (block in tagBlocks) {
-            val label = block.selectFirst("span.shrink-0")?.text()?.trim()?.lowercase() ?: continue
-            val links = block.select("a[rel=tag]")
-            for (link in links) {
-                val href = link.attr("href")
-                val value = link.selectFirst("span")?.text()?.trim() ?: link.text().trim()
-                if (value.isEmpty()) continue
-                val namespace = when (label) {
-                    "tags" -> parseNamespaceFromHref(href) ?: "tag"
-                    else -> label
+    private fun parseTags(document: com.fleeksoft.ksoup.nodes.Document): Map<String, List<String>> =
+        document.select("div.tags > div.flex")
+            .flatMap { block ->
+                val label = block.selectFirst("span.shrink-0")?.text()?.trim()?.lowercase() ?: return@flatMap emptyList()
+                block.select("a[rel=tag]").mapNotNull { link ->
+                    val value = link.selectFirst("span")?.text()?.trim() ?: link.text().trim()
+                    if (value.isEmpty()) return@mapNotNull null
+                    val namespace = when (label) {
+                        "tags" -> parseNamespaceFromHref(link.attr("href")) ?: "tag"
+                        else -> label
+                    }
+                    namespace to value
                 }
-                tags.getOrPut(namespace) { mutableListOf() }.add(value)
             }
-        }
-        return tags
-    }
+            .groupBy({ it.first }, { it.second })
 
     private fun parseNamespaceFromHref(href: String): String? {
         val match = Regex("/tag/([^:]+):").find(href) ?: return null

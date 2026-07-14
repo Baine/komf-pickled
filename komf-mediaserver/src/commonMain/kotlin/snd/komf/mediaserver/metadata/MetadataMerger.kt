@@ -59,13 +59,14 @@ class MetadataMerger(
         }
     }
 
-    private fun mergeTags(old: Collection<String>, new: Collection<String>): Collection<String> {
-        return if (mergeTags) (old + new).toSet().sorted()
+    private fun mergeCollection(old: Collection<String>, new: Collection<String>, enabled: Boolean): Collection<String> {
+        return if (enabled) (old + new).toSet().sorted()
         else old.ifEmpty { new }
     }
 
-    private fun mergeGenres(old: Collection<String>, new: Collection<String>): Collection<String> {
-        return if (mergeGenres) (old + new).toSet().sorted()
-        else old.ifEmpty { new }
-    }
+    private fun mergeTags(old: Collection<String>, new: Collection<String>): Collection<String> =
+        mergeCollection(old, new, mergeTags)
+
+    private fun mergeGenres(old: Collection<String>, new: Collection<String>): Collection<String> =
+        mergeCollection(old, new, mergeGenres)
 }

@@ -1002,7 +1002,6 @@ class ProvidersModule(
             specYaml?.let { it to specYamlPriority }
         )
             .sortedBy { (_, priority) -> priority }
-            .toMap()
             .map { (provider, _) -> provider }
 
         fun provider(provider: CoreProviders): MetadataProvider? {
