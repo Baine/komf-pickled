@@ -12,9 +12,7 @@ RUN --mount=type=cache,target=/home/gradle/.gradle/caches,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/gradle/.gradle/wrapper,uid=1000,gid=1000 \
     gradle :komf-app:shadowJar --no-daemon --build-cache
 
-FROM eclipse-temurin:21-jre AS base-amd64
-FROM eclipse-temurin:21.0.6_7-jre AS base-arm64
-FROM base-${TARGETARCH} AS runtime
+FROM eclipse-temurin:21-jre AS runtime
 RUN apt-get update && apt-get install -y pipx && rm -rf /var/lib/apt/lists/*
 RUN pipx install --include-deps pipx \
     && /root/.local/bin/pipx install --global --include-deps apprise
