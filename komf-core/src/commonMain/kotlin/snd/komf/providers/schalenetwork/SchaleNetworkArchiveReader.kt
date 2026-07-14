@@ -21,7 +21,11 @@ class SchaleNetworkArchiveReader {
 
     private fun readInfoYaml(archivePath: String): String? {
         val file = File(archivePath)
-        if (!file.isFile) return null
+        if (!file.isFile) {
+            logger.info { "Archive file not found or not a regular file: $archivePath" }
+            return null
+        }
+        logger.info { "Reading info.yaml from $archivePath" }
         return try {
             when {
                 isZip(archivePath) -> readFromZip(archivePath)

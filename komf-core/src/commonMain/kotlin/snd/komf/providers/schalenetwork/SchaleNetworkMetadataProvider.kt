@@ -58,10 +58,10 @@ class SchaleNetworkMetadataProvider(
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         for (bookPath in matchQuery.bookPaths) {
-            logger.debug { "Checking SchaleNetwork info.yaml in $bookPath" }
+            logger.info { "Checking SchaleNetwork info.yaml in $bookPath" }
             val id = archiveReader.readSource(bookPath)
             if (id == null) {
-                logger.debug { "No SchaleNetwork source found in $bookPath" }
+                logger.info { "No SchaleNetwork source found in $bookPath" }
                 continue
             }
             logger.info { "Matched SchaleNetwork source $id in $bookPath" }
