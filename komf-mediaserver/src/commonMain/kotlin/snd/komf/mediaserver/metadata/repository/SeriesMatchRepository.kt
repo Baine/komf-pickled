@@ -47,11 +47,12 @@ class SeriesMatchRepository(
         provider: CoreProviders,
         providerSeriesId: ProviderSeriesId,
     ) {
+        val serverName = mediaServer.name
         transaction(database) {
             SeriesMatchTable.upsert {
                 it[SeriesMatchTable.seriesId] = seriesId.value
                 it[SeriesMatchTable.type] = type.name
-                it[SeriesMatchTable.mediaServer] = mediaServer.name
+                it[SeriesMatchTable.mediaServer] = serverName
                 it[SeriesMatchTable.provider] = provider.name
                 it[SeriesMatchTable.providerSeriesId] = providerSeriesId.value
             }

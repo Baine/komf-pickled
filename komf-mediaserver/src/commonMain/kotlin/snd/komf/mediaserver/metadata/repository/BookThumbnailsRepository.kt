@@ -39,12 +39,14 @@ class BookThumbnailsRepository(
         seriesId: MediaServerSeriesId,
         thumbnailId: MediaServerThumbnailId?,
     ) {
+        // ponytail: mediaServer.name is shadowed by BookThumbnailTable.mediaServer inside the upsert lambda
+        val serverName = mediaServer.name
         transaction(database) {
             BookThumbnailTable.upsert {
                 it[BookThumbnailTable.bookId] = bookId.value
                 it[BookThumbnailTable.seriesId] = seriesId.value
                 it[BookThumbnailTable.thumbnailId] = thumbnailId?.value
-                it[BookThumbnailTable.mediaServer] = mediaServer.name
+                it[BookThumbnailTable.mediaServer] = serverName
             }
         }
     }

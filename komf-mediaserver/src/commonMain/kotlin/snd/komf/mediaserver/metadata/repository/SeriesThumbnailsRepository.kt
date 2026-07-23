@@ -36,11 +36,12 @@ class SeriesThumbnailsRepository(
         seriesId: MediaServerSeriesId,
         thumbnailId: MediaServerThumbnailId?,
     ) {
+        val serverName = mediaServer.name
         transaction(database) {
             SeriesThumbnailTable.upsert {
                 it[SeriesThumbnailTable.seriesId] = seriesId.value
                 it[SeriesThumbnailTable.thumbnailId] = thumbnailId?.value
-                it[SeriesThumbnailTable.mediaServer] = mediaServer.name
+                it[SeriesThumbnailTable.mediaServer] = serverName
             }
         }
     }
