@@ -8,11 +8,16 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.channels.BufferOverflow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Semaphore
+import kotlinx.coroutines.sync.withPermit
+import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Duration.Companion.minutes
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.jobs.KomfJobTracker
 import snd.komf.mediaserver.jobs.MetadataJobEvent
@@ -137,21 +142,43 @@ class MetadataService(
 
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         coroutineScope.launch {
+            // ponytail: global semaphore caps concurrent series; provider rate limiters self-throttle
+            val semaphore = Semaphore(4)
             var errorCount = 0
             var pageNumber = 1
             do {
                 val page = mediaServerClient.getSeries(libraryId, pageNumber)
-                page.content.forEach {
-                    runCatching {
-                        jobTracker.getMetadataJobEvents(matchSeriesMetadata(it.id))
-                            ?.takeWhile { it !is CompletionEvent }
-                            ?.collect()
-                    }
-                        .onFailure {
-                            logger.error(it) { }
-                            errorCount += 1
+                val totalElements = page.totalElements
+                val pageSize = page.content.size
+                val pageErrors = page.content.withIndex().map { (index, series) ->
+                    coroutineScope.async {
+                        val seriesTitle = series.metadata.title.ifBlank { series.name }
+                        val seriesNumber = ((pageNumber - 1) * pageSize) + index + 1
+                        if (totalElements != null) {
+                            logger.info { "Processing series $seriesNumber/$totalElements - \"$seriesTitle\"" }
+                        } else {
+                            logger.info { "Processing series $seriesNumber - \"$seriesTitle\"" }
                         }
-                }
+                        semaphore.withPermit {
+                            runCatching {
+                                val timedOut = withTimeoutOrNull(5.minutes) {
+                                    jobTracker.getMetadataJobEvents(matchSeriesMetadata(series.id))
+                                        ?.takeWhile { it !is CompletionEvent }
+                                        ?.collect()
+                                } == null
+                                if (timedOut) {
+                                    logger.warn {
+                                        "Series \"$seriesTitle\" ${series.id} timed out after 5 minutes"
+                                    }
+                                }
+                                timedOut
+                            }
+                                .onFailure { logger.error(it) { "Failed to process series \"$seriesTitle\" ${series.id}" } }
+                                .getOrDefault(false)
+                        }
+                    }
+                }.awaitAll()
+                errorCount += pageErrors.count { it }
                 pageNumber++
             } while (page.pageNumber != page.totalPages && page.content.isNotEmpty())
             logger.info { "Finished library scan. Encountered $errorCount errors" }

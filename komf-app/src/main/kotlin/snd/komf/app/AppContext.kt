@@ -2,6 +2,13 @@ package snd.komf.app
 
 import ch.qos.logback.classic.Level
 import ch.qos.logback.classic.Logger
+import ch.qos.logback.classic.LoggerContext
+import ch.qos.logback.classic.encoder.PatternLayoutEncoder
+import ch.qos.logback.classic.spi.ILoggingEvent
+import ch.qos.logback.core.rolling.RollingFileAppender
+import ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy
+import ch.qos.logback.core.rolling.TimeBasedRollingPolicy
+import ch.qos.logback.core.util.FileSize
 import com.charleskorn.kaml.Yaml
 import com.charleskorn.kaml.YamlConfiguration
 import io.github.oshai.kotlinlogging.KotlinLogging
@@ -59,7 +66,7 @@ class AppContext(private val configPath: Path? = null) {
 
     init {
         val config = loadConfig()
-        setLogLevel(config)
+        configureLogging(config, configPath)
         appConfig = config
 
         val httpLogger = KotlinLogging.logger("http.logging")
@@ -195,8 +202,92 @@ class AppContext(private val configPath: Path? = null) {
         }
     }
 
-    private fun setLogLevel(config: AppConfig) {
-        val rootLogger = LoggerFactory.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME) as Logger
+    private fun configureLogging(config: AppConfig, configPath: Path?) {
+        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+        val rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)
         rootLogger.level = Level.valueOf(config.logLevel.uppercase())
+
+        val logDirectory = resolveLogDirectory(configPath)
+        logDirectory.createDirectories()
+
+        val encoder = PatternLayoutEncoder().apply {
+            pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+            context = loggerContext
+            start()
+        }
+
+        val rollingAppender = RollingFileAppender<ILoggingEvent>().apply rollingAppender@{
+            name = "KOMF_FILE"
+            file = "$logDirectory/komf.log"
+            context = loggerContext
+            this.encoder = encoder
+            rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setFileNamePattern("$logDirectory/komf.%d{yyyy-MM-dd}.log")
+                maxHistory = 7
+                setParent(this@rollingAppender)
+                context = loggerContext
+                start()
+            }
+            start()
+        }
+        rootLogger.addAppender(rollingAppender)
+
+        val providersLogger = loggerContext.getLogger("snd.komf.providers")
+        providersLogger.level = Level.valueOf(config.logLevel.uppercase())
+        val providersEncoder = PatternLayoutEncoder().apply {
+            pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+            context = loggerContext
+            start()
+        }
+        val providersRollingAppender = RollingFileAppender<ILoggingEvent>().apply providersAppender@{
+            name = "PROVIDERS_FILE"
+            file = "$logDirectory/providers.log"
+            context = loggerContext
+            this.encoder = providersEncoder
+            rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setFileNamePattern("$logDirectory/providers.%d{yyyy-MM-dd}.log")
+                maxHistory = 7
+                setParent(this@providersAppender)
+                context = loggerContext
+                start()
+            }
+            start()
+        }
+        providersLogger.addAppender(providersRollingAppender)
+        providersLogger.isAdditive = false
+
+        val httpLogger = loggerContext.getLogger("http.logging")
+        httpLogger.level = Level.valueOf(config.logLevel.uppercase())
+        val httpEncoder = PatternLayoutEncoder().apply {
+            pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+            context = loggerContext
+            start()
+        }
+        val httpRollingAppender = RollingFileAppender<ILoggingEvent>().apply httpAppender@{
+            name = "HTTP_FILE"
+            file = "$logDirectory/http.log"
+            context = loggerContext
+            this.encoder = httpEncoder
+            rollingPolicy = SizeAndTimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setFileNamePattern("$logDirectory/http.%d{yyyy-MM-dd}.%i.log")
+                setMaxFileSize(FileSize.valueOf("100MB"))
+                maxHistory = 2
+                setTotalSizeCap(ch.qos.logback.core.util.FileSize.valueOf("500MB"))
+                setParent(this@httpAppender)
+                context = loggerContext
+                start()
+            }
+            start()
+        }
+        httpLogger.addAppender(httpRollingAppender)
+        httpLogger.isAdditive = false
+    }
+
+    private fun resolveLogDirectory(configPath: Path?): Path {
+        return when {
+            configPath == null -> Path.of("logs").toAbsolutePath().normalize()
+            configPath.isDirectory() -> configPath.resolve("logs")
+            else -> configPath.parent.resolve("logs")
+        }
     }
 }
