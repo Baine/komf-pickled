@@ -123,7 +123,7 @@ class AppContext(private val configPath: Path? = null) {
         )
 
         serverModule.startServer()
-        disableProviderLogAdditive()
+        disableFileOnlyLoggerAdditive()
     }
 
     suspend fun refreshState() {
@@ -223,9 +223,9 @@ class AppContext(private val configPath: Path? = null) {
             context = loggerContext
             this.encoder = encoder
             rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setContext(loggerContext)
                 setFileNamePattern("$logDirectory/komf.%d{yyyy-MM-dd}.log")
                 maxHistory = 7
-                context = loggerContext
                 setParent(this@rollingAppender)
                 start()
             }
@@ -246,9 +246,9 @@ class AppContext(private val configPath: Path? = null) {
             context = loggerContext
             this.encoder = providersEncoder
             rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setContext(loggerContext)
                 setFileNamePattern("$logDirectory/providers.%d{yyyy-MM-dd}.log")
                 maxHistory = 7
-                context = loggerContext
                 setParent(this@providersAppender)
                 start()
             }
@@ -270,11 +270,11 @@ class AppContext(private val configPath: Path? = null) {
             context = loggerContext
             this.encoder = httpEncoder
             rollingPolicy = SizeAndTimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setContext(loggerContext)
                 setFileNamePattern("$logDirectory/http.%d{yyyy-MM-dd}.%i.log")
                 setMaxFileSize(FileSize.valueOf("100MB"))
                 maxHistory = 2
                 setTotalSizeCap(ch.qos.logback.core.util.FileSize.valueOf("500MB"))
-                context = loggerContext
                 setParent(this@httpAppender)
                 start()
             }
@@ -282,12 +282,39 @@ class AppContext(private val configPath: Path? = null) {
         }
         httpLogger.addAppender(httpRollingAppender)
         httpLogger.isAdditive = false
+
+        val metadataLogger = loggerContext.getLogger("snd.komf.mediaserver.metadata")
+        metadataLogger.level = Level.valueOf(config.logLevel.uppercase())
+        val metadataEncoder = PatternLayoutEncoder().apply {
+            pattern = "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+            context = loggerContext
+            start()
+        }
+        val metadataRollingAppender = RollingFileAppender<ILoggingEvent>().apply metadataAppender@{
+            name = "METADATA_FILE"
+            file = "$logDirectory/metadata.log"
+            context = loggerContext
+            this.encoder = metadataEncoder
+            rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
+                setContext(loggerContext)
+                setFileNamePattern("$logDirectory/metadata.%d{yyyy-MM-dd}.log")
+                maxHistory = 7
+                setParent(this@metadataAppender)
+                start()
+            }
+            start()
+        }
+        metadataLogger.addAppender(metadataRollingAppender)
+        metadataLogger.isAdditive = false
     }
 
-    private fun disableProviderLogAdditive() {
+    private fun disableFileOnlyLoggerAdditive() {
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
         loggerContext.loggerList
-            .filter { it.name.startsWith("snd.komf.providers.") }
+            .filter {
+                it.name.startsWith("snd.komf.providers.") ||
+                    it.name.startsWith("snd.komf.mediaserver.metadata.")
+            }
             .forEach { it.isAdditive = false }
     }
 
