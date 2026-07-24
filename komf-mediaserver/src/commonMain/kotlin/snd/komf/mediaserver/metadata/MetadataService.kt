@@ -142,7 +142,6 @@ class MetadataService(
 
     fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
         coroutineScope.launch {
-            // ponytail: global semaphore caps concurrent series; provider rate limiters self-throttle
             val semaphore = Semaphore(4)
             var errorCount = 0
             var pageNumber = 1
@@ -154,11 +153,7 @@ class MetadataService(
                     coroutineScope.async {
                         val seriesTitle = series.metadata.title.ifBlank { series.name }
                         val seriesNumber = ((pageNumber - 1) * pageSize) + index + 1
-                        if (totalElements != null) {
-                            logger.info { "Processing series $seriesNumber/$totalElements - \"$seriesTitle\"" }
-                        } else {
-                            logger.info { "Processing series $seriesNumber - \"$seriesTitle\"" }
-                        }
+                        logger.info { "Processing series $seriesNumber${totalElements?.let { "/$it" } ?: ""} - \"$seriesTitle\"" }
                         semaphore.withPermit {
                             runCatching {
                                 val timedOut = withTimeoutOrNull(5.minutes) {
