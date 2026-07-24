@@ -123,6 +123,7 @@ class AppContext(private val configPath: Path? = null) {
         )
 
         serverModule.startServer()
+        disableProviderLogAdditive()
     }
 
     suspend fun refreshState() {
@@ -224,8 +225,8 @@ class AppContext(private val configPath: Path? = null) {
             rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
                 setFileNamePattern("$logDirectory/komf.%d{yyyy-MM-dd}.log")
                 maxHistory = 7
-                setParent(this@rollingAppender)
                 context = loggerContext
+                setParent(this@rollingAppender)
                 start()
             }
             start()
@@ -247,8 +248,8 @@ class AppContext(private val configPath: Path? = null) {
             rollingPolicy = TimeBasedRollingPolicy<ILoggingEvent>().apply {
                 setFileNamePattern("$logDirectory/providers.%d{yyyy-MM-dd}.log")
                 maxHistory = 7
-                setParent(this@providersAppender)
                 context = loggerContext
+                setParent(this@providersAppender)
                 start()
             }
             start()
@@ -273,14 +274,21 @@ class AppContext(private val configPath: Path? = null) {
                 setMaxFileSize(FileSize.valueOf("100MB"))
                 maxHistory = 2
                 setTotalSizeCap(ch.qos.logback.core.util.FileSize.valueOf("500MB"))
-                setParent(this@httpAppender)
                 context = loggerContext
+                setParent(this@httpAppender)
                 start()
             }
             start()
         }
         httpLogger.addAppender(httpRollingAppender)
         httpLogger.isAdditive = false
+    }
+
+    private fun disableProviderLogAdditive() {
+        val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
+        loggerContext.loggerList
+            .filter { it.name.startsWith("snd.komf.providers.") }
+            .forEach { it.isAdditive = false }
     }
 
     private fun resolveLogDirectory(configPath: Path?): Path {
