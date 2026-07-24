@@ -93,9 +93,13 @@ import snd.komf.providers.yenpress.YenPressClient
 import snd.komf.providers.yenpress.YenPressMetadataMapper
 import snd.komf.providers.yenpress.YenPressMetadataProvider
 import snd.komf.util.NameSimilarityMatcher
+import snd.komf.util.NameSimilarityMatcher.NameMatchingMode
 import kotlin.time.Duration.Companion.seconds
 
 private val logger = KotlinLogging.logger { }
+
+private fun resolveNameMatcher(mode: NameMatchingMode?, default: NameSimilarityMatcher): NameSimilarityMatcher =
+    mode?.let { NameSimilarityMatcher(it) } ?: default
 
 class ProvidersModule(
     private val config: MetadataProvidersConfig,
@@ -404,84 +408,28 @@ class ProvidersModule(
         comicVineIdFormat: String?,
         bangumiToken: String?,
     ): MetadataProvidersContainer {
-        return MetadataProvidersContainer(
-            mangaupdates = createMangaUpdatesMetadataProvider(
-                config.mangaUpdates,
-                mangaUpdatesClient,
-                defaultNameMatcher
-            ),
-            mangaupdatesPriority = config.mangaUpdates.priority,
-            mal = createMalMetadataProvider(
-                config.mal,
-                malClientId,
-                defaultNameMatcher
-            ),
-            malPriority = config.mal.priority,
-            nautiljon = createNautiljonMetadataProvider(
-                config.nautiljon,
-                nautiljonClient,
-                defaultNameMatcher
-            ),
-            nautiljonPriority = config.nautiljon.priority,
-            anilist = createAnilistMetadataProvider(
-                config.aniList,
-                aniListClient,
-                defaultNameMatcher
-            ),
-            anilistPriority = config.aniList.priority,
-            yenPress = createYenPressMetadataProvider(
-                config.yenPress,
-                yenPressClient,
-                defaultNameMatcher
-            ),
-            yenPressPriority = config.yenPress.priority,
-            kodansha = createKodanshaMetadataProvider(
-                config.kodansha,
-                kodanshaClient,
-                defaultNameMatcher
-            ),
-            kodanshaPriority = config.kodansha.priority,
-            viz = createVizMetadataProvider(
-                config.viz,
-                vizClient,
-                defaultNameMatcher
-            ),
-            vizPriority = config.viz.priority,
-            bookwalker = createBookWalkerMetadataProvider(
-                config.bookWalker,
-                bookWalkerClient,
-                defaultNameMatcher
-            ),
-            bookwalkerPriority = config.bookWalker.priority,
-            mangaDex = createMangaDexMetadataProvider(
-                config.mangaDex,
-                mangaDexClient,
-                defaultNameMatcher
-            ),
-            mangaDexPriority = config.mangaDex.priority,
-            bangumi = createBangumiMetadataProvider(
-                config.bangumi,
-                defaultNameMatcher,
-                bangumiToken
-            ),
-            bangumiPriority = config.bangumi.priority,
-            comicVine = createComicVineMetadataProvider(
-                config = config.comicVine,
-                apiKey = comicVineClientId,
-                comicVineSearchLimit = comicVineSearchLimit,
-                comicVineIssueName = comicVineIssueName,
-                comicVineIdFormat = comicVineIdFormat,
-                rateLimiter = comicVineRateLimiter,
+        fun <P : MetadataProvider> entry(provider: CoreProviders, impl: P?, priority: Int) =
+            impl?.let { MetadataProvidersContainer.Entry(provider, it, priority) }
+
+        val entries = listOfNotNull(
+            entry(CoreProviders.MANGA_UPDATES, createMangaUpdatesMetadataProvider(config.mangaUpdates, mangaUpdatesClient, defaultNameMatcher), config.mangaUpdates.priority),
+            entry(CoreProviders.MAL, createMalMetadataProvider(config.mal, malClientId, defaultNameMatcher), config.mal.priority),
+            entry(CoreProviders.NAUTILJON, createNautiljonMetadataProvider(config.nautiljon, nautiljonClient, defaultNameMatcher), config.nautiljon.priority),
+            entry(CoreProviders.ANILIST, createAnilistMetadataProvider(config.aniList, aniListClient, defaultNameMatcher), config.aniList.priority),
+            entry(CoreProviders.YEN_PRESS, createYenPressMetadataProvider(config.yenPress, yenPressClient, defaultNameMatcher), config.yenPress.priority),
+            entry(CoreProviders.KODANSHA, createKodanshaMetadataProvider(config.kodansha, kodanshaClient, defaultNameMatcher), config.kodansha.priority),
+            entry(CoreProviders.VIZ, createVizMetadataProvider(config.viz, vizClient, defaultNameMatcher), config.viz.priority),
+            entry(CoreProviders.BOOK_WALKER, createBookWalkerMetadataProvider(config.bookWalker, bookWalkerClient, defaultNameMatcher), config.bookWalker.priority),
+            entry(CoreProviders.MANGADEX, createMangaDexMetadataProvider(config.mangaDex, mangaDexClient, defaultNameMatcher), config.mangaDex.priority),
+            entry(CoreProviders.BANGUMI, createBangumiMetadataProvider(config.bangumi, defaultNameMatcher, bangumiToken), config.bangumi.priority),
+            entry(CoreProviders.COMIC_VINE, createComicVineMetadataProvider(
+                config = config.comicVine, apiKey = comicVineClientId,
+                comicVineSearchLimit = comicVineSearchLimit, comicVineIssueName = comicVineIssueName,
+                comicVineIdFormat = comicVineIdFormat, rateLimiter = comicVineRateLimiter,
                 defaultNameMatcher = defaultNameMatcher,
-            ),
-            comicVinePriority = config.comicVine.priority,
-            hentag = createHentagMetadataProvider(
-                config.hentag,
-                hentagClient,
-                defaultNameMatcher
-            ),
-            hentagPriority = config.hentag.priority,
-            mangaBaka = createMangaBakaMetadataProvider(
+            ), config.comicVine.priority),
+            entry(CoreProviders.HENTAG, createHentagMetadataProvider(config.hentag, hentagClient, defaultNameMatcher), config.hentag.priority),
+            entry(CoreProviders.MANGA_BAKA, createMangaBakaMetadataProvider(
                 config = config.mangaBaka,
                 datasource = when (config.mangaBaka.mode) {
                     MangaBakaMode.API -> mangaBakaClient
@@ -489,41 +437,16 @@ class ProvidersModule(
                 },
                 coverFetchClient = mangaBakaCoverFetchClient,
                 defaultNameMatcher = defaultNameMatcher
-            ),
-            mangaBakaPriority = config.mangaBaka.priority,
-            webtoons = createWebtoonsMetadataProvider(
-                config = config.webtoons,
-                client = webtoonsClient,
-                defaultNameMatcher = defaultNameMatcher
-            ),
-            webtoonsPriority = config.webtoons.priority,
-            german = createGermanMetadataProvider(
-                config = config.german,
-                sources = listOf(mangaPassionClient, wikipediaDeClient, mangaDexDeClient),
-                defaultNameMatcher = defaultNameMatcher,
-            ),
-            germanPriority = config.german.priority,
-            chaikaFile = createChaikaFileMetadataProvider(
-                config = config.chaikaFile,
-            ),
-            chaikaFilePriority = config.chaikaFile.priority,
-            hdoujin = createHdoujinMetadataProvider(
-                config = config.hdoujin,
-            ),
-            hdoujinPriority = config.hdoujin.priority,
-            galleryDl = createGalleryDLMetadataProvider(
-                config = config.galleryDl,
-            ),
-            galleryDlPriority = config.galleryDl.priority,
-            schaleNetwork = createSchaleNetworkMetadataProvider(
-                config = config.schaleNetwork,
-            ),
-            schaleNetworkPriority = config.schaleNetwork.priority,
-            specYaml = createSpecYAMLMetadataProvider(
-                config = config.specYaml,
-            ),
-            specYamlPriority = config.specYaml.priority,
+            ), config.mangaBaka.priority),
+            entry(CoreProviders.WEBTOONS, createWebtoonsMetadataProvider(config = config.webtoons, client = webtoonsClient, defaultNameMatcher = defaultNameMatcher), config.webtoons.priority),
+            entry(CoreProviders.GERMAN, createGermanMetadataProvider(config = config.german, sources = listOf(mangaPassionClient, wikipediaDeClient, mangaDexDeClient), defaultNameMatcher = defaultNameMatcher), config.german.priority),
+            entry(CoreProviders.CHAIKA_FILE, createChaikaFileMetadataProvider(config = config.chaikaFile), config.chaikaFile.priority),
+            entry(CoreProviders.HDOUJIN, createHdoujinMetadataProvider(config = config.hdoujin), config.hdoujin.priority),
+            entry(CoreProviders.GALLERY_DL, createGalleryDLMetadataProvider(config = config.galleryDl), config.galleryDl.priority),
+            entry(CoreProviders.SCHALE_NETWORK, createSchaleNetworkMetadataProvider(config = config.schaleNetwork), config.schaleNetwork.priority),
+            entry(CoreProviders.SPEC_YAML, createSpecYAMLMetadataProvider(config = config.specYaml), config.specYaml.priority),
         )
+        return MetadataProvidersContainer(entries)
     }
 
     private fun createMalMetadataProvider(
@@ -554,8 +477,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val malSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val malSimilarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return MalMetadataProvider(
             malClient,
             malMetadataMapper,
@@ -577,8 +499,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val mangaUpdatesSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val mangaUpdatesSimilarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return MangaUpdatesMetadataProvider(
             client,
             mangaUpdatesMetadataMapper,
@@ -600,8 +521,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return NautiljonMetadataProvider(
             client,
             seriesMetadataMapper,
@@ -625,8 +545,7 @@ class ProvidersModule(
             tagsSizeLimit = config.tagsSizeLimit,
             tagsScoreThreshold = config.tagsScoreThreshold
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return AniListMetadataProvider(
             client,
             metadataMapper,
@@ -649,8 +568,7 @@ class ProvidersModule(
             config.authorRoles,
             config.artistRoles
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return YenPressMetadataProvider(
             client,
             metadataMapper,
@@ -669,8 +587,7 @@ class ProvidersModule(
         if (config.enabled.not()) return null
 
         val metadataMapper = KodanshaMetadataMapper(config.seriesMetadata, config.bookMetadata)
-        val similarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
 
         return KodanshaMetadataProvider(
             client,
@@ -694,8 +611,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
 
         return VizMetadataProvider(
             client,
@@ -719,8 +635,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
 
         return BookWalkerMetadataProvider(
             client,
@@ -748,8 +663,7 @@ class ProvidersModule(
             linksFilter = config.links
         )
 
-        val mangaDexSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val mangaDexSimilarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return MangaDexMetadataProvider(
             client,
             mangaDexMetadataMapper,
@@ -783,8 +697,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val bangumiSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val bangumiSimilarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return BangumiMetadataProvider(
             client,
             bangumiMetadataMapper,
@@ -797,7 +710,7 @@ class ProvidersModule(
     private fun createComicVineMetadataProvider(
         config: ProviderConfig,
         apiKey: String?,
-        comicVineSearchLimit: Int? = 10,
+        comicVineSearchLimit: Int?,
         comicVineIssueName: String?,
         comicVineIdFormat: String?,
         rateLimiter: ComicVineRateLimiter,
@@ -822,8 +735,7 @@ class ProvidersModule(
             bookMetadataConfig = config.bookMetadata,
             issueNameTemplate = comicVineIssueName,
         )
-        val similarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
 
         return ComicVineMetadataProvider(
             client = comicVineClient,
@@ -847,8 +759,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
         )
 
-        val hentagSimilarityMatcher: NameSimilarityMatcher =
-            config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val hentagSimilarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
         return HentagMetadataProvider(
             client,
             hentagMetadataMapper,
@@ -877,7 +788,7 @@ class ProvidersModule(
                 authorRoles = config.authorRoles,
                 artistRoles = config.artistRoles,
             ),
-            nameMatcher = config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            nameMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher),
             coverFetchClient = if (config.seriesMetadata.thumbnail) coverFetchClient else null,
             mediaType = config.mediaType
         )
@@ -897,7 +808,7 @@ class ProvidersModule(
                 authorRoles = config.authorRoles,
                 artistRoles = config.artistRoles,
             ),
-            nameMatcher = config.nameMatchingMode?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher,
+            nameMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher),
             fetchSeriesCovers = config.seriesMetadata.thumbnail,
             fetchBookCovers = config.bookMetadata.thumbnail,
         )
@@ -918,116 +829,17 @@ class ProvidersModule(
     }
 
     class MetadataProvidersContainer(
-        private val mangaupdates: MangaUpdatesMetadataProvider?,
-        private val mangaupdatesPriority: Int,
-
-        private val mal: MalMetadataProvider?,
-        private val malPriority: Int,
-
-        private val nautiljon: NautiljonMetadataProvider?,
-        private val nautiljonPriority: Int,
-
-        private val anilist: AniListMetadataProvider?,
-        private val anilistPriority: Int,
-
-        private val yenPress: YenPressMetadataProvider?,
-        private val yenPressPriority: Int,
-
-        private val kodansha: KodanshaMetadataProvider?,
-        private val kodanshaPriority: Int,
-
-        private val viz: VizMetadataProvider?,
-        private val vizPriority: Int,
-
-        private val bookwalker: BookWalkerMetadataProvider?,
-        private val bookwalkerPriority: Int,
-
-        private val mangaDex: MangaDexMetadataProvider?,
-        private val mangaDexPriority: Int,
-
-        private val bangumi: BangumiMetadataProvider?,
-        private val bangumiPriority: Int,
-
-        private val comicVine: ComicVineMetadataProvider?,
-        private val comicVinePriority: Int,
-
-        private val hentag: HentagMetadataProvider?,
-        private val hentagPriority: Int,
-
-        private val mangaBaka: MangaBakaMetadataProvider?,
-        private val mangaBakaPriority: Int,
-
-        private val webtoons: WebtoonsMetadataProvider?,
-        private val webtoonsPriority: Int,
-
-        private val german: GermanMetadataProvider?,
-        private val germanPriority: Int,
-
-        private val galleryDl: GalleryDLMetadataProvider?,
-        private val galleryDlPriority: Int,
-
-        private val schaleNetwork: SchaleNetworkMetadataProvider?,
-        private val schaleNetworkPriority: Int,
-
-        private val chaikaFile: ChaikaFileMetadataProvider?,
-        private val chaikaFilePriority: Int,
-
-        private val hdoujin: HdoujinMetadataProvider?,
-        private val hdoujinPriority: Int,
-
-        private val specYaml: SpecYAMLMetadataProvider?,
-        private val specYamlPriority: Int,
+        entries: List<Entry>,
     ) {
+        data class Entry(val provider: CoreProviders, val impl: MetadataProvider, val priority: Int)
 
-        val providers = listOfNotNull(
-            mangaupdates?.let { it to mangaupdatesPriority },
-            mal?.let { it to malPriority },
-            nautiljon?.let { it to nautiljonPriority },
-            anilist?.let { it to anilistPriority },
-            yenPress?.let { it to yenPressPriority },
-            kodansha?.let { it to kodanshaPriority },
-            viz?.let { it to vizPriority },
-            bookwalker?.let { it to bookwalkerPriority },
-            mangaDex?.let { it to mangaDexPriority },
-            bangumi?.let { it to bangumiPriority },
-            comicVine?.let { it to comicVinePriority },
-            hentag?.let { it to hentagPriority },
-            mangaBaka?.let { it to mangaBakaPriority },
-            webtoons?.let { it to webtoonsPriority },
-            german?.let { it to germanPriority },
-            galleryDl?.let { it to galleryDlPriority },
-            schaleNetwork?.let { it to schaleNetworkPriority },
-            chaikaFile?.let { it to chaikaFilePriority },
-            hdoujin?.let { it to hdoujinPriority },
-            specYaml?.let { it to specYamlPriority }
-        )
-            .sortedBy { (_, priority) -> priority }
-            .map { (provider, _) -> provider }
+        private val providerMap: Map<CoreProviders, MetadataProvider> = entries.associate { it.provider to it.impl }
 
-        fun provider(provider: CoreProviders): MetadataProvider? {
-            return when (provider) {
-                CoreProviders.MAL -> mal
-                CoreProviders.MANGA_UPDATES -> mangaupdates
-                CoreProviders.NAUTILJON -> nautiljon
-                CoreProviders.ANILIST -> anilist
-                CoreProviders.YEN_PRESS -> yenPress
-                CoreProviders.KODANSHA -> kodansha
-                CoreProviders.VIZ -> viz
-                CoreProviders.BOOK_WALKER -> bookwalker
-                CoreProviders.MANGADEX -> mangaDex
-                CoreProviders.BANGUMI -> bangumi
-                CoreProviders.COMIC_VINE -> comicVine
-                CoreProviders.HENTAG -> hentag
-                CoreProviders.MANGA_BAKA -> mangaBaka
-                CoreProviders.WEBTOONS -> webtoons
-                CoreProviders.GERMAN -> german
-                CoreProviders.GALLERY_DL -> galleryDl
-                CoreProviders.SCHALE_NETWORK -> schaleNetwork
-                CoreProviders.CHAIKA_FILE -> chaikaFile
-                CoreProviders.HDOUJIN -> hdoujin
-                CoreProviders.SPEC_YAML -> specYaml
-            }
-        }
+        val providers: List<MetadataProvider> = entries
+            .sortedBy { it.priority }
+            .map { it.impl }
+
+        fun provider(provider: CoreProviders): MetadataProvider? = providerMap[provider]
     }
 
     private fun createGermanMetadataProvider(
@@ -1043,8 +855,7 @@ class ProvidersModule(
             authorRoles = config.authorRoles,
             artistRoles = config.artistRoles,
         )
-        val similarityMatcher = config.nameMatchingMode
-            ?.let { NameSimilarityMatcher(it) } ?: defaultNameMatcher
+        val similarityMatcher = resolveNameMatcher(config.nameMatchingMode, defaultNameMatcher)
 
         return GermanMetadataProvider(
             sources = sources,

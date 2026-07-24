@@ -24,17 +24,11 @@ data class EmbedFooter(
     val text: String,
     @SerialName("icon_url")
     val iconUrl: String? = null,
-    @SerialName("proxy_icon_url")
-    val proxyIconUrl: String? = null,
 )
 
 @Serializable
 data class EmbedImage(
     val url: String,
-    @SerialName("proxy_url")
-    val proxyUrl: String? = null,
-    val height: Int? = null,
-    val width: Int? = null
 )
 
 @Serializable

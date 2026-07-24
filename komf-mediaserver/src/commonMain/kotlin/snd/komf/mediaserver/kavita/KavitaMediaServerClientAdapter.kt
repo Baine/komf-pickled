@@ -218,7 +218,7 @@ private fun KavitaChapter.toMediaServerBook(volume: KavitaVolume): MediaServerBo
 
 private fun KavitaChapter.toMediaServerBookMetadata(): MediaServerBookMetadata {
     val authors = kavitaAuthorsToMediaServer(writers, coverArtists, pencillers, letterers, inkers, colorists, editors, translators)
-    val authorsLock = anyLocked(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked)
+    val authorsLock = listOf(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked).any()
 
     return MediaServerBookMetadata(
         title = title,
@@ -259,7 +259,7 @@ private fun KavitaSeriesMetadata.toMediaServerSeriesMetadata(series: KavitaSerie
     }
     val authors = kavitaAuthorsToMediaServer(writers, coverArtists, pencillers, letterers, inkers, colorists, editors, translators)
 
-    val authorsLock = anyLocked(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked)
+    val authorsLock = listOf(writerLocked, coverArtistLocked, pencillerLocked, lettererLocked, inkerLocked, coloristLocked, editorLocked, translatorLocked).any()
 
     return MediaServerSeriesMetadata(
         status = status,
@@ -379,7 +379,6 @@ private fun deduplicate(values: Collection<String>) = values
     .distinctBy { (normalized, _) -> normalized }
     .map { (_, value) -> value }
 
-private fun anyLocked(vararg locks: Boolean) = locks.any()
 
 private fun kavitaAuthorsToMediaServer(
     writers: Collection<KavitaAuthor>,

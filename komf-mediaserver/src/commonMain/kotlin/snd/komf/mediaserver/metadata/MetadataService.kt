@@ -71,17 +71,11 @@ class MetadataService(
 
     suspend fun searchSeriesMetadata(
         seriesName: String,
-        libraryId: MediaServerLibraryId
+        libraryId: MediaServerLibraryId? = null
     ): Collection<SeriesSearchResult> {
-        val providers = metadataProviders.providers(libraryId.value)
+        val providers = if (libraryId != null) metadataProviders.providers(libraryId.value)
+        else metadataProviders.defaultProvidersList()
 
-        return providers
-            .map { coroutineScope.async { it.searchSeries(seriesName) } }
-            .flatMap { it.await() }
-    }
-
-    suspend fun searchSeriesMetadata(seriesName: String): Collection<SeriesSearchResult> {
-        val providers = metadataProviders.defaultProvidersList()
         return providers
             .map { coroutineScope.async { it.searchSeries(seriesName) } }
             .flatMap { it.await() }

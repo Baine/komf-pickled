@@ -24,7 +24,7 @@ fun compareImages(image1: ByteArray, image2: ByteArray): Boolean {
 }
 
 // ponytail: replaces twelvemonkeys ResampleOp with JDK Graphics2D scaling
-fun hash(source: BufferedImage): BigInteger {
+private fun hash(source: BufferedImage): BigInteger {
     val resampled = source.resample(width, height)
 
     val luma = getLuma(resampled)
@@ -50,7 +50,7 @@ private fun BufferedImage.resample(width: Int, height: Int): BufferedImage {
     return scaled
 }
 
-fun normalizedHammingDistance(hash1: BigInteger, hash2: BigInteger): Double {
+private fun normalizedHammingDistance(hash1: BigInteger, hash2: BigInteger): Double {
     return hammingDistance(hash1, hash2) / bitResolution.toDouble()
 }
 

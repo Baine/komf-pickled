@@ -50,11 +50,11 @@ class AppContext(private val configPath: Path? = null) {
     private val jsonBase: Json
     private val serverModule: ServerModule
 
-    private var providersModule: CoreModule
-    private var mediaServerModule: MediaServerModule
-    private var notificationsModule: NotificationsModule
+    private lateinit var providersModule: CoreModule
+    private lateinit var mediaServerModule: MediaServerModule
+    private lateinit var notificationsModule: NotificationsModule
 
-    private var apiRoutesDependencies: MutableStateFlow<ApiDynamicDependencies>
+    private lateinit var apiRoutesDependencies: MutableStateFlow<ApiDynamicDependencies>
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -98,29 +98,13 @@ class AppContext(private val configPath: Path? = null) {
             install(UserAgent) { agent = "Snd-R/komf (https://github.com/Snd-R/komf)" }
         }
 
-        providersModule = CoreModule(
-            config = config.metadataProviders,
-            ktor = ktorBaseClient,
-            onStateRefresh = this::refreshState,
-        )
-        notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
-
-        mediaServerModule = MediaServerModule(
-            komgaConfig = config.komga,
-            kavitaConfig = config.kavita,
-            databaseConfig = config.database,
-            jsonBase = jsonBase,
-            ktorBaseClient = ktorBaseClient,
-            appriseService = notificationsModule.appriseService,
-            discordWebhookService = notificationsModule.discordWebhookService,
-            metadataProviders = providersModule.metadataProviders
-        )
-        this.apiRoutesDependencies = MutableStateFlow(createApiRoutesDependencies())
+        reloadModules(config)
 
         serverModule = ServerModule(
             serverPort = config.server.port,
             onConfigUpdate = this::refreshState,
             dynamicDependencies = apiRoutesDependencies,
+            json = jsonBase,
         )
 
         serverModule.startServer()
@@ -161,7 +145,7 @@ class AppContext(private val configPath: Path? = null) {
             metadataProviders = providersModule.metadataProviders
         )
 
-        this.close()
+        if (::mediaServerModule.isInitialized) this.mediaServerModule.close()
 
         this.providersModule = providersModule
         this.notificationsModule = notificationsModule
@@ -192,10 +176,6 @@ class AppContext(private val configPath: Path? = null) {
         }
     }
 
-    private fun close() {
-        mediaServerModule.close()
-    }
-
     private fun loadConfig(): AppConfig {
         return when {
             configPath == null -> configLoader.default()
@@ -207,7 +187,8 @@ class AppContext(private val configPath: Path? = null) {
     private fun configureLogging(config: AppConfig, configPath: Path?) {
         val loggerContext = LoggerFactory.getILoggerFactory() as LoggerContext
         val rootLogger = loggerContext.getLogger(org.slf4j.Logger.ROOT_LOGGER_NAME)
-        rootLogger.level = Level.valueOf(config.logLevel.uppercase())
+        val level = Level.valueOf(config.logLevel.uppercase())
+        rootLogger.level = level
 
         val logDirectory = resolveLogDirectory(configPath)
         logDirectory.createDirectories()
@@ -218,7 +199,7 @@ class AppContext(private val configPath: Path? = null) {
         rootLogger.addAppender(komfAppender)
 
         val providersLogger = loggerContext.getLogger("snd.komf.providers")
-        providersLogger.level = Level.valueOf(config.logLevel.uppercase())
+        providersLogger.level = level
         val providersAppender = createRollingFileAppender(
             loggerContext, "PROVIDERS_FILE", "$logDirectory/providers.log"
         ) { createTimeBasedRollingPolicy(loggerContext, it, "$logDirectory/providers.%d{yyyy-MM-dd}.log", 7) }
@@ -226,7 +207,7 @@ class AppContext(private val configPath: Path? = null) {
         providersLogger.isAdditive = false
 
         val httpLogger = loggerContext.getLogger("http.logging")
-        httpLogger.level = Level.valueOf(config.logLevel.uppercase())
+        httpLogger.level = level
         val httpAppender = createRollingFileAppender(
             loggerContext, "HTTP_FILE", "$logDirectory/http.log"
         ) {
@@ -244,7 +225,7 @@ class AppContext(private val configPath: Path? = null) {
         httpLogger.isAdditive = false
 
         val metadataLogger = loggerContext.getLogger("snd.komf.mediaserver.metadata")
-        metadataLogger.level = Level.valueOf(config.logLevel.uppercase())
+        metadataLogger.level = level
         val metadataAppender = createRollingFileAppender(
             loggerContext, "METADATA_FILE", "$logDirectory/metadata.log"
         ) { createTimeBasedRollingPolicy(loggerContext, it, "$logDirectory/metadata.%d{yyyy-MM-dd}.log", 7) }

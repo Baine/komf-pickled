@@ -14,14 +14,6 @@ sealed class PatchValue<out T> {
     data object None : PatchValue<Nothing>()
     class Some<T>(val value: T) : PatchValue<T>()
 
-    fun <T> patch(original: T?, patch: T?): PatchValue<T> {
-        return when {
-            original == patch -> Unset
-            patch == null -> None
-            else -> Some(patch)
-        }
-    }
-
     fun getOrNull(): T? = when (this) {
         None, Unset -> null
         is Some -> value

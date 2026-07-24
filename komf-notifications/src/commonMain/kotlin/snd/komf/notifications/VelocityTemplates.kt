@@ -6,11 +6,8 @@ import org.apache.velocity.runtime.RuntimeInstance
 import java.io.StringReader
 import java.io.StringWriter
 import java.nio.file.Path
-import java.nio.file.StandardOpenOption.TRUNCATE_EXISTING
-import kotlin.io.path.createFile
 import kotlin.io.path.deleteIfExists
-import kotlin.io.path.notExists
-import kotlin.io.path.writeBytes
+import kotlin.io.path.writeText
 
 // ponytail: top-level extensions instead of wrapper object
 fun NotificationContext.toVelocityContext(): VelocityContext {
@@ -48,8 +45,7 @@ fun RuntimeInstance.templateWriteAndGet(stringTemplate: String?, file: Path): Te
         file.deleteIfExists()
         return null
     } else {
-        if (file.notExists()) file.createFile()
-        file.writeBytes(stringTemplate.toByteArray(Charsets.UTF_8), TRUNCATE_EXISTING)
+        file.writeText(stringTemplate, Charsets.UTF_8)
         return templateFromString(stringTemplate)
     }
 }

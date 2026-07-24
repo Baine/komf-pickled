@@ -45,11 +45,8 @@ class ServerModule(
     serverPort: Int,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
     private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
+    private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
-
-    private val json = Json {
-        ignoreUnknownKeys = true
-    }
 
     private val server = embeddedServer(CIO, port = serverPort) {
         install(ContentNegotiation) {

@@ -31,7 +31,6 @@ kotlin {
         }
         commonMain.dependencies {
             api(project(":komf-api-models"))
-            implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
