@@ -150,7 +150,12 @@ class AppContext(private val configPath: Path? = null) {
         this.providersModule = providersModule
         this.notificationsModule = notificationsModule
         this.mediaServerModule = mediaServerModule
-        apiRoutesDependencies.value = createApiRoutesDependencies()
+        val deps = createApiRoutesDependencies()
+        if (::apiRoutesDependencies.isInitialized) {
+            apiRoutesDependencies.value = deps
+        } else {
+            apiRoutesDependencies = MutableStateFlow(deps)
+        }
     }
 
     private fun createApiRoutesDependencies() = ApiDynamicDependencies(
