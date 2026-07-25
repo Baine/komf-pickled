@@ -71,6 +71,9 @@ class KomfJobTracker(
         return activeJobs[jobId]?.eventFlow
     }
 
+    fun findLatestCompletedFor(seriesId: MediaServerSeriesId): MetadataJob? =
+        jobsRepository.findLatestCompletedFor(seriesId)
+
     private data class ActiveJob(
         val metadataJob: MetadataJob,
         val eventFlow: SharedFlow<MetadataJobEvent>,

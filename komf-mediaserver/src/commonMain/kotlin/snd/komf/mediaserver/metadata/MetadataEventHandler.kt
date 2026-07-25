@@ -38,7 +38,7 @@ class MetadataEventHandler(
                 events.groupBy { MediaServerSeriesId(it.seriesId.value) }
                     .map { (seriesId, _) ->
                         val metadataService = metadataServiceProvider.metadataServiceFor(libraryId.value)
-                        metadataService.matchSeriesMetadata(seriesId)
+                        metadataService.matchSeriesMetadata(seriesId, forceRefresh = true)
                     }
             }
         jobIds.map { id ->

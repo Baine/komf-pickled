@@ -51,6 +51,7 @@ data class MetadataProcessingConfigDto(
     val lockCovers: Boolean,
 
     val updateModes: List<KomfUpdateMode>,
+    val matchCacheDays: Int,
     val postProcessing: MetadataPostProcessingConfigDto
 
 )

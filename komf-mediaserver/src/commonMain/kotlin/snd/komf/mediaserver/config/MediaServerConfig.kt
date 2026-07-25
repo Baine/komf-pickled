@@ -53,6 +53,7 @@ data class MetadataProcessingConfig(
     var lockCovers: Boolean = true,
     val updateModes: List<UpdateMode> = listOf(API),
     val overrideComicInfo: Boolean = false,
+    val matchCacheDays: Int = 7,
 
     val postProcessing: MetadataPostProcessingConfig = MetadataPostProcessingConfig()
 )

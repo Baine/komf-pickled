@@ -396,6 +396,7 @@ class AppConfigUpdateMapper {
             overrideExistingCovers = patch.overrideExistingCovers.getOrNull() ?: config.overrideExistingCovers,
             lockCovers = patch.lockCovers.getOrNull() ?: config.lockCovers,
             updateModes = patch.updateModes.getOrNull()?.map { it.toUpdateMode() } ?: config.updateModes,
+            matchCacheDays = patch.matchCacheDays.getOrNull() ?: config.matchCacheDays,
             postProcessing = patch.postProcessing.getOrNull()
                 ?.let { metadataPostProcessingConfig(config.postProcessing, it) }
                 ?: config.postProcessing

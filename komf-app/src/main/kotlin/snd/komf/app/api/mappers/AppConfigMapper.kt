@@ -103,6 +103,7 @@ class AppConfigMapper {
             overrideExistingCovers = config.overrideExistingCovers,
             lockCovers = config.lockCovers,
             updateModes = config.updateModes.map { it.fromUpdateMode() },
+            matchCacheDays = config.matchCacheDays,
             postProcessing = toDto(config.postProcessing),
         )
     }

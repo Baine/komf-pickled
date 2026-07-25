@@ -2,6 +2,7 @@ package snd.komf.mediaserver.jobs
 
 import org.jetbrains.exposed.v1.core.ResultRow
 import org.jetbrains.exposed.v1.core.SortOrder
+import org.jetbrains.exposed.v1.core.and
 import org.jetbrains.exposed.v1.core.eq
 import org.jetbrains.exposed.v1.core.lessEq
 import org.jetbrains.exposed.v1.jdbc.Database
@@ -75,6 +76,20 @@ class KomfJobsRepository(private val database: Database) {
     fun deleteAllBeforeDate(instant: Instant) {
         transaction(database) {
             KomfJobRecordTable.deleteWhere { KomfJobRecordTable.startedAt.lessEq(instant.toEpochMilliseconds()) }
+        }
+    }
+
+    fun findLatestCompletedFor(seriesId: MediaServerSeriesId): MetadataJob? {
+        return transaction(database) {
+            KomfJobRecordTable.selectAll()
+                .where {
+                    KomfJobRecordTable.seriesId.eq(seriesId.value)
+                        .and { KomfJobRecordTable.status.eq(MetadataJobStatus.COMPLETED.name) }
+                }
+                .orderBy(KomfJobRecordTable.finishedAt to SortOrder.DESC)
+                .limit(1)
+                .firstOrNull()
+                ?.toMetadataJob()
         }
     }
 

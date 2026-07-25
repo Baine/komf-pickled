@@ -17,6 +17,8 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Semaphore
 import kotlinx.coroutines.sync.withPermit
 import kotlinx.coroutines.withTimeoutOrNull
+import kotlin.time.Clock
+import kotlin.time.Duration.Companion.days
 import kotlin.time.Duration.Companion.minutes
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.jobs.KomfJobTracker
@@ -63,6 +65,7 @@ class MetadataService(
     private val seriesMatchRepository: SeriesMatchRepository,
     private val libraryType: MediaType,
     private val jobTracker: KomfJobTracker,
+    private val matchCacheDays: Int = 7,
 ) {
     private val coroutineScope = CoroutineScope(Dispatchers.Default + SupervisorJob())
 
@@ -176,12 +179,23 @@ class MetadataService(
 
     fun matchSeriesMetadata(
         seriesId: MediaServerSeriesId,
+        forceRefresh: Boolean = false,
     ): MetadataJobId {
 
         val jobId = launchJob(seriesId) { eventFlow ->
             val series = mediaServerClient.getSeries(seriesId)
             val books = mediaServerClient.getBooks(seriesId)
             val seriesTitle = series.metadata.title.ifBlank { series.name }
+
+            if (!forceRefresh && matchCacheDays > 0) {
+                val lastJob = jobTracker.findLatestCompletedFor(seriesId)
+                if (lastJob?.finishedAt != null &&
+                    lastJob.finishedAt >= Clock.System.now().minus(matchCacheDays.days)
+                ) {
+                    logger.info { "skipping \"$seriesTitle\" ${series.id}: matched ${lastJob.finishedAt}" }
+                    return@launchJob
+                }
+            }
 
             val existingMatch = seriesMatchRepository.findManualFor(seriesId)
             val matchProvider =
