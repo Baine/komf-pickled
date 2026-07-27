@@ -4,7 +4,9 @@ import kotlinx.datetime.LocalDate
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class GermanVolumeId(val value: String)
+value class GermanVolumeId(val value: String) {
+    override fun toString() = value
+}
 
 data class GermanVolume(
     val id: GermanVolumeId,

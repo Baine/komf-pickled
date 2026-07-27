@@ -117,11 +117,15 @@ enum class MangaBakaMode{
 
 @JvmInline
 @Serializable
-value class KomfServerSeriesId(val value: String)
+value class KomfServerSeriesId(val value: String) {
+    override fun toString() = value
+}
 
 @JvmInline
 @Serializable
-value class KomfServerLibraryId(val value: String)
+value class KomfServerLibraryId(val value: String) {
+    override fun toString() = value
+}
 
 @JvmInline
 @Serializable

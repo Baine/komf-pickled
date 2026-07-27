@@ -3,7 +3,9 @@ package snd.komf.providers.german.model
 import kotlin.jvm.JvmInline
 
 @JvmInline
-value class GermanSeriesId(val value: String)
+value class GermanSeriesId(val value: String) {
+    override fun toString() = value
+}
 
 data class GermanSeries(
     val id: GermanSeriesId,

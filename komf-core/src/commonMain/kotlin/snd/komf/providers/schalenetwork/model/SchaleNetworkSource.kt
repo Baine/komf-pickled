@@ -4,6 +4,7 @@ private val SOURCE_REGEX = Regex("^SchaleNetwork:/g/(\\d+)/([^/]+)$", RegexOptio
 
 @JvmInline
 value class SchaleNetworkSource(val value: String) {
+    override fun toString() = value
     fun parse(): SchaleNetworkId? {
         val match = SOURCE_REGEX.matchEntire(value.trim()) ?: return null
         return SchaleNetworkId(id = match.groupValues[1], key = match.groupValues[2])

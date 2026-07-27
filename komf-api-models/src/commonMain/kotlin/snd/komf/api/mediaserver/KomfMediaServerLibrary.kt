@@ -12,4 +12,6 @@ data class KomfMediaServerLibrary(
 
 @JvmInline
 @Serializable
-value class KomfMediaServerLibraryId(val value: String)
+value class KomfMediaServerLibraryId(val value: String) {
+    override fun toString() = value
+}
