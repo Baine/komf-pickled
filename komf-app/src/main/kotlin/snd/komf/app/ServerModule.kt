@@ -21,7 +21,6 @@ import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.mapNotNull
 import kotlinx.serialization.json.Json
 import snd.komf.api.KomfErrorResponse
 import snd.komf.app.api.ConfigRoutes
@@ -122,27 +121,25 @@ class ServerModule(
                 if (currentDeps.komgaMediaServerClient != null && currentDeps.komgaMetadataServiceProvider != null) {
                     route("/komga") {
                         MetadataRoutes(
-                            metadataServiceProvider = dynamicDependencies.mapNotNull { it.komgaMetadataServiceProvider },
-                            mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient },
+                            metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
+                            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
                         ).registerRoutes(this)
 
                         MediaServerRoutes(
-                            mediaServerClient = dynamicDependencies.mapNotNull { it.komgaMediaServerClient }
+                            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient }
                         ).registerRoutes(this)
                     }
                 }
 
-                if (currentDeps.kavitaMediaServerClient != null && currentDeps.kavitaMetadataServiceProvider != null) {
-                    route("/kavita") {
-                        MetadataRoutes(
-                            metadataServiceProvider = dynamicDependencies.mapNotNull { it.kavitaMetadataServiceProvider },
-                            mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient },
-                        ).registerRoutes(this)
+                route("/kavita") {
+                    MetadataRoutes(
+                        metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
+                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
+                    ).registerRoutes(this)
 
-                        MediaServerRoutes(
-                            mediaServerClient = dynamicDependencies.mapNotNull { it.kavitaMediaServerClient }
-                        ).registerRoutes(this)
-                    }
+                    MediaServerRoutes(
+                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient }
+                    ).registerRoutes(this)
                 }
             }
         }

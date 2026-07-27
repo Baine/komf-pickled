@@ -14,7 +14,7 @@ import snd.komf.api.mediaserver.KomfMediaServerLibraryId
 import snd.komf.mediaserver.MediaServerClient
 
 class MediaServerRoutes(
-    private val mediaServerClient: Flow<MediaServerClient>,
+    private val mediaServerClient: Flow<MediaServerClient?>,
 ) {
 
     fun registerRoutes(routing: Route) {
@@ -26,8 +26,20 @@ class MediaServerRoutes(
 
     private fun Route.checkConnectionRoute() {
         get("/connected") {
+            val client = mediaServerClient.first()
+            if (client == null) {
+                call.respond(
+                    HttpStatusCode.OK,
+                    KomfMediaServerConnectionResponse(
+                        success = false,
+                        httpStatusCode = null,
+                        errorMessage = "Media server is not configured"
+                    )
+                )
+                return@get
+            }
             try {
-                mediaServerClient.first().getLibraries()
+                client.getLibraries()
                 call.respond(
                     HttpStatusCode.OK,
                     KomfMediaServerConnectionResponse(
@@ -65,8 +77,13 @@ class MediaServerRoutes(
 
     private fun Route.getLibrariesRoute() {
         get("/libraries") {
+            val client = mediaServerClient.first()
+            if (client == null) {
+                call.respond(HttpStatusCode.OK, emptyList<KomfMediaServerLibrary>())
+                return@get
+            }
             try {
-                val libraries = mediaServerClient.first().getLibraries().map {
+                val libraries = client.getLibraries().map {
                     KomfMediaServerLibrary(
                         id = KomfMediaServerLibraryId(it.id.value),
                         name = it.name,
