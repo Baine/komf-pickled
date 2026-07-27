@@ -64,10 +64,10 @@ class KavitaEventHandler(
 
         Completable.defer {
             hubConnection.start()
-                .delaySubscription(10, SECONDS, Schedulers.trampoline())
                 .doOnError { logger.error(it) { } }
         }
-            .retry().subscribeOn(Schedulers.io()).subscribe()
+            .retryWhen { it.delay(10, SECONDS) }
+            .subscribeOn(Schedulers.io()).subscribe()
         logger.info { "connecting to Kavita event listener ${url.buildString()}" }
         this.hubConnection = hubConnection
     }
@@ -75,10 +75,10 @@ class KavitaEventHandler(
     private fun reconnect(hubConnection: HubConnection) {
         if (isActive) {
             Completable.defer {
-                hubConnection.start().delaySubscription(10, SECONDS, Schedulers.trampoline())
+                hubConnection.start()
                     .doOnError { logger.error(it) { "Failed to reconnect to Kavita" } }
             }
-                .retry { _ -> isActive }
+                .retryWhen { retries -> retries.delay(10, SECONDS).takeWhile { isActive } }
                 .subscribeOn(Schedulers.io()).subscribe()
         }
     }
