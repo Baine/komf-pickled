@@ -108,6 +108,8 @@ class GalleryDLFileReader {
 }
 
 private val jsonParser = Json { ignoreUnknownKeys = true }
+// ponytail: simplest BCP 47 check, expand if needed
+private val bcp47 = Regex("[a-zA-Z]{2,3}(-[a-zA-Z0-9]+)*")
 
 fun parseGalleryDLJson(content: String): GalleryDLInfo? {
     return try {
@@ -123,8 +125,9 @@ fun parseGalleryDLJson(content: String): GalleryDLInfo? {
             title = obj["title"]?.jsonPrimitive?.content,
             tags = parseTags(obj["tags"]),
             artists = parseArtists(obj),
-            language = obj["lang"]?.jsonPrimitive?.content
-                ?: obj["language"]?.jsonPrimitive?.content,
+            language = (obj["lang"]?.jsonPrimitive?.content
+                ?: obj["language"]?.jsonPrimitive?.content)
+                ?.let { if (it.matches(bcp47)) it else null },
             description = obj["description"]?.jsonPrimitive?.content,
             url = obj["url"]?.jsonPrimitive?.content ?: obj["source"]?.jsonPrimitive?.content,
         )
