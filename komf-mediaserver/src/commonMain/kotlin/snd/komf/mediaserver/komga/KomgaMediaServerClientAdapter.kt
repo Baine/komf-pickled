@@ -59,6 +59,7 @@ class KomgaMediaServerClientAdapter(
 ) : MediaServerClient {
 
     override suspend fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
+        logger.debug { "getSeries seriesId=${seriesId.value} seriesId.toString()=${seriesId.toString()} seriesId.javaClass=${seriesId.javaClass.name}" }
         return komgaSeriesClient.getOneSeries(KomgaSeriesId(seriesId.value)).toMediaServerSeries()
     }
 
