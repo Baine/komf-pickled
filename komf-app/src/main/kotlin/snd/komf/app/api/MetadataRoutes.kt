@@ -127,6 +127,7 @@ class MetadataRoutes(
     private fun Route.identifySeriesRoute() {
         post("/identify") {
             val request = call.receive<KomfIdentifyRequest>()
+            logger.info { "DEBUG identify request.seriesId='${request.seriesId.value}' request.libraryId='${request.libraryId?.value}'" }
 
             val libraryId = request.libraryId?.value
                 ?: mediaServerClient.first().getSeries(MediaServerSeriesId(request.seriesId.value)).libraryId.value
