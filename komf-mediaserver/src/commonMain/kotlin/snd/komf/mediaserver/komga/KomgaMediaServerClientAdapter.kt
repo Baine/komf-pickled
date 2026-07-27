@@ -59,10 +59,7 @@ class KomgaMediaServerClientAdapter(
 ) : MediaServerClient {
 
     override suspend fun getSeries(seriesId: MediaServerSeriesId): MediaServerSeries {
-        val rawValue: String = seriesId.value
-        val komgaId = KomgaSeriesId(rawValue)
-        logger.info { "DEBUG getSeries rawValue='$rawValue' komgaId='$komgaId' komgaId.javaClass=${komgaId.javaClass.name}" }
-        return komgaSeriesClient.getOneSeries(komgaId).toMediaServerSeries()
+        return komgaSeriesClient.getOneSeries(KomgaSeriesId(seriesId.value)).toMediaServerSeries()
     }
 
     override suspend fun getSeries(libraryId: MediaServerLibraryId, pageNumber: Int): Page<MediaServerSeries> {
