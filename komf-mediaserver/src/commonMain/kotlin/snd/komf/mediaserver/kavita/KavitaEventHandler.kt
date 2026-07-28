@@ -159,6 +159,7 @@ class KavitaEventHandler(
         // need to add all invocation targets in order to avoid errors in logs
         // register noop handlers
         hubConnection.on("ChapterUpdated", { }, Object::class.java)
+        hubConnection.on("ScrobblingKeyExpired", { }, Object::class.java)
         hubConnection.on("BackupDatabaseProgress", { }, Object::class.java)
         hubConnection.on("BookThemeProgress", { }, Object::class.java)
         hubConnection.on("ConvertBookmarksProgress", { }, Object::class.java)
