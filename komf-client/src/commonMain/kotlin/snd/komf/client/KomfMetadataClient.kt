@@ -73,13 +73,18 @@ class KomfMetadataClient(
 
     suspend fun matchSeries(
         libraryId: KomfServerLibraryId,
-        seriesId: KomfServerSeriesId
+        seriesId: KomfServerSeriesId,
+        force: Boolean = false
     ): KomfMetadataJobResponse {
-        return ktor.post("$metadataApiPrefix/match/library/${libraryId.value}/series/${seriesId.value}").body()
+        return ktor.post("$metadataApiPrefix/match/library/${libraryId.value}/series/${seriesId.value}") {
+            parameter("force", force)
+        }.body()
     }
 
-    suspend fun matchLibrary(libraryId: KomfServerLibraryId) {
-        ktor.post("$metadataApiPrefix/match/library/${libraryId.value}")
+    suspend fun matchLibrary(libraryId: KomfServerLibraryId, force: Boolean = false) {
+        ktor.post("$metadataApiPrefix/match/library/${libraryId.value}") {
+            parameter("force", force)
+        }
     }
 
     suspend fun resetSeries(

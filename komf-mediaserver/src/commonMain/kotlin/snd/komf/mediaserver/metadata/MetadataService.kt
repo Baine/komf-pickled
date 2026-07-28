@@ -137,7 +137,7 @@ class MetadataService(
         return jobId
     }
 
-    fun matchLibraryMetadata(libraryId: MediaServerLibraryId) {
+    fun matchLibraryMetadata(libraryId: MediaServerLibraryId, forceRefresh: Boolean = false) {
         coroutineScope.launch {
             val semaphore = Semaphore(4)
             var errorCount = 0
@@ -154,7 +154,7 @@ class MetadataService(
                         semaphore.withPermit {
                             runCatching {
                                 val timedOut = withTimeoutOrNull(5.minutes) {
-                                    jobTracker.getMetadataJobEvents(matchSeriesMetadata(series.id))
+                                    jobTracker.getMetadataJobEvents(matchSeriesMetadata(series.id, forceRefresh))
                                         ?.takeWhile { it !is CompletionEvent }
                                         ?.collect()
                                 } == null

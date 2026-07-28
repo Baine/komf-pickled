@@ -187,7 +187,8 @@ class MetadataRoutes(
 
             val libraryId = call.parameters.getOrFail("libraryId")
             val seriesId = MediaServerSeriesId(call.parameters.getOrFail("seriesId"))
-            val jobId = provider.metadataServiceFor(libraryId).matchSeriesMetadata(seriesId)
+            val force = call.queryParameters["force"]?.toBoolean() ?: false
+            val jobId = provider.metadataServiceFor(libraryId).matchSeriesMetadata(seriesId, forceRefresh = force)
 
             call.respond(
                 KomfMetadataJobResponse(KomfMetadataJobId(jobId.value.toString()))
@@ -207,7 +208,8 @@ class MetadataRoutes(
             }
 
             val libraryId = MediaServerLibraryId(call.parameters.getOrFail("libraryId"))
-            provider.metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId)
+            val force = call.queryParameters["force"]?.toBoolean() ?: false
+            provider.metadataServiceFor(libraryId.value).matchLibraryMetadata(libraryId, forceRefresh = force)
             call.response.status(HttpStatusCode.Accepted)
         }
     }
