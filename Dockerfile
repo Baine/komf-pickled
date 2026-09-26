@@ -10,6 +10,7 @@ COPY komf-notifications komf-notifications
 COPY komf-app komf-app
 RUN --mount=type=cache,target=/home/gradle/.gradle/caches,uid=1000,gid=1000 \
     --mount=type=cache,target=/home/gradle/.gradle/wrapper,uid=1000,gid=1000 \
+    --mount=type=cache,target=/home/gradle/.gradle/jdks,uid=1000,gid=1000 \
     gradle :komf-app:shadowJar --no-daemon --build-cache
 
 FROM eclipse-temurin:21-jre AS runtime
