@@ -95,8 +95,11 @@ metadataProviders:
   malClientId: "13202c74319e343453e7066df33c1398"
   comicVineApiKey: "25297a2cfcc173ff6d1f4a37d552adb048ce93a0"
   defaultProviders:
-    german:
+    mangaPassion:
       priority: 0
+      enabled: true
+    mangaDexDe:
+      priority: 1
       enabled: true
     mangaUpdates:
       priority: 1
@@ -123,8 +126,11 @@ metadataProviders:
       priority: 2
   libraryProviders:
     "0GVJYHJ5FSTFQ":
-      german:
+      mangaPassion:
         priority: 0
+        enabled: true
+      mangaDexDe:
+        priority: 1
         enabled: true
       mangaUpdates:
         priority: 1

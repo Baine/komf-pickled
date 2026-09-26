@@ -142,8 +142,10 @@ class AppConfigUpdateMapper {
                 ?.let { providerConfig(config.bangumi, it) } ?: config.bangumi,
             comicVine = patch.comicVine.getOrNull()
                 ?.let { providerConfig(config.comicVine, it) } ?: config.comicVine,
-            german = patch.german.getOrNull()
-                ?.let { providerConfig(config.german, it) } ?: config.german,
+            mangaDexDe = patch.mangaDexDe.getOrNull()
+                ?.let { providerConfig(config.mangaDexDe, it) } ?: config.mangaDexDe,
+            mangaPassion = patch.mangaPassion.getOrNull()
+                ?.let { providerConfig(config.mangaPassion, it) } ?: config.mangaPassion,
             mangaBaka = patch.mangaBaka.getOrNull()
                 ?.let { mangaBakaProviderConfig(config.mangaBaka, it) } ?: config.mangaBaka,
             webtoons = patch.webtoons.getOrNull()

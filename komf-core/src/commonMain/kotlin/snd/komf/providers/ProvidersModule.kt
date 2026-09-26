@@ -40,7 +40,6 @@ import snd.komf.providers.german.GermanMetadataMapper
 import snd.komf.providers.german.GermanMetadataProvider
 import snd.komf.providers.german.source.MangaDexDeSource
 import snd.komf.providers.german.source.MangaPassionSource
-import snd.komf.providers.german.source.WikipediaDeSource
 import snd.komf.providers.chaikafile.ChaikaFileMetadataMapper
 import snd.komf.providers.chaikafile.ChaikaFileMetadataProvider
 import snd.komf.providers.chaikafile.ChaikaFileReader
@@ -253,14 +252,6 @@ class ProvidersModule(
         }
     )
 
-    private val wikipediaDeClient = WikipediaDeSource(
-        baseHttpClient.config {
-            install(HttpRequestRetry) {
-                defaultRetry()
-            }
-        }
-    )
-
     private val mangaDexDeClient = MangaDexDeSource(
         baseHttpClientJson.config {
             install(HttpRequestRateLimiter) {
@@ -388,7 +379,8 @@ class ProvidersModule(
                 defaultNameMatcher = defaultNameMatcher
             ), config.mangaBaka.priority),
             entry(CoreProviders.WEBTOONS, createWebtoonsMetadataProvider(config = config.webtoons, client = webtoonsClient, defaultNameMatcher = defaultNameMatcher), config.webtoons.priority),
-            entry(CoreProviders.GERMAN, createGermanMetadataProvider(config = config.german, sources = listOf(mangaPassionClient, wikipediaDeClient, mangaDexDeClient), defaultNameMatcher = defaultNameMatcher), config.german.priority),
+            entry(CoreProviders.MANGA_PASSION, createGermanMetadataProvider(config = config.mangaPassion, sources = listOf(mangaPassionClient), defaultNameMatcher = defaultNameMatcher), config.mangaPassion.priority),
+            entry(CoreProviders.MANGADEX_DE, createGermanMetadataProvider(config = config.mangaDexDe, sources = listOf(mangaDexDeClient), defaultNameMatcher = defaultNameMatcher), config.mangaDexDe.priority),
             entry(CoreProviders.CHAIKA_FILE, createChaikaFileMetadataProvider(config = config.chaikaFile), config.chaikaFile.priority),
             entry(CoreProviders.HDOUJIN, createHdoujinMetadataProvider(config = config.hdoujin), config.hdoujin.priority),
             entry(CoreProviders.GALLERY_DL, createGalleryDLMetadataProvider(config = config.galleryDl), config.galleryDl.priority),

@@ -121,7 +121,8 @@ data class ProvidersConfigUpdateRequest(
     @Deprecated("to be removed")
     val webtoons: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
 
-    val german: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val mangaDexDe: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
+    val mangaPassion: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val chaikaFile: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val hdoujin: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,
     val galleryDl: PatchValue<ProviderConfigUpdateRequest> = PatchValue.Unset,

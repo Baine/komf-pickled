@@ -46,7 +46,8 @@ data class ProvidersConfig(
     @Deprecated("to be removed")
     val webtoons: ProviderConfig = ProviderConfig(),
 
-    val german: ProviderConfig = ProviderConfig(),
+    val mangaDexDe: ProviderConfig = ProviderConfig(),
+    val mangaPassion: ProviderConfig = ProviderConfig(),
     val chaikaFile: ProviderConfig = ProviderConfig(),
     val hdoujin: ProviderConfig = ProviderConfig(),
     val galleryDl: ProviderConfig = ProviderConfig(),

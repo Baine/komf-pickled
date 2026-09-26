@@ -1,10 +1,11 @@
-# komf-pickled — KOMF + 5 extra metadata providers
+# komf-pickled — KOMF + 6 extra metadata providers
 
-This fork of [KOMF](https://github.com/Snd-R/komf) adds five additional metadata providers:
+This fork of [KOMF](https://github.com/Snd-R/komf) adds six additional metadata providers:
 
 | Provider | Description |
 |----------|-------------|
-| **German** | German-localized metadata (Manga-Passion, Wikipedia DE, MangaDex DE cascade) |
+| **MangaDex DE** | German-localized metadata from mangadex.org (DE filtered) |
+| **Manga Passion** | German-localized metadata from manga-passion.de |
 | **SpecYAML** | Read metadata from YAML files alongside media |
 | **ChaikaFile** | Read metadata from Chaika-format `.txt` files |
 | **Gallery-DL** | Read metadata from Gallery-DL JSON output |
@@ -73,7 +74,7 @@ services:
       - JAVA_TOOL_OPTIONS=-XX:+UnlockExperimentalVMOptions -XX:+UseShenandoahGC -XX:ShenandoahGCHeuristics=compact -XX:ShenandoahGuaranteedGCInterval=3600000 -XX:TrimNativeHeapInterval=3600000
     volumes:
       - /path/to/config:/config #path to directory with application.yml and database file
-      - /path/to/books:/books # essentially the same mount as used in Komga. Needed for all providers but "German"
+      - /path/to/books:/books # essentially the same mount as used in Komga. Needed for all providers but "MangaDex DE" and "Manga Passion"
     restart: unless-stopped
 ```
 

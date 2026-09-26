@@ -131,7 +131,8 @@ data class ProvidersConfigDto(
     @Deprecated("to be removed")
     val webtoons: ProviderConfigDto,
 
-    val german: ProviderConfigDto,
+    val mangaDexDe: ProviderConfigDto,
+    val mangaPassion: ProviderConfigDto,
     val chaikaFile: ProviderConfigDto,
     val hdoujin: ProviderConfigDto,
     val galleryDl: ProviderConfigDto,

@@ -96,14 +96,16 @@ class GermanMetadataMapper(
             url = seriesUrl(result.id, result.source),
             imageUrl = result.imageUrl,
             title = result.title,
-            provider = CoreProviders.GERMAN,
+            provider = when (result.source) {
+                DataSource.MANGAPASSION_DE -> CoreProviders.MANGA_PASSION
+                DataSource.MANGADEX_DE -> CoreProviders.MANGADEX_DE
+            },
             resultId = result.id.value,
         )
     }
 
     private fun seriesUrl(seriesId: GermanSeriesId, source: DataSource): String = when (source) {
         DataSource.MANGAPASSION_DE -> "https://manga-passion.de/editions/${seriesId.value}"
-        DataSource.WIKIPEDIA_DE -> "https://de.wikipedia.org/wiki/${seriesId.value}"
         DataSource.MANGADEX_DE -> "https://mangadex.org/title/${seriesId.value}"
     }
 }

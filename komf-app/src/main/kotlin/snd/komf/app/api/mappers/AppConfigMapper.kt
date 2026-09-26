@@ -186,7 +186,8 @@ class AppConfigMapper {
             bangumi = toDto(config.bangumi),
             hentag = toDto(ProviderConfig()),
 
-            german = toDto(config.german),
+            mangaDexDe = toDto(config.mangaDexDe),
+            mangaPassion = toDto(config.mangaPassion),
             webtoons = toDto(config.webtoons),
             chaikaFile = toDto(config.chaikaFile),
             hdoujin = toDto(config.hdoujin),

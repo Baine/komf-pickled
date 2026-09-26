@@ -120,7 +120,8 @@ class ConfigLoader(private val yaml: Yaml) {
             config.metadataProviders.defaultProviders.mangaDex.enabled.not() &&
             config.metadataProviders.defaultProviders.bangumi.enabled.not() &&
             config.metadataProviders.defaultProviders.comicVine.enabled.not() &&
-            config.metadataProviders.defaultProviders.german.enabled.not() &&
+            config.metadataProviders.defaultProviders.mangaDexDe.enabled.not() &&
+            config.metadataProviders.defaultProviders.mangaPassion.enabled.not() &&
             config.metadataProviders.defaultProviders.mangaBaka.enabled.not() &&
             config.metadataProviders.defaultProviders.webtoons.enabled.not() &&
             config.metadataProviders.defaultProviders.chaikaFile.enabled.not() &&

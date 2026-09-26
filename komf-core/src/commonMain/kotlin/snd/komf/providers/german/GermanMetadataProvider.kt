@@ -9,7 +9,6 @@ import snd.komf.model.ProviderSeriesId
 import snd.komf.model.ProviderSeriesMetadata
 import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
-import snd.komf.providers.CoreProviders.GERMAN
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.german.model.DataSource
 import snd.komf.providers.german.model.GermanSeriesId
@@ -26,7 +25,10 @@ class GermanMetadataProvider(
     private val fetchBookCovers: Boolean,
 ) : MetadataProvider {
 
-    override fun providerName(): CoreProviders = GERMAN
+    override fun providerName(): CoreProviders = when (sources.first().source) {
+        DataSource.MANGAPASSION_DE -> CoreProviders.MANGA_PASSION
+        DataSource.MANGADEX_DE -> CoreProviders.MANGADEX_DE
+    }
 
     override suspend fun getSeriesMetadata(seriesId: ProviderSeriesId): ProviderSeriesMetadata {
         val gid = GermanSeriesId(seriesId.value)
@@ -88,6 +90,8 @@ class GermanMetadataProvider(
         val match = searchResults.firstOrNull { (result, _) ->
             nameMatcher.matches(seriesName, listOf(result.title, result.alternativeTitle).filterNotNull())
         } ?: searchResults.firstOrNull()
+        // ponytail: naive fallback - takes the first search result even when the name barely matches;
+        // proper score-based selection would need a match-confidence threshold
 
         if (match == null) {
             logger.info { "matchSeriesMetadata: no match found for '$seriesName'" }
