@@ -1,5 +1,5 @@
 [versions]
-app-version = "2.1.0-pickled"
+app-version = "2.2.0-pickled"
 agp = "9.1.1"
 android-compileSdk = "37"
 android-targetSdk = "37"
