@@ -1,5 +1,7 @@
 package snd.komf.app
 
+import io.github.oshai.kotlinlogging.KotlinLogging
+import io.ktor.client.HttpClient
 import io.ktor.http.HttpStatusCode
 import io.ktor.http.ContentType
 import io.ktor.serialization.kotlinx.json.json
@@ -9,6 +11,7 @@ import io.ktor.server.cio.CIO
 import io.ktor.server.engine.embeddedServer
 import io.ktor.server.http.content.CompressedFileType
 import io.ktor.server.http.content.staticResources
+import io.ktor.server.plugins.cachingheaders.CachingHeaders
 import io.ktor.server.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.server.plugins.cors.routing.CORS
 import io.ktor.server.plugins.statuspages.StatusPages
@@ -25,25 +28,29 @@ import kotlinx.serialization.json.Json
 import snd.komf.api.KomfErrorResponse
 import snd.komf.app.api.ConfigRoutes
 import snd.komf.app.api.JobRoutes
+import snd.komf.app.api.MangaBakaRoutes
 import snd.komf.app.api.MediaServerRoutes
 import snd.komf.app.api.MetadataRoutes
 import snd.komf.app.api.NotificationRoutes
 import snd.komf.app.config.AppConfig
+import snd.komf.mangabaka.external.MangaBakaDbDownloader
+import snd.komf.mangabaka.repository.MangaBakaRepository
 import snd.komf.mediaserver.MediaServerClient
 import snd.komf.mediaserver.MetadataServiceProvider
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.jobs.repository.KomfJobsRepository
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
-import snd.komf.providers.mangabaka.db.MangaBakaDbDownloader
-import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
+import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
+
+private val logger = KotlinLogging.logger { }
 
 class ServerModule(
     serverPort: Int,
     private val onConfigUpdate: suspend (AppConfig) -> Unit,
-    private val dynamicDependencies: StateFlow<ApiDynamicDependencies>,
+    private val dependencies: StateFlow<ApiRouteDependencies>,
     private val json: Json = Json { ignoreUnknownKeys = true },
 ) {
 
@@ -62,8 +69,11 @@ class ServerModule(
             header("Cross-Origin-Embedder-Policy", "require-corp")
             header("Cross-Origin-Opener-Policy", "same-origin")
         }
+
+        install(CachingHeaders)
         install(StatusPages) {
             exception<IllegalStateException> { call, cause ->
+                logger.catching(cause)
                 call.respond(
                     HttpStatusCode.InternalServerError,
                     KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
@@ -72,6 +82,14 @@ class ServerModule(
             exception<IllegalArgumentException> { call, cause ->
                 call.respond(
                     HttpStatusCode.BadRequest,
+                    KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
+                )
+            }
+
+            exception<Throwable> { call, cause ->
+                logger.catching(cause)
+                call.respond(
+                    HttpStatusCode.InternalServerError,
                     KomfErrorResponse("${cause::class.simpleName} :${cause.message}")
                 )
             }
@@ -98,49 +116,56 @@ class ServerModule(
 
             route("/api") {
                 ConfigRoutes(
-                    config = dynamicDependencies.map { it.config },
+                    config = dependencies.map { it.config },
                     onConfigUpdate = onConfigUpdate,
-                    mangaBakaDownloader = dynamicDependencies.map { it.mangaBakaDownloader },
-                    mangaBakaDbMetadata = dynamicDependencies.map { it.mangaBakaDbMetadata },
+                    mangaBakaDownloader = dependencies.map { it.mangaBakaDownloader },
+                    mangaBakaRepository = dependencies.map { it.mangaBakaRepository },
+                    bookWalkerDbDownloader = dependencies.map { it.bookWalkerDbDownloader },
                     json = json,
                 ).registerRoutes(this)
                 JobRoutes(
-                    jobTracker = dynamicDependencies.map { it.jobTracker },
-                    jobsRepository = dynamicDependencies.map { it.jobsRepository },
+                    jobTracker = dependencies.map { it.jobTracker },
+                    jobsRepository = dependencies.map { it.jobsRepository },
                     json = json
                 ).registerRoutes(this)
 
                 NotificationRoutes(
-                    discordService = dynamicDependencies.map { it.discordService },
-                    discordRenderer = dynamicDependencies.map { it.discordRenderer },
-                    appriseService = dynamicDependencies.map { it.appriseService },
-                    appriseRenderer = dynamicDependencies.map { it.appriseRenderer }
+                    discordService = dependencies.map { it.discordService },
+                    discordRenderer = dependencies.map { it.discordRenderer },
+                    appriseService = dependencies.map { it.appriseService },
+                    appriseRenderer = dependencies.map { it.appriseRenderer }
                 ).registerRoutes(this)
 
-                val currentDeps = dynamicDependencies.value
+                val currentDeps = dependencies.value
                 if (currentDeps.komgaMediaServerClient != null && currentDeps.komgaMetadataServiceProvider != null) {
                     route("/komga") {
                         MetadataRoutes(
-                            metadataServiceProvider = dynamicDependencies.map { it.komgaMetadataServiceProvider },
-                            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient },
+                            metadataServiceProvider = dependencies.map { it.komgaMetadataServiceProvider },
+                            mediaServerClient = dependencies.map { it.komgaMediaServerClient },
                         ).registerRoutes(this)
 
                         MediaServerRoutes(
-                            mediaServerClient = dynamicDependencies.map { it.komgaMediaServerClient }
+                            mediaServerClient = dependencies.map { it.komgaMediaServerClient }
                         ).registerRoutes(this)
                     }
                 }
 
                 route("/kavita") {
                     MetadataRoutes(
-                        metadataServiceProvider = dynamicDependencies.map { it.kavitaMetadataServiceProvider },
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient },
+                        metadataServiceProvider = dependencies.map { it.kavitaMetadataServiceProvider },
+                        mediaServerClient = dependencies.map { it.kavitaMediaServerClient },
                     ).registerRoutes(this)
 
                     MediaServerRoutes(
-                        mediaServerClient = dynamicDependencies.map { it.kavitaMediaServerClient }
+                        mediaServerClient = dependencies.map { it.kavitaMediaServerClient }
                     ).registerRoutes(this)
                 }
+
+                MangaBakaRoutes(
+                    mangaBakaRepository = dependencies.map { it.mangaBakaRepository },
+                    httpClient = dependencies.map { it.httpClient }
+                ).registerRoutes(this)
+
             }
         }
     }
@@ -150,7 +175,7 @@ class ServerModule(
     }
 }
 
-class ApiDynamicDependencies(
+class ApiRouteDependencies(
     val config: AppConfig,
     val jobTracker: KomfJobTracker,
     val jobsRepository: KomfJobsRepository,
@@ -163,5 +188,7 @@ class ApiDynamicDependencies(
     val appriseService: AppriseCliService,
     val appriseRenderer: AppriseVelocityTemplates,
     val mangaBakaDownloader: MangaBakaDbDownloader,
-    val mangaBakaDbMetadata: MangaBakaDbMetadata
+    val bookWalkerDbDownloader: BookWalkerDbDownloader,
+    val mangaBakaRepository: MangaBakaRepository,
+    val httpClient: HttpClient,
 )

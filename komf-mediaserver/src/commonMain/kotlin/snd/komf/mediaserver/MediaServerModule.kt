@@ -1,5 +1,7 @@
 package snd.komf.mediaserver
 
+import com.zaxxer.hikari.HikariConfig
+import com.zaxxer.hikari.HikariDataSource
 import io.github.oshai.kotlinlogging.KotlinLogging
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.auth.Auth
@@ -13,21 +15,18 @@ import io.ktor.http.appendPathSegments
 import io.ktor.http.takeFrom
 import io.ktor.serialization.kotlinx.json.json
 import kotlinx.serialization.json.Json
+import org.flywaydb.core.Flyway
 import org.jetbrains.exposed.v1.jdbc.Database
-import org.jetbrains.exposed.v1.jdbc.SchemaUtils
-import org.jetbrains.exposed.v1.jdbc.transactions.transaction
+import org.sqlite.SQLiteConfig
+import org.sqlite.SQLiteDataSource
 import snd.komf.comicinfo.ComicInfoWriter
 import snd.komf.mediaserver.config.DatabaseConfig
 import snd.komf.mediaserver.config.KavitaConfig
 import snd.komf.mediaserver.config.KomgaConfig
 import snd.komf.mediaserver.config.MetadataProcessingConfig
 import snd.komf.mediaserver.config.MetadataUpdateConfig
-import snd.komf.mediaserver.db.BookThumbnailTable
-import snd.komf.mediaserver.db.KomfJobRecordTable
-import snd.komf.mediaserver.db.SeriesMatchTable
-import snd.komf.mediaserver.db.SeriesThumbnailTable
 import snd.komf.mediaserver.jobs.KomfJobTracker
-import snd.komf.mediaserver.jobs.KomfJobsRepository
+import snd.komf.mediaserver.jobs.repository.KomfJobsRepository
 import snd.komf.mediaserver.kavita.KavitaAuthClient
 import snd.komf.mediaserver.kavita.KavitaClient
 import snd.komf.mediaserver.kavita.KavitaEventHandler
@@ -35,15 +34,15 @@ import snd.komf.mediaserver.kavita.KavitaMediaServerClientAdapter
 import snd.komf.mediaserver.kavita.KavitaTokenProvider
 import snd.komf.mediaserver.komga.KomgaEventHandler
 import snd.komf.mediaserver.komga.KomgaMediaServerClientAdapter
+import snd.komf.mediaserver.match.repository.BookThumbnailsRepository
+import snd.komf.mediaserver.match.repository.SeriesMatchRepository
+import snd.komf.mediaserver.match.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.metadata.MetadataEventHandler
 import snd.komf.mediaserver.metadata.MetadataMapper
 import snd.komf.mediaserver.metadata.MetadataMerger
 import snd.komf.mediaserver.metadata.MetadataPostProcessor
 import snd.komf.mediaserver.metadata.MetadataService
 import snd.komf.mediaserver.metadata.MetadataUpdater
-import snd.komf.mediaserver.metadata.repository.BookThumbnailsRepository
-import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
-import snd.komf.mediaserver.metadata.repository.SeriesThumbnailsRepository
 import snd.komf.mediaserver.model.MediaServer
 import snd.komf.notifications.apprise.AppriseCliService
 import snd.komf.notifications.discord.DiscordWebhookService
@@ -356,18 +355,27 @@ class MediaServerModule(
     }
 
     private fun createDatabase(file: Path): Database {
-        val database = Database.connect(
-            url = "jdbc:sqlite:${file}",
-            driver = "org.sqlite.JDBC"
-        )
-        transaction(database) {
-            SchemaUtils.create(
-                KomfJobRecordTable,
-                SeriesMatchTable,
-                BookThumbnailTable,
-                SeriesThumbnailTable,
-            )
+        val config = SQLiteConfig().apply {
+            enforceForeignKeys(true)
+            busyTimeout = 5_000
         }
-        return database
+        val datasource = HikariDataSource(
+            HikariConfig().apply {
+                dataSource = SQLiteDataSource(config).apply { url = "jdbc:sqlite:${file}" }
+                poolName = "app db pool"
+                maximumPoolSize = 1
+            }
+        )
+        Flyway(
+            Flyway.configure(MediaServerModule::class.java.classLoader)
+                .loggers("slf4j")
+                .dataSource(datasource)
+                .locations("db/migration")
+                .baselineOnMigrate(true)
+        ).migrate()
+
+        return Database.connect(
+            datasource = datasource,
+        )
     }
 }

@@ -1,8 +1,8 @@
 package snd.komf.mediaserver.metadata
 
 import io.github.oshai.kotlinlogging.KotlinLogging
-import io.ktor.client.plugins.*
-import io.ktor.client.statement.*
+import io.ktor.client.plugins.ResponseException
+import io.ktor.client.statement.bodyAsText
 import kotlinx.coroutines.CancellationException
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -31,7 +31,7 @@ import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderCompletedEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderErrorEvent
 import snd.komf.mediaserver.jobs.MetadataJobEvent.ProviderSeriesEvent
 import snd.komf.mediaserver.jobs.MetadataJobId
-import snd.komf.mediaserver.metadata.repository.SeriesMatchRepository
+import snd.komf.mediaserver.match.repository.SeriesMatchRepository
 import snd.komf.mediaserver.model.MediaServerBook
 import snd.komf.mediaserver.model.MediaServerLibraryId
 import snd.komf.mediaserver.model.MediaServerSeries
@@ -207,10 +207,11 @@ class MetadataService(
                 val bookMetadata = getBookMetadata(books, seriesMetadata, matchProvider, null, eventFlow)
                 matchProvider to SeriesAndBookMetadata(seriesMetadata.metadata, bookMetadata)
             } else {
-                val searchTitles = listOfNotNull(
-                    seriesTitle,
-                    removeParentheses(seriesTitle).let { if (it == seriesTitle) null else it }
-                ).plus(series.metadata.alternativeTitles.map { it.title })
+                val noParensTitle = removeParentheses(seriesTitle).let { if (it == seriesTitle) null else it }
+                val searchTitles = (
+                        listOfNotNull(seriesTitle, noParensTitle)
+                            .plus(series.metadata.alternativeTitles.map { it.title })
+                        ).filter { it.isNotBlank() }
 
                 logger.info { "attempting to match series \"${seriesTitle}\" ${series.id}" }
 
@@ -360,6 +361,7 @@ class MetadataService(
 
         val searchTitles = metadata.seriesMetadata.titles
             .map { it.name }
+            .filter { it.isNotBlank() }
 
         return providers
             .map { provider ->

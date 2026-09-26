@@ -28,7 +28,7 @@ class KomfClientFactory(
     private val ktor: HttpClient = (ktor ?: HttpClient()).config {
         expectSuccess = true
         cookieStorage?.let { install(HttpCookies) { storage = it } }
-        defaultRequest { url(baseUrl()) }
+        defaultRequest { url(baseUrl().trimEnd('/') + "/") }
         install(ContentNegotiation) { json(json) }
         install(SSE)
     }
@@ -38,4 +38,5 @@ class KomfClientFactory(
     fun mediaServerClient(mediaServer: MediaServer) = KomfMediaServerClient(ktor, mediaServer)
     fun jobClient() = KomfJobClient(ktor = ktor, json = json)
     fun notificationClient() = KomfNotificationClient(ktor = ktor)
+    fun mangaBaka() = KomfMangaBakaClient(ktor = ktor)
 }

@@ -54,7 +54,9 @@ class AppContext(private val configPath: Path? = null) {
     private lateinit var mediaServerModule: MediaServerModule
     private lateinit var notificationsModule: NotificationsModule
 
-    private lateinit var apiRoutesDependencies: MutableStateFlow<ApiDynamicDependencies>
+    private val apiRoutesDependencies: MutableStateFlow<ApiRouteDependencies>
+
+    private val configDir = configPath?.let { if (it.isDirectory()) it else it.parent } ?: Path.of("./")
 
     private val yaml = Yaml(
         configuration = YamlConfiguration(
@@ -98,12 +100,30 @@ class AppContext(private val configPath: Path? = null) {
             install(UserAgent) { agent = "Snd-R/komf (https://github.com/Snd-R/komf)" }
         }
 
-        reloadModules(config)
+        providersModule = CoreModule(
+            config = config.metadataProviders,
+            workDir = configDir,
+            ktor = ktorBaseClient,
+            onStateRefresh = this::refreshState,
+        )
+        notificationsModule = NotificationsModule(config.notifications, ktorBaseClient)
+
+        mediaServerModule = MediaServerModule(
+            komgaConfig = config.komga,
+            kavitaConfig = config.kavita,
+            databaseConfig = config.database,
+            jsonBase = jsonBase,
+            ktorBaseClient = ktorBaseClient,
+            appriseService = notificationsModule.appriseService,
+            discordWebhookService = notificationsModule.discordWebhookService,
+            metadataProviders = providersModule.metadataProviders
+        )
+        this.apiRoutesDependencies = MutableStateFlow(createApiRoutesDependencies())
 
         serverModule = ServerModule(
             serverPort = config.server.port,
             onConfigUpdate = this::refreshState,
-            dynamicDependencies = apiRoutesDependencies,
+            dependencies = apiRoutesDependencies,
             json = jsonBase,
         )
 
@@ -130,6 +150,7 @@ class AppContext(private val configPath: Path? = null) {
 
         val providersModule = CoreModule(
             config = config.metadataProviders,
+            workDir = configDir,
             ktor = ktorBaseClient,
             onStateRefresh = this::refreshState,
         )
@@ -150,15 +171,10 @@ class AppContext(private val configPath: Path? = null) {
         this.providersModule = providersModule
         this.notificationsModule = notificationsModule
         this.mediaServerModule = mediaServerModule
-        val deps = createApiRoutesDependencies()
-        if (::apiRoutesDependencies.isInitialized) {
-            apiRoutesDependencies.value = deps
-        } else {
-            apiRoutesDependencies = MutableStateFlow(deps)
-        }
+        apiRoutesDependencies.value = createApiRoutesDependencies()
     }
 
-    private fun createApiRoutesDependencies() = ApiDynamicDependencies(
+    private fun createApiRoutesDependencies() = ApiRouteDependencies(
         config = this.appConfig,
         jobTracker = mediaServerModule.jobTracker,
         jobsRepository = mediaServerModule.jobRepository,
@@ -171,7 +187,9 @@ class AppContext(private val configPath: Path? = null) {
         appriseService = notificationsModule.appriseService,
         appriseRenderer = notificationsModule.appriseVelocityRenderer,
         mangaBakaDownloader = providersModule.mangaBakaDatabaseDownloader,
-        mangaBakaDbMetadata = providersModule.mangaBakaDbMetadata
+        mangaBakaRepository = providersModule.mangaBakaRepository,
+        bookWalkerDbDownloader = providersModule.bookWalkerDbDownloader,
+        httpClient = ktorBaseClient
     )
 
     private suspend fun writeConfig(config: AppConfig) {

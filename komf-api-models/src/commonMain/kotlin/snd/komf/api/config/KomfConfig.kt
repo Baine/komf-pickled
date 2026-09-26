@@ -97,6 +97,7 @@ data class MetadataProvidersConfigDto(
     val defaultProviders: ProvidersConfigDto,
     val libraryProviders: Map<String, ProvidersConfigDto>,
     val mangaBakaDatabase: MangaBakaDatabaseDto?,
+    val bookWalkerDownloadDate: Instant?
 )
 
 @Serializable
@@ -107,21 +108,30 @@ data class MangaBakaDatabaseDto(
 
 @Serializable
 data class ProvidersConfigDto(
-    val mangaUpdates: ProviderConfigDto,
-    val mal: ProviderConfigDto,
-    val nautiljon: ProviderConfigDto,
-    val aniList: AniListConfigDto,
-    val yenPress: ProviderConfigDto,
-    val kodansha: ProviderConfigDto,
-    val viz: ProviderConfigDto,
+    val mangaBaka: MangaBakaConfigDto,
     val bookWalker: ProviderConfigDto,
     val mangaDex: MangaDexConfigDto,
-    val bangumi: ProviderConfigDto,
+    val mangaUpdates: ProviderConfigDto,
+    val aniList: AniListConfigDto,
+    val mal: ProviderConfigDto,
     val comicVine: ProviderConfigDto,
+
+    @Deprecated("to be removed")
+    val nautiljon: ProviderConfigDto,
+    @Deprecated("to be removed")
+    val yenPress: ProviderConfigDto,
+    @Deprecated("to be removed")
+    val kodansha: ProviderConfigDto,
+    @Deprecated("to be removed")
+    val viz: ProviderConfigDto,
+    @Deprecated("to be removed")
+    val bangumi: ProviderConfigDto,
+    @Deprecated("to be removed")
     val hentag: ProviderConfigDto,
-    val german: ProviderConfigDto,
-    val mangaBaka: MangaBakaConfigDto,
+    @Deprecated("to be removed")
     val webtoons: ProviderConfigDto,
+
+    val german: ProviderConfigDto,
     val chaikaFile: ProviderConfigDto,
     val hdoujin: ProviderConfigDto,
     val galleryDl: ProviderConfigDto,

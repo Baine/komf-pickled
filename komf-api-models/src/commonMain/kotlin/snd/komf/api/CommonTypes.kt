@@ -53,26 +53,34 @@ enum class MediaServer {
 @Serializable(with = KomfProvidersSerializer::class)
 sealed interface KomfProviders
 enum class KomfCoreProviders : KomfProviders {
-    ANILIST,
-    BANGUMI,
+    MANGA_BAKA,
     BOOK_WALKER,
-    CHAIKA_FILE,
+    MANGADEX,
+    MANGA_UPDATES,
+    ANILIST,
+    MAL,
     COMIC_VINE,
+    CHAIKA_FILE,
     GALLERY_DL,
     GERMAN,
     HDOUJIN,
-    HENTAG,
-    KODANSHA,
-    MAL,
-    MANGA_BAKA,
-    MANGA_UPDATES,
-    MANGADEX,
-    NAUTILJON,
     SCHALE_NETWORK,
     SPEC_YAML,
-    WEBTOONS,
+
+    @Deprecated("to be removed")
+    BANGUMI,
+    @Deprecated("to be removed")
     YEN_PRESS,
+    @Deprecated("to be removed")
     VIZ,
+    @Deprecated("to be removed")
+    WEBTOONS,
+    @Deprecated("Removed")
+    NAUTILJON,
+    @Deprecated("Removed")
+    KODANSHA,
+    @Deprecated("Removed")
+    HENTAG,
 }
 
 data class UnknownKomfProvider(val name: String) : KomfProviders

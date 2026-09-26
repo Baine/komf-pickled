@@ -1,20 +1,24 @@
-@file:OptIn(ExperimentalKotlinGradlePluginApi::class)
-
-import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
+    alias(libs.plugins.androidMultiplatformLibrary)
     alias(libs.plugins.kotlinMultiplatform)
     alias(libs.plugins.kotlinSerialization)
     alias(libs.plugins.mavenPublish)
+    signing
 }
 
 group = "io.github.snd-r"
 version = libs.versions.app.version.get()
 
 kotlin {
-    jvmToolchain(21)
+    android {
+        namespace = "snd.komf.client"
+        compileSdk = libs.versions.android.compileSdk.get().toInt()
+        minSdk = libs.versions.android.minSdk.get().toInt()
+        compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
+    }
     jvm {
         compilerOptions { jvmTarget.set(JvmTarget.JVM_17) }
     }
@@ -31,19 +35,23 @@ kotlin {
         }
         commonMain.dependencies {
             api(project(":komf-api-models"))
+            implementation(libs.kotlin.logging)
             implementation(libs.kotlinx.datetime)
             implementation(libs.kotlinx.serialization.json)
             implementation(libs.ktor.client.core)
             implementation(libs.ktor.client.content.negotiation)
+            implementation(libs.ktor.client.encoding)
             implementation(libs.ktor.serialization.kotlinx.json)
         }
     }
 
 }
 
+
 mavenPublishing {
     publishToMavenCentral(automaticRelease = false)
     coordinates("io.github.snd-r.komf", "client", libs.versions.app.version.get())
+    signAllPublications()
 
     pom {
         name.set("Komf API client")
@@ -69,4 +77,7 @@ mavenPublishing {
             developerConnection.set("scm:git:ssh://git@github.com/Snd-R/komf.git")
         }
     }
+}
+signing {
+    useGpgCmd()
 }

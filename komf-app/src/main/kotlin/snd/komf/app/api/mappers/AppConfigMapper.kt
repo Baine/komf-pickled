@@ -24,6 +24,7 @@ import snd.komf.api.config.PublisherTagNameConfigDto
 import snd.komf.api.config.SeriesMetadataConfigDto
 import snd.komf.api.config.SpecYAMLConfigDto
 import snd.komf.app.config.AppConfig
+import snd.komf.mangabaka.model.MangaBakaImportMetadata
 import snd.komf.mediaserver.config.EventListenerConfig
 import snd.komf.mediaserver.config.KavitaConfig
 import snd.komf.mediaserver.config.KomgaConfig
@@ -42,17 +43,22 @@ import snd.komf.providers.ProviderConfig
 import snd.komf.providers.ProvidersConfig
 import snd.komf.providers.SeriesMetadataConfig
 import snd.komf.providers.SpecYAMLConfig
-import snd.komf.providers.mangabaka.db.MangaBakaDbMetadata
+import kotlin.time.Instant
 
 class AppConfigMapper {
     private val maskedPlaceholder = "********"
 
     fun toDto(
         config: AppConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata
+        mangaBakaDbMetadata: MangaBakaImportMetadata?,
+        bookWalkerDbTimestamp: Instant?
     ): KomfConfig {
         return KomfConfig(
-            metadataProviders = toDto(config.metadataProviders, mangaBakaDbMetadata),
+            metadataProviders = toDto(
+                config = config.metadataProviders,
+                mangaBakaDbMetadata = mangaBakaDbMetadata,
+                bookWalkerDbTimestamp = bookWalkerDbTimestamp
+            ),
             komga = toDto(config.komga),
             kavita = toDto(config.kavita),
             notifications = toDto(config.notifications),
@@ -126,7 +132,8 @@ class AppConfigMapper {
 
     private fun toDto(
         config: MetadataProvidersConfig,
-        mangaBakaDbMetadata: MangaBakaDbMetadata
+        mangaBakaDbMetadata: MangaBakaImportMetadata?,
+        bookWalkerDbTimestamp: Instant?
     ): MetadataProvidersConfigDto {
         val malClientId = config.malClientId?.let { clientId ->
             if (clientId.length < 32) maskedPlaceholder
@@ -150,35 +157,36 @@ class AppConfigMapper {
                 .map { (libraryId, config) -> libraryId to toDto(config) }
                 .toMap(),
             mangaBakaDatabase = toDto(mangaBakaDbMetadata),
+            bookWalkerDownloadDate = bookWalkerDbTimestamp
         )
     }
 
-    fun toDto(metadata: MangaBakaDbMetadata): MangaBakaDatabaseDto? {
-        val timestamp = metadata.timestamp
-        val checksum = metadata.checksum
-        return if (timestamp == null || checksum == null) null
-        else MangaBakaDatabaseDto(
-            downloadTimestamp = timestamp,
-            checksum = checksum
+    fun toDto(metadata: MangaBakaImportMetadata?): MangaBakaDatabaseDto? {
+        if (metadata == null) return null
+        return MangaBakaDatabaseDto(
+            downloadTimestamp = metadata.timestamp,
+            checksum = metadata.checksum
         )
     }
 
     private fun toDto(config: ProvidersConfig): ProvidersConfigDto {
         return ProvidersConfigDto(
-            mangaUpdates = toDto(config.mangaUpdates),
-            mal = toDto(config.mal),
-            nautiljon = toDto(config.nautiljon),
-            aniList = toDto(config.aniList),
-            yenPress = toDto(config.yenPress),
-            kodansha = toDto(config.kodansha),
-            viz = toDto(config.viz),
+            mangaBaka = toDto(config.mangaBaka),
             bookWalker = toDto(config.bookWalker),
             mangaDex = toDto(config.mangaDex),
-            bangumi = toDto(config.bangumi),
+            mangaUpdates = toDto(config.mangaUpdates),
+            aniList = toDto(config.aniList),
+            mal = toDto(config.mal),
             comicVine = toDto(config.comicVine),
-            hentag = toDto(config.hentag),
+
+            nautiljon = toDto(ProviderConfig()),
+            yenPress = toDto(config.yenPress),
+            kodansha = toDto(ProviderConfig()),
+            viz = toDto(config.viz),
+            bangumi = toDto(config.bangumi),
+            hentag = toDto(ProviderConfig()),
+
             german = toDto(config.german),
-            mangaBaka = toDto(config.mangaBaka),
             webtoons = toDto(config.webtoons),
             chaikaFile = toDto(config.chaikaFile),
             hdoujin = toDto(config.hdoujin),
