@@ -482,7 +482,7 @@ private fun MediaServerBookMetadataUpdate.toKavitaChapterMetadataUpdate(currentC
         tags = tags?.let { deduplicate(it) }?.map { KavitaTag(id = 0, title = it) } ?: currentChapter.tags,
         ageRating = currentChapter.ageRating,
         language = currentChapter.language,
-        weblinks = links?.joinToString(",") { it.url } ?: currentChapter.webLinks,
+        webLinks = links?.joinToString(",") { it.url } ?: currentChapter.webLinks,
         isbn = isbn ?: currentChapter.isbn,
         releaseDate = releaseDate?.atTime(LocalTime(0, 0, 0)) ?: currentChapter.releaseDate,
         titleName = title ?: currentChapter.titleName,

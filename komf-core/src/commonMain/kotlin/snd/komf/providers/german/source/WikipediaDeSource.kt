@@ -36,11 +36,13 @@ class WikipediaDeSource(
                 parameters.append("format", "json")
             }
         }.body()
-        val parsed = json.parseToJsonElement(response).jsonArray
-        if (parsed.size < 3) return emptyList()
-        val titles = parsed[1].jsonArray.map { it.jsonPrimitive.content }
-        val descriptions = parsed[2].jsonArray.map { it.jsonPrimitive.content }
-        val urls = parsed[3].jsonArray.map { it.jsonPrimitive.content }
+        val parsed = json.parseToJsonElement(response)
+        // ponytail: opensearch returns [query, titles, descs, urls]; guard against non-array error bodies
+        val arr = parsed as? kotlinx.serialization.json.JsonArray ?: return emptyList()
+        if (arr.size < 3) return emptyList()
+        val titles = arr[1].jsonArray.map { it.jsonPrimitive.content }
+        val descriptions = arr[2].jsonArray.map { it.jsonPrimitive.content }
+        val urls = arr[3].jsonArray.map { it.jsonPrimitive.content }
 
         return titles.mapIndexedNotNull { i, title ->
             val pageName = urls.getOrNull(i)?.substringAfter("/wiki/")?.replace("_", " ") ?: return@mapIndexedNotNull null

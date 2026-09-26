@@ -17,7 +17,7 @@ data class KavitaChapterMetadataUpdateRequest(
     val tags: Collection<KavitaTag>,
     val ageRating: KavitaAgeRating,
     val language: String? = null,
-    val weblinks: String,
+    val webLinks: String,
     val isbn: String,
     val releaseDate: LocalDateTime,
     val titleName: String,
