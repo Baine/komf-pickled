@@ -9,6 +9,7 @@ import io.ktor.server.routing.route
 import io.ktor.server.sse.sse
 import io.ktor.server.util.getOrFail
 import io.ktor.sse.ServerSentEvent
+import io.ktor.util.cio.ChannelWriteException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.first
@@ -66,9 +67,10 @@ class JobRoutes(
                 return@sse
             }
 
-            eventFlow
-                .takeWhile { it !is CompletionEvent }
-                .collect { event ->
+            try {
+                eventFlow
+                    .takeWhile { it !is CompletionEvent }
+                    .collect { event ->
                     when (event) {
                         is ProviderSeriesEvent -> send(
                             ServerSentEvent(json.encodeToString(event.toDto()), providerSeriesEventName)
@@ -100,6 +102,10 @@ class JobRoutes(
                         CompletionEvent -> this.cancel()
                     }
                 }
+            } catch (_: ChannelWriteException) {
+                // client disconnected while streaming job events (broken pipe);
+                // the job itself keeps running — nothing to log
+            }
         }
     }
 
