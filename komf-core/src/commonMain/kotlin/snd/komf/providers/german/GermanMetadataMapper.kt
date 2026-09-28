@@ -54,6 +54,7 @@ class GermanMetadataMapper(
             thumbnail = thumbnail,
             totalBookCount = series.numberOfVolumes,
             ageRating = series.ageRating,
+            language = "de",
             releaseDate = series.startYear?.let { ReleaseDate(it, null, null) },
             links = listOf(WebLink(series.source.label, seriesUrl(series.id, series.source))),
             score = series.score,
@@ -80,7 +81,8 @@ class GermanMetadataMapper(
         val metadata = BookMetadata(
             title = volume.title,
             summary = volume.description,
-            number = BookRange(volume.number.toDouble()),
+            // 0 = "no number known" (source falls back through number/numberOverride/arrangement)
+            number = volume.number.takeIf { it > 0 }?.let { BookRange(it.toDouble()) },
             releaseDate = volume.releaseDate,
             isbn = volume.isbn,
             thumbnail = thumbnail,

@@ -11,6 +11,7 @@ import snd.komf.model.SeriesSearchResult
 import snd.komf.providers.CoreProviders
 import snd.komf.providers.MetadataProvider
 import snd.komf.providers.german.model.DataSource
+import snd.komf.providers.german.model.GermanSearchResult
 import snd.komf.providers.german.model.GermanSeriesId
 import snd.komf.providers.german.source.GermanDataSource
 import snd.komf.util.NameSimilarityMatcher
@@ -78,7 +79,7 @@ class GermanMetadataProvider(
 
     override suspend fun matchSeriesMetadata(matchQuery: MatchQuery): ProviderSeriesMetadata? {
         val seriesName = matchQuery.seriesName
-        val searchResults = mutableListOf<Pair<snd.komf.providers.german.model.GermanSearchResult, GermanDataSource>>()
+        val searchResults = mutableListOf<Pair<GermanSearchResult, GermanDataSource>>()
 
         for (source in sources.sortedBy { it.source.priority }) {
             val results = source.searchSeries(seriesName.take(200), 5)

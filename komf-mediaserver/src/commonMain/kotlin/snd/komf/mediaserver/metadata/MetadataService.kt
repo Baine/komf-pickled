@@ -316,6 +316,7 @@ class MetadataService(
             return books.associateWith { book ->
                 val bookNumber = getBookNumber(book.name)
                 editionBooks[editionName]?.firstOrNull { it.number != null && bookNumber == it.number }
+                    ?: editionBooks[editionName]?.firstOrNull { matchByName(book.name, it) }
             }
         }
 
@@ -335,8 +336,18 @@ class MetadataService(
             val bookNumber = getBookNumber(book.name)
             val providerBook = editionBooks[edition]
                 ?.firstOrNull { it.number != null && it.number == bookNumber }
+                ?: editionBooks[edition]?.firstOrNull { matchByName(book.name, it) }
             book to providerBook
         }.toMap()
+    }
+
+    /**
+     * Fallback for provider books without a volume number (e.g. manga-passion special
+     * editions): match when the provider book's title appears in the server filename.
+     */
+    private fun matchByName(bookName: String, providerBook: SeriesBook): Boolean {
+        val name = providerBook.name?.takeIf { it.length >= 4 } ?: return false
+        return bookName.contains(name, ignoreCase = true)
     }
 
     private fun getBookNumber(bookName: String): BookRange? {
