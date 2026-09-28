@@ -22,6 +22,8 @@ import io.ktor.server.response.respondBytes
 import io.ktor.server.routing.get
 import io.ktor.server.routing.route
 import io.ktor.server.routing.routing
+import io.ktor.util.cio.ChannelWriteException
+import io.ktor.utils.io.ClosedWriteChannelException
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.map
 import kotlinx.serialization.json.Json
@@ -44,6 +46,7 @@ import snd.komf.notifications.apprise.AppriseVelocityTemplates
 import snd.komf.notifications.discord.DiscordVelocityTemplates
 import snd.komf.notifications.discord.DiscordWebhookService
 import snd.komf.providers.bookwalker.db.BookWalkerDbDownloader
+import java.io.IOException
 
 private val logger = KotlinLogging.logger { }
 
@@ -72,6 +75,9 @@ class ServerModule(
 
         install(CachingHeaders)
         install(StatusPages) {
+            exception<ChannelWriteException> { _, cause ->
+                if (!cause.isClientDisconnect()) logger.catching(cause)
+            }
             exception<IllegalStateException> { call, cause ->
                 logger.catching(cause)
                 call.respond(
@@ -174,6 +180,11 @@ class ServerModule(
         server.start(wait = true)
     }
 }
+
+private fun Throwable.isClientDisconnect(): Boolean =
+    generateSequence(this) { it.cause }.any {
+        it is ClosedWriteChannelException || (it is IOException && it.message.equals("Broken pipe", ignoreCase = true))
+    }
 
 class ApiRouteDependencies(
     val config: AppConfig,
