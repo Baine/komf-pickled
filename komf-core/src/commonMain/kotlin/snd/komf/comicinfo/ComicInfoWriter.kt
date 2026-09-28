@@ -131,10 +131,17 @@ class ComicInfoWriter private constructor(private val overrideComicInfo: Boolean
         file.entries.asSequence()
             .filter { it.name != COMIC_INFO }
             .forEach { entry ->
-                file.getInputStream(entry).use { entryStream ->
-                    output.putArchiveEntry(entry)
-                    IOUtils.copyLarge(entryStream, output, ByteArray(4096))
-                    output.closeArchiveEntry()
+                // raw copy keeps the original compressed bytes (no decompress + recompress);
+                // getRawInputStream is null for methods other than STORED/DEFLATED
+                val rawStream = file.getRawInputStream(entry)
+                if (rawStream != null) {
+                    rawStream.use { output.addRawArchiveEntry(entry, it) }
+                } else {
+                    file.getInputStream(entry).use { entryStream ->
+                        output.putArchiveEntry(entry)
+                        IOUtils.copyLarge(entryStream, output, ByteArray(64 * 1024))
+                        output.closeArchiveEntry()
+                    }
                 }
             }
     }
