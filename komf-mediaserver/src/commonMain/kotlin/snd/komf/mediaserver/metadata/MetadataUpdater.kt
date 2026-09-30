@@ -42,7 +42,11 @@ class MetadataUpdater(
     suspend fun updateMetadata(series: MediaServerSeries, metadata: SeriesAndBookMetadata) {
         val processedMetadata = postProcessor.process(metadata)
         updateSeriesMetadata(series, processedMetadata.seriesMetadata)
-        updateBookMetadata(unprocessedMetadata = metadata, processedMetadata = processedMetadata)
+        updateBookMetadata(
+            unprocessedMetadata = metadata,
+            processedMetadata = processedMetadata,
+            seriesName = series.name,
+        )
 
         if (updateModes.any { it in requireMetadataRefresh })
             mediaServerClient.refreshMetadata(series.libraryId, series.id)
@@ -90,7 +94,8 @@ class MetadataUpdater(
 
     private suspend fun updateBookMetadata(
         unprocessedMetadata: SeriesAndBookMetadata,
-        processedMetadata: SeriesAndBookMetadata
+        processedMetadata: SeriesAndBookMetadata,
+        seriesName: String,
     ) {
         val bookIdToWriteSeriesMetadata = bookToWriteSeriesMetadata(unprocessedMetadata.bookMetadata)
 
@@ -99,7 +104,8 @@ class MetadataUpdater(
                 book,
                 metadata,
                 processedMetadata.seriesMetadata,
-                book.id == bookIdToWriteSeriesMetadata
+                book.id == bookIdToWriteSeriesMetadata,
+                seriesName,
             )
         }
     }
@@ -108,7 +114,8 @@ class MetadataUpdater(
         book: MediaServerBook,
         metadata: BookMetadata?,
         seriesMeta: SeriesMetadata,
-        writeSeriesMetadata: Boolean
+        writeSeriesMetadata: Boolean,
+        seriesName: String,
     ) {
         logger.info { "updating book ${book.name}" }
         updateModes.forEach { mode ->
@@ -121,8 +128,8 @@ class MetadataUpdater(
                     if (book.deleted) return@forEach
 
                     val comicInfo =
-                        if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata, book)
-                        else metadataUpdateMapper.toComicInfo(metadata, seriesMeta, book)
+                        if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata, book, seriesName)
+                        else metadataUpdateMapper.toComicInfo(metadata, seriesMeta, book, seriesName)
 
                     comicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
                 }

@@ -84,12 +84,17 @@ class MetadataMapper(private val libraryType: MediaType) {
             )
         }
 
-    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?, book: MediaServerBook): ComicInfo? {
+    fun toComicInfo(
+        bookMetadata: BookMetadata?,
+        seriesMetadata: SeriesMetadata?,
+        book: MediaServerBook,
+        seriesName: String,
+    ): ComicInfo? {
         val authors =
             ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata?.title?.name ?: book.seriesTitle,
+            series = seriesName,
             number = comicInfoNumber(bookMetadata, book),
             count = seriesMetadata?.totalBookCount,
             volume = comicInfoVolume(book),
@@ -122,11 +127,16 @@ class MetadataMapper(private val libraryType: MediaType) {
         )
     }
 
-    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?, book: MediaServerBook): ComicInfo {
+    fun toSeriesComicInfo(
+        seriesMetadata: SeriesMetadata,
+        bookMetadata: BookMetadata?,
+        book: MediaServerBook,
+        seriesName: String,
+    ): ComicInfo {
         val authors = seriesMetadata.authors.ifEmpty { null }
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata.title?.name ?: book.seriesTitle,
+            series = seriesName,
             number = comicInfoNumber(bookMetadata, book),
             count = seriesMetadata.totalBookCount,
             volume = comicInfoVolume(book),
