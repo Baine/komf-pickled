@@ -19,6 +19,7 @@ import snd.komf.model.AuthorRole.WRITER
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
 import snd.komf.model.SeriesMetadata
+import snd.komf.util.BookNameParser
 
 class MetadataMapper {
 
@@ -82,15 +83,19 @@ class MetadataMapper {
             )
         }
 
-    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?): ComicInfo? {
+    fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?, book: MediaServerBook): ComicInfo? {
         if (bookMetadata == null && seriesMetadata == null) return null
         val authors =
             ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
+        val parsedVolume = BookNameParser.getVolumes(book.name)?.start
+            ?.takeIf { it % 1.0 == 0.0 }
+            ?.toInt()
+        val chapterOnly = parsedVolume == null && BookNameParser.getChapters(book.name) != null
 
         return ComicInfo(
             title = bookMetadata?.title,
             series = seriesMetadata?.title?.name,
-            number = bookMetadata?.number?.toString(),
+            number = parsedVolume?.toString() ?: if (chapterOnly) null else bookMetadata?.number?.toString(),
             count = seriesMetadata?.totalBookCount,
             summary = bookMetadata?.summary,
             year = bookMetadata?.releaseDate?.year,
@@ -120,12 +125,16 @@ class MetadataMapper {
         )
     }
 
-    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?): ComicInfo {
+    fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?, book: MediaServerBook): ComicInfo {
         val authors = seriesMetadata.authors.ifEmpty { null }
+        val parsedVolume = BookNameParser.getVolumes(book.name)?.start
+            ?.takeIf { it % 1.0 == 0.0 }
+            ?.toInt()
+        val chapterOnly = parsedVolume == null && BookNameParser.getChapters(book.name) != null
         return ComicInfo(
             title = bookMetadata?.title,
             series = seriesMetadata.title?.name,
-            number = bookMetadata?.number?.toString(),
+            number = parsedVolume?.toString() ?: if (chapterOnly) null else bookMetadata?.number?.toString(),
             count = seriesMetadata.totalBookCount,
             summary = seriesMetadata.summary,
             year = seriesMetadata.releaseDate?.year,

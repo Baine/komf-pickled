@@ -121,8 +121,8 @@ class MetadataUpdater(
                     if (book.deleted) return@forEach
 
                     val comicInfo =
-                        if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata)
-                        else metadataUpdateMapper.toComicInfo(metadata, seriesMeta)
+                        if (writeSeriesMetadata) metadataUpdateMapper.toSeriesComicInfo(seriesMeta, metadata, book)
+                        else metadataUpdateMapper.toComicInfo(metadata, seriesMeta, book)
 
                     comicInfo?.let { comicInfoWriter.writeMetadata(book.url, it) }
                 }
