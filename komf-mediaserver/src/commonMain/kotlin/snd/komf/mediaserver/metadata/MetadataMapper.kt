@@ -18,10 +18,11 @@ import snd.komf.model.AuthorRole.TRANSLATOR
 import snd.komf.model.AuthorRole.WRITER
 import snd.komf.model.AuthorRole
 import snd.komf.model.BookMetadata
+import snd.komf.model.MediaType
 import snd.komf.model.SeriesMetadata
 import snd.komf.util.BookNameParser
 
-class MetadataMapper {
+class MetadataMapper(private val libraryType: MediaType) {
 
     fun toBookMetadataUpdate(
         bookMetadata: BookMetadata?,
@@ -84,19 +85,15 @@ class MetadataMapper {
         }
 
     fun toComicInfo(bookMetadata: BookMetadata?, seriesMetadata: SeriesMetadata?, book: MediaServerBook): ComicInfo? {
-        if (bookMetadata == null && seriesMetadata == null) return null
         val authors =
             ((bookMetadata?.authors?.ifEmpty { seriesMetadata?.authors }) ?: seriesMetadata?.authors)?.ifEmpty { null }
-        val parsedVolume = BookNameParser.getVolumes(book.name)?.start
-            ?.takeIf { it % 1.0 == 0.0 }
-            ?.toInt()
-        val chapterOnly = parsedVolume == null && BookNameParser.getChapters(book.name) != null
-
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata?.title?.name,
-            number = parsedVolume?.toString() ?: if (chapterOnly) null else bookMetadata?.number?.toString(),
+            series = seriesMetadata?.title?.name ?: book.seriesTitle,
+            number = comicInfoNumber(bookMetadata, book),
             count = seriesMetadata?.totalBookCount,
+            volume = comicInfoVolume(book),
+            manga = comicInfoMangaFlag(),
             summary = bookMetadata?.summary,
             year = bookMetadata?.releaseDate?.year,
             month = bookMetadata?.releaseDate?.month?.number,
@@ -127,15 +124,13 @@ class MetadataMapper {
 
     fun toSeriesComicInfo(seriesMetadata: SeriesMetadata, bookMetadata: BookMetadata?, book: MediaServerBook): ComicInfo {
         val authors = seriesMetadata.authors.ifEmpty { null }
-        val parsedVolume = BookNameParser.getVolumes(book.name)?.start
-            ?.takeIf { it % 1.0 == 0.0 }
-            ?.toInt()
-        val chapterOnly = parsedVolume == null && BookNameParser.getChapters(book.name) != null
         return ComicInfo(
             title = bookMetadata?.title,
-            series = seriesMetadata.title?.name,
-            number = parsedVolume?.toString() ?: if (chapterOnly) null else bookMetadata?.number?.toString(),
+            series = seriesMetadata.title?.name ?: book.seriesTitle,
+            number = comicInfoNumber(bookMetadata, book),
             count = seriesMetadata.totalBookCount,
+            volume = comicInfoVolume(book),
+            manga = comicInfoMangaFlag(),
             summary = seriesMetadata.summary,
             year = seriesMetadata.releaseDate?.year,
             month = seriesMetadata.releaseDate?.month,
@@ -158,6 +153,32 @@ class MetadataMapper {
             storyArcNumber = bookMetadata?.storyArcs?.joinToString(",") { it.number.toString() },
             gtin = bookMetadata?.isbn
         )
+    }
+
+    private fun comicInfoNumber(bookMetadata: BookMetadata?, book: MediaServerBook): String? {
+        val volumes = BookNameParser.getVolumes(book.name)
+        val singleIntegerVolume = volumes?.takeIf { it.start == it.end && it.start % 1.0 == 0.0 }
+            ?.start?.toInt()
+        return when (libraryType) {
+            MediaType.MANGA -> singleIntegerVolume?.toString()
+                ?: if (volumes != null || BookNameParser.getChapters(book.name) != null) null
+                else bookMetadata?.number?.toString()
+            MediaType.COMIC -> bookMetadata?.number?.toString()
+                ?: BookNameParser.getBookNumber(book.name)?.toString()
+            MediaType.NOVEL, MediaType.WEBTOON -> bookMetadata?.number?.toString()
+        }
+    }
+
+    private fun comicInfoVolume(book: MediaServerBook): Int? {
+        if (libraryType != MediaType.COMIC) return null
+        val range = BookNameParser.getVolumes(book.name) ?: return null
+        return range.start.takeIf { range.start == range.end && it % 1.0 == 0.0 }?.toInt()
+    }
+
+    private fun comicInfoMangaFlag(): String? = when (libraryType) {
+        MediaType.MANGA -> "Yes"
+        MediaType.COMIC -> "No"
+        MediaType.NOVEL, MediaType.WEBTOON -> null
     }
 
     private fun <T> getIfNotLockedOrEmpty(patched: T?, lock: Boolean): T? =
